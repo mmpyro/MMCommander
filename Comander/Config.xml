@@ -1,0 +1,13 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<Configuration>
+  <AppSection>
+    <Program name="notepad">notepad++.exe</Program>
+    <Program name="cmd">cmd.exe</Program>
+    <Program name="web">chrome.exe</Program>
+  </AppSection>
+  <ShortCuts>
+    <ShortCut>D:\test</ShortCut>
+    <ShortCut>D:\ssh</ShortCut>
+    <ShortCut>D:\MMCommander</ShortCut>
+  </ShortCuts>
+</Configuration>

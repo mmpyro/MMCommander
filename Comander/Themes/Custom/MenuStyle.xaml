@@ -1,0 +1,16 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <Style TargetType="Menu">
+        <Setter Property="Background" Value="#FF181818"/>
+        <Setter Property="Foreground" Value="#FFBABABA"/>
+        <Setter Property="FontWeight" Value="Bold"/>
+        <Setter Property="BorderBrush" Value="Aqua"/>
+        <Setter Property="BorderThickness" Value="2"/>
+    </Style>
+    <Style TargetType="MenuItem">
+        <Setter Property="Background" Value="#FF181818"/>
+        <Setter Property="Foreground" Value="#FFBABABA"/>
+        <Setter Property="FontWeight" Value="Bold"/>
+        <Setter Property="BorderBrush" Value="Transparent"/>
+    </Style>
+</ResourceDictionary>

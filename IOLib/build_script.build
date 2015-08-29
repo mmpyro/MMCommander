@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<project name="Console App1" default="build" basedir="./bin/Build">
+	<property name="debug" value="true" overwrite="false" />
+	<property name="lib" value="IOLib.dll" readonly="true"/>
+	<target name="clean" descryption="remove all files">
+		<delete file="./${lib}" failonerror="false"/>
+		<echo message="Clean"/>
+	</target>
+	<target name="build" depends="clean" descryption="compiles project">
+		<echo message="Build my project" />
+		<csc target="library" output="./${lib}" debug="${debug}">
+			<sources>
+				<includes name="../../*.cs" />
+			</sources>
+		</csc>
+	</target>
+</project>

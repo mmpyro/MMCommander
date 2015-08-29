@@ -1,0 +1,26 @@
+﻿<Application x:Class="Comander.App"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="clr-namespace:Comander.ViewModel"
+             xmlns:converters="clr-namespace:Comander.Converters"
+             StartupUri="MainWindow.xaml">
+    <Application.Resources>
+        <converters:FileNameConverter x:Key="FileNameConverter"/>
+        <converters:FileTypeConverter x:Key="FileTypeConverter"/>
+        <converters:FileSizeConverter x:Key="SizeConverter"/>
+        <converters:SelectedConverter x:Key="SelectedConverter"/>   
+        <converters:LogIconConverter x:Key="LogIconConverter"/>
+        <converters:LogMessageConverter x:Key="LogMessageConverter"/>
+        <converters:VisibilityConverter x:Key="VisibilityConverter"/>
+        <converters:EnableConverter x:Key="EnableConverter"/>
+        <converters:InverseBoolConverter x:Key="InverseBoolConverter"/>
+        <vm:Locator x:Key="Locator"/>
+        <ControlTemplate x:Key="imageButtonTemplate" TargetType="Button">
+            <Border Padding="{TemplateBinding Padding}" BorderBrush="Aqua" Background="{TemplateBinding Background}" CornerRadius="5" BorderThickness="2" HorizontalAlignment="Center">
+                <DockPanel>
+                    <ContentPresenter/>
+                </DockPanel>
+            </Border>
+        </ControlTemplate>
+    </Application.Resources>
+</Application>

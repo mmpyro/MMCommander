@@ -1,0 +1,8 @@
+﻿<Window x:Class="Search.SearchWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Search" Name="MainWindow" Height="300" Width="400" WindowStartupLocation="CenterScreen" ResizeMode="CanMinimize" Icon="../Icons/search.png" Background="#FF181818">
+    <StackPanel>
+        <Frame NavigationUIVisibility="Hidden" Source="./Pages/SettingsPage.xaml"/>
+    </StackPanel>
+</Window>

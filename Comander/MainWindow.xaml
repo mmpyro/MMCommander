@@ -1,0 +1,87 @@
+﻿<Window x:Class="Comander.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:local="clr-namespace:Comander.View"
+        xmlns:controls="clr-namespace:Comander.Controls"
+        Title="MMCommander" Name="Main" Icon="Icons/main.ico" Height="535.714" Width="1000" Closed="MainWindow_OnClosed"
+        DataContext="{Binding Main, Source={StaticResource Locator}}" Background="#FF181818">
+<Window.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="Themes/MetroDark/MetroDark.MSControls.Core.Implicit.xaml" />
+                <ResourceDictionary Source="Themes/MetroDark/MetroDark.MSControls.Toolkit.Implicit.xaml"/>
+                <ResourceDictionary Source="Themes/Custom/MenuStyle.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </Window.Resources>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="25"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="35"/>
+        </Grid.RowDefinitions>        
+        <Menu Grid.Row="0">
+            <MenuItem Header="Options" >
+                <MenuItem Header="Switch" Command="{Binding SwitchCommand}"/>
+                <MenuItem Header="Reload drives"  Command="{Binding RefreshCommand}" />
+                <MenuItem Header="Clen logs" Command="{Binding ClearLogCommand}"/>
+            </MenuItem>
+            <MenuItem Header="Run" >
+                <MenuItem Header="Notepad" Command="{Binding RunNotepadCommand}" />
+                <MenuItem Header="Cmd" Command="{Binding RunCmdCommand}" />
+            </MenuItem>
+            <MenuItem Header="Tools" >
+                <MenuItem Header="Compare Dir" Command="{Binding CompareDirCommand}" />
+                <MenuItem Header="Compare Files"  Command="{Binding GenericCommand}" CommandParameter="Name:Compare Files"/>
+                <MenuItem Header="Split"  Command="{Binding SplitFileCommand}"/>
+                <MenuItem Header="Join"  Command="{Binding JoinFileCommand}"/>
+                <MenuItem Header="Search" Command="{Binding SearchCommand}"/>
+            </MenuItem>
+            <MenuItem Header="Help">
+                <MenuItem Header="Manual"/>
+                <MenuItem Header="Keymap" Command="{Binding KeyMapCommand}"/>
+                <MenuItem Header="About" Command="{Binding AboutCommand}"/>
+            </MenuItem>
+        </Menu>
+        <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="2*"/>
+                <ColumnDefinition Width="10"/>
+                <ColumnDefinition Width="2*"/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            <local:CommandWindow Grid.Column="0" Manager="{Binding Io1}"/>
+            <GridSplitter Grid.Column="1" HorizontalAlignment="Stretch"/>
+            <local:CommandWindow Grid.Column="2" Manager="{Binding Io2}"/>
+        </Grid>
+        <Grid Grid.Row="2" Grid.Column="0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="10"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <controls:IOGrid DataContext="{Binding Io1}"/>
+            <GridSplitter Width="10" HorizontalAlignment="Stretch" Grid.Column="1"/>
+            <controls:IOGrid DataContext="{Binding Io2}" Grid.Column="2"/>
+        </Grid>
+        <Grid Grid.Row="3">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="30"/>
+                <ColumnDefinition Width="30"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="4*"/>
+                <ColumnDefinition Width="40"/>
+                <ColumnDefinition Width="40"/>
+            </Grid.ColumnDefinitions>
+            <controls:Worker Width="30" Height="30" x:Name="ProgressWorker" Background="#FF181818" Foreground="Aqua" ElipseSize="3" NumberOfEllipses="5" Radius="10" Grid.Column="0" />
+            <Image Width="20" Height="20" Grid.Column="1" Source="{Binding CurrentLogMsg,Converter={StaticResource LogIconConverter}}"/>
+            <TextBlock Foreground="White" Padding="5,10,0,0" Text="{Binding LogCount}" Grid.Column="2"/>
+            <TextBlock Foreground="White" Padding="5,10,0,0" Text="{Binding CurrentLogMsg, Converter={StaticResource LogMessageConverter}}" Grid.Column="3"/>
+            <Button FontWeight="ExtraBold" Grid.Column="4" Content="&lt;" Command="{Binding PreviusLogCommand}" />
+            <Button FontWeight="ExtraBold" Grid.Column="5" Content="&gt;" Command="{Binding NextLogCommand}" />
+        </Grid>
+    </Grid>
+</Window>

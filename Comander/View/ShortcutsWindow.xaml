@@ -1,0 +1,24 @@
+﻿<Window x:Class="Comander.View.ShortcutsWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Shortcuts" Height="300" Width="300" WindowStartupLocation="CenterScreen">
+    <Window.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="../Themes/MetroDark/MetroDark.MSControls.Core.Implicit.xaml" />
+                <ResourceDictionary Source="../Themes/MetroDark/MetroDark.MSControls.Toolkit.Implicit.xaml" />
+                <ResourceDictionary Source="../Themes/Custom/CoWindowDictionary.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </Window.Resources>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="25"/>
+            <RowDefinition Height="25"/>
+        </Grid.RowDefinitions>
+        <ListView Name="ListView" />
+        <Button Name="RemoveButton" Click="RemoveButton_OnClick" Content="Remove" Foreground="Red" Grid.Row="1"/>
+        <Button Name="SelectButton" Click="SelectButton_OnClick" Content="Select" Grid.Row="2"/>
+    </Grid>
+</Window>

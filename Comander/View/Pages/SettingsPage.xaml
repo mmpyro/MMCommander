@@ -1,0 +1,85 @@
+﻿<Page x:Class="Search.View.SettingsPage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+      xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+      mc:Ignorable="d" 
+      d:DesignHeight="250" d:DesignWidth="400"
+	Title="SettingsPage" DataContext="{Binding SettingsVm, Source={StaticResource Locator}}">
+    <Page.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="../../Themes/MetroDark/MetroDark.MSControls.Core.Implicit.xaml" />
+                <ResourceDictionary Source="../../Themes/MetroDark/MetroDark.MSControls.Toolkit.Implicit.xaml"/>
+                <ResourceDictionary Source="../../Themes/Custom/SearchStyle.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </Page.Resources>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="40"/>
+            <RowDefinition Height="40"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="40"/>
+        </Grid.RowDefinitions>
+        <StackPanel Grid.Row="0" Orientation="Horizontal">
+            <TextBlock Width="60" TextAlignment="Center" Text="Where:" Margin="0,10,10,0"/>
+            <TextBox Text="{Binding RootPath}" IsReadOnly="True" Width="270"/>
+            <Button Command="{Binding SetDirectoryCommand}" Width="50" Content="..."/>
+        </StackPanel>
+        <TextBox Name="FrazeBox" Grid.Row="1" Text="{Binding Fraze}" />
+        <Grid Grid.Row="2">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*"/>
+                <RowDefinition  Height="*"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            <TextBlock Margin="10,10,20,0" Text="Options:" Grid.Column="0"/>
+            <RadioButton Name="RegexRadio" Margin="7,0,0,0" Content="Regex" Grid.Row="0" Grid.Column="1" GroupName="Search">
+                <i:Interaction.Triggers>
+                    <i:EventTrigger EventName="Checked">
+                        <i:InvokeCommandAction Command="{Binding TypeCommand}" CommandParameter="Regex"/>
+                    </i:EventTrigger>
+                </i:Interaction.Triggers>
+            </RadioButton>
+            <RadioButton Name="OrdinaryRadio" Margin="7,0,0,0" Content="Text" Grid.Row="0" Grid.Column="2" GroupName="Search" IsChecked="True">
+                <i:Interaction.Triggers>
+                    <i:EventTrigger EventName="Checked">
+                        <i:InvokeCommandAction Command="{Binding TypeCommand}" CommandParameter="Text"/>
+                    </i:EventTrigger>
+                </i:Interaction.Triggers>
+            </RadioButton>
+            <CheckBox IsChecked="{Binding Recursive, Mode=TwoWay}" Margin="0,10,0,0" VerticalAlignment="Center" Content="Recursive" Grid.Row="0" Grid.Column="3"/>
+            
+            <RadioButton Margin="7,0,0,0" Content="Whole" Grid.Row="1" Grid.Column="0" GroupName="Match" IsChecked="True" IsEnabled="{Binding ElementName=OrdinaryRadio, Path=IsChecked}">
+                <i:Interaction.Triggers>
+                    <i:EventTrigger EventName="Checked">
+                        <i:InvokeCommandAction Command="{Binding OptionCommand}" CommandParameter="Whole"/>
+                    </i:EventTrigger>
+                </i:Interaction.Triggers>
+            </RadioButton>
+            <RadioButton Margin="7,0,0,0" Content="Contains" Grid.Row="1" Grid.Column="1" GroupName="Match" IsEnabled="{Binding ElementName=OrdinaryRadio, Path=IsChecked}">
+                <i:Interaction.Triggers>
+                    <i:EventTrigger EventName="Checked">
+                        <i:InvokeCommandAction Command="{Binding OptionCommand}" CommandParameter="Contains"/>
+                    </i:EventTrigger>
+                </i:Interaction.Triggers>
+            </RadioButton>
+
+            <CheckBox IsChecked="{Binding CultureInvariant}" Margin="0,5,0,0" Content="CultureI" Grid.Row="2" Grid.Column="0" IsEnabled="{Binding ElementName=RegexRadio, Path=IsChecked}"/>
+            <CheckBox IsChecked="{Binding IgnoreCase}" Margin="0,5,0,0" Content="ICase" Grid.Row="2" Grid.Column="1" IsEnabled="{Binding ElementName=RegexRadio, Path=IsChecked}"/>
+            <CheckBox IsChecked="{Binding RigthToLeft}" Margin="0,5,0,0" Content="R to L" Grid.Row="2" Grid.Column="2" IsEnabled="{Binding ElementName=RegexRadio, Path=IsChecked}"/>
+            <CheckBox IsChecked="{Binding IgnorePatternWhiteSpace}" Margin="0,5,0,0" Content="IPW" Grid.Row="2" Grid.Column="3" IsEnabled="{Binding ElementName=RegexRadio, Path=IsChecked}"/>
+        </Grid>
+        <StackPanel Grid.Row="3">
+            <Button IsEnabled="{Binding ElementName=FrazeBox,Path=Text, Converter={StaticResource EnableConverter}}" Content="Search" Command="{Binding NavigationCommand}" />
+        </StackPanel>
+    </Grid>
+</Page>

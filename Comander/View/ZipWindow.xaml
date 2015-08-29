@@ -1,0 +1,41 @@
+﻿<Window x:Class="Comander.View.ZipWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Zip" Height="260" ResizeMode="CanMinimize" Background="#FF181818" 
+        WindowStartupLocation="CenterScreen" Icon="../Icons/icon.png" Width="350">
+    <Window.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="../Themes/MetroDark/MetroDark.MSControls.Core.Implicit.xaml" />
+                <ResourceDictionary Source="../Themes/MetroDark/MetroDark.MSControls.Toolkit.Implicit.xaml" />
+                <ResourceDictionary Source="../Themes/Custom/CoWindowDictionary.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </Window.Resources>
+    <StackPanel Orientation="Vertical" Width="330">
+        <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
+            <TextBlock Text="Archive Name:" Margin="5,0,20,0"/>
+            <TextBox TextChanged="ArchiveNameTextBox_OnTextChanged" Name="ArchiveNameTextBox" Width="150"/>
+        </StackPanel>
+        <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
+            <TextBlock Text="Destination:" Margin="5,0,35,0"/>
+            <TextBox IsReadOnly="True" Name="ArchivePathTextBox" Width="150"/>
+            <Button  Content="..." Width="50" Margin="5,0,0,0" Click="Button_Click_1"/>
+        </StackPanel>
+        <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
+            <TextBlock Text="Password:" Margin="5,0,80,0"/>
+            <PasswordBox Name="PasswordBox" PasswordChar="*" Width="115"/>
+        </StackPanel>
+        <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
+            <TextBlock Text="Confirm password:" Margin="5,0,31,0"/>
+            <PasswordBox Name="PasswordBox1" PasswordChar="*" Width="115"/>
+        </StackPanel>
+        <StackPanel>
+            <ComboBox Name="TypeBox" HorizontalAlignment="Left" Width="150"/>
+        </StackPanel>
+        <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
+            <TextBlock Name="StatusTextBlock" Margin="5,0,20,0" Width="220"/>
+            <Button Name="ExecuteButton" Content="Execute" Width="70" Click="ButtonBase_OnClick"/>
+        </StackPanel>
+    </StackPanel>
+</Window>

@@ -1,0 +1,34 @@
+﻿<Window x:Class="Comander.View.JoinWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Join file" Background="#FF181818" Height="200" Width="400" Icon="../Icons/icon.png"  ResizeMode="NoResize" WindowStartupLocation="CenterScreen">
+ <Window.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="../Themes/MetroDark/MetroDark.MSControls.Core.Implicit.xaml" />
+                <ResourceDictionary Source="../Themes/MetroDark/MetroDark.MSControls.Toolkit.Implicit.xaml" />
+                <ResourceDictionary Source="../Themes/Custom/CoWindowDictionary.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </Window.Resources>
+    <StackPanel Orientation="Vertical" Width="330">
+        <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
+            <TextBlock Text="File to join" Margin="8,0,45,0" />
+            <TextBox ToolTip="File to join"  Name="JoinPathTextBox" IsReadOnly="True" Width="150"/>
+            <Button Click="BrowseButton1_OnClick" Name="BrowseButton1" Content="..." Width="50"/>
+        </StackPanel>
+        <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
+            <TextBlock Text="File name:" Margin="10,0,45,0"/>
+            <TextBox TextChanged="FileNameTextBox_OnTextChanged" ToolTip="File name with extension" Name="FileNameTextBox" Width="200"/>
+        </StackPanel>
+        <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
+            <TextBlock Text="Destination path:" Margin="5,0,10,0"/>
+            <TextBox ToolTip="Destination folder" Name="PathTextBox" Width="150" IsReadOnly="True"/>
+            <Button Click="BrowseButton2_OnClick"  Name="BrowseButton2" Content="..." Width="50"/>
+        </StackPanel>
+        <StackPanel Orientation="Horizontal">
+            <TextBlock Name="StatusBlock" Margin="5,0,100,0" Width="150"/>
+            <Button Click="ExecuteButton_OnClick" Name="ExecuteButton" Content="Execute" Width="70"/>
+        </StackPanel>
+    </StackPanel>
+</Window>

@@ -1,0 +1,62 @@
+﻿<Window x:Class="Comander.View.ConfirmWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:type="clr-namespace:Comander.Controls"
+        Title="ConfirmWindow" Name="MainWindow" BorderBrush="Aqua" BorderThickness="2" Background="Black" AllowsTransparency="True" WindowStyle="None" Height="150" Width="330" ResizeMode="CanMinimize" WindowStartupLocation="CenterScreen" >
+    <Window.Triggers>
+        <EventTrigger RoutedEvent="Window.Loaded">
+            <BeginStoryboard>
+                <Storyboard>
+                    <DoubleAnimation Storyboard.TargetName="MainWindow"
+                                         Storyboard.TargetProperty="Height" From="1" To="150" BeginTime="0:0:0" Duration="0:0:1">
+                    </DoubleAnimation>
+                </Storyboard>
+            </BeginStoryboard>
+        </EventTrigger>
+    </Window.Triggers>
+    <Window.Resources>
+        <Style x:Key="ButtonStyle" TargetType="{x:Type type:ImageButton}">
+            <Setter Property="Background" Value="Black"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type type:ImageButton}" >
+                        <Image Source="{TemplateBinding ImageSource}" Width="32" Height="32"/>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style x:Key="BorderStyle" TargetType="Border">
+            <Setter Property="BorderBrush" Value="Aqua"/>
+            <Setter Property="CornerRadius" Value="5"/>
+            <Setter Property="BorderThickness" Value="2"/>
+        </Style>
+    </Window.Resources>
+    <StackPanel Orientation="Vertical" MouseLeftButtonDown="Move_OnMouseLeftButtonDown">
+        <Grid >
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="3*"/>
+            </Grid.ColumnDefinitions>
+            <DockPanel Background="Transparent" Width="40" Height="40" Grid.Column="0"  Margin="0,30,0,40" >
+                <Image Name="Image" Height="32" Width="32" />
+            </DockPanel>
+            <TextBlock Foreground="White" TextAlignment="Center" Name="InfoTextBlock" FontWeight="Bold" Height="50" Grid.Column="1" Margin="0,20,0,0"  />
+        </Grid>
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <DockPanel Margin="60,0,0,10" Width="40" Height="40" Grid.Column="0">
+                <Border Style="{StaticResource BorderStyle}">
+                    <type:ImageButton x:Name="AcceptButton" Click="AcceptButton_OnClick" Style="{StaticResource ButtonStyle}"  ImageSource="../Icons/Accept-48.png" Width="32" Height="32"   />
+                </Border>
+            </DockPanel>
+            <DockPanel Width="40" Height="40" Grid.Column="1" Margin="0,0,60,10">
+                <Border Style="{StaticResource BorderStyle}">
+                    <type:ImageButton x:Name="CancelButton" Click="CancelButton_OnClick" Style="{StaticResource ButtonStyle}"  ImageSource="../Icons/Cancel.png" Width="32" Height="32"  />
+                </Border>
+            </DockPanel>
+        </Grid>
+    </StackPanel>
+</Window>
