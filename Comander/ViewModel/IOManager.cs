@@ -429,7 +429,7 @@ namespace Comander.ViewModel
 
         private void RenameFile()
         {
-            InputWindow inputWindow = new InputWindow("Please enter the new file name", SelectedFile.Name);
+            var inputWindow = new InputWindow("Please enter the new file name", SelectedFile.Name);
             if (inputWindow.ShowDialog() == true)
             {
                 SelectedFile.Rename(inputWindow.InputName);

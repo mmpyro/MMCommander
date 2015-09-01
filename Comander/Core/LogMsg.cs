@@ -1,6 +1,6 @@
 using LogLib;
 
-namespace Comander.Other
+namespace Comander.Core
 {
     public class LogMsg
     {

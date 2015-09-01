@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using IOLib;
 using IOLibTest.helpers;
 using NUnit.Framework;
@@ -25,6 +26,7 @@ namespace IOLibTest
             //When
             file.Delete();
             //Then
+            Debug.WriteLine(file.FullName);
             Assert.IsFalse(FileHelper.Exist(Path));
         }
 

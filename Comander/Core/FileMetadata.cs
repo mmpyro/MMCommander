@@ -1,4 +1,4 @@
-﻿namespace Comander.Other
+﻿namespace Comander.Core
 {
     public class FileMetadata
     {

@@ -2,7 +2,7 @@
 using System.Linq;
 using Comander.CommanderIO;
 
-namespace Comander.Other
+namespace Comander.Core
 {
     public class FileMarker
     {

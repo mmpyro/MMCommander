@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Comander.Other
+namespace Comander.Core
 {
     public class AssemblyVersionResolver
     {

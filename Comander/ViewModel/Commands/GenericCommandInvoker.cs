@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Windows.Input;
-using Comander.Other;
+using Comander.Core;
 using LogLib;
 
 namespace Comander.ViewModel.Commands

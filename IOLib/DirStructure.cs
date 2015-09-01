@@ -3,10 +3,76 @@ using System.IO;
 
 namespace IOLib
 {
-    public class DirStructure : IAbstractFileStructure
+    public abstract class DirAbstractStructure : IAbstractFileStructure
+    {
+        protected DirectoryInfo _fileInfo;
+        public string Name
+        {
+            get { return _fileInfo.Name; }
+        }
+        public string FullName
+        {
+            get { return _fileInfo.FullName; }
+        }
+        public string Ext
+        {
+            get
+            {
+                return _fileInfo.Extension;
+            }
+        }
+        public DateTime CreationTime
+        {
+            get
+            {
+                return _fileInfo.CreationTime;
+            }
+        }
+        public DateTime LastAccessTime
+        {
+            get
+            {
+                return _fileInfo.LastAccessTime;
+            }
+        }
+        public DateTime LastModifyTime
+        {
+            get
+            {
+                return _fileInfo.LastWriteTime;
+            }
+        }
+        public bool IsDirectory
+        {
+            get { return true; }
+        }
+        public long Size
+        {
+            get { return 0; }
+        }
+        public bool IsReadOnly
+        {
+            get { return false; }
+        }
+        public FileAttributes Attributes
+        {
+            get
+            {
+                return _fileInfo.Attributes;
+            }
+            set { _fileInfo.Attributes = value; }
+        }
+
+        public abstract void Delete();
+        public abstract void Move(IAbstractFileStructure destinationDirectory);
+        public abstract void Copy(IAbstractFileStructure destinationDirectory, Func<string, bool> allowOverride);
+        public abstract void OverrideCopy(IAbstractFileStructure destinationDirectory);
+        public abstract void Rename(string newName);
+    }
+
+    public class DirStructure : DirAbstractStructure
     {
         private readonly IFileFactory _fileFactory;
-        private DirectoryInfo _fileInfo;
 
         public DirStructure(string path, IFileFactory fileFactory)
         {
@@ -25,88 +91,19 @@ namespace IOLib
             _fileInfo = new DirectoryInfo(directoryPath);
         }
 
-        #region newProperty
-
-        public  string Name
-        {
-            get { return _fileInfo.Name; }
-        }
-
-        public  string FullName
-        {
-            get { return _fileInfo.FullName; }
-        }
-
-        public  string Ext
-        {
-            get
-            {
-                return _fileInfo.Extension;
-            }
-        }
-
-        public  DateTime CreationTime
-        {
-            get
-            {
-                return _fileInfo.CreationTime;
-            }
-        }
-
-        public  DateTime LastAccessTime
-        {
-            get
-            {
-                return _fileInfo.LastAccessTime;
-            }
-        }
-
-        public  DateTime LastModifyTime
-        {
-            get
-            {
-                return _fileInfo.LastWriteTime;
-            }
-        }
-
-        public  bool IsDirectory
-        {
-            get { return true; }
-        }
-
-        public  long Size
-        {
-            get { return 0; }
-        }
-
-        public  bool IsReadOnly
-        {
-            get { return false; }
-        }
-
-        public  FileAttributes Attributes
-        {
-            get
-            {
-                return _fileInfo.Attributes;
-            }
-            set { _fileInfo.Attributes = value; }
-        }
-        #endregion
-
-        public void Delete()
+        public override void Delete()
         {
             Directory.Delete(FullName, true);
         }
 
-        public void Move(IAbstractFileStructure destinationDirectory)
+        public override void Move(IAbstractFileStructure destinationDirectory)
         {
             string newPath = Path.Combine(destinationDirectory.FullName, Name);
             Directory.Move(FullName, newPath);
             Init(newPath);
         }
 
-        public  void Copy(IAbstractFileStructure destinationDirectory, Func<string, bool> allowOverride)
+        public override void Copy(IAbstractFileStructure destinationDirectory, Func<string, bool> allowOverride)
         {
             string destinationPath = Path.Combine(destinationDirectory.FullName, Name);
             Directory.CreateDirectory(destinationPath);
@@ -122,7 +119,7 @@ namespace IOLib
             }
         }
 
-        public  void OverrideCopy(IAbstractFileStructure destinationDirectory)
+        public override void OverrideCopy(IAbstractFileStructure destinationDirectory)
         {
             string destinationPath = Path.Combine(destinationDirectory.FullName, Name);
             Directory.CreateDirectory(destinationPath);
@@ -138,7 +135,7 @@ namespace IOLib
             }
         }
 
-        public  void Rename(string newName)
+        public override void Rename(string newName)
         {
             string localization = FullName.Substring(0, FullName.Length - Name.Length);
             string newNamePath = Path.Combine(localization, newName);

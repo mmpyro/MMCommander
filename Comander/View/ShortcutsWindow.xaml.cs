@@ -1,6 +1,6 @@
 ﻿using System.Collections.ObjectModel;
 using System.Windows;
-using Comander.Other;
+using Comander.Core;
 
 namespace Comander.View
 {
