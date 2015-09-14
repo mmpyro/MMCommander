@@ -5,7 +5,7 @@ using System.Xml.Linq;
 using Comander.ViewModel.Commands;
 using LogLib;
 
-namespace Comander.Other
+namespace Comander.Core
 {
 
     public class GenericCommandManager

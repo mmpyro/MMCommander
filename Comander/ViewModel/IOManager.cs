@@ -429,13 +429,39 @@ namespace Comander.ViewModel
 
         private void RenameFile()
         {
-            InputWindow inputWindow = new InputWindow("Please enter the new file name", SelectedFile.Name);
+            var inputWindow = new InputWindow("Please enter the new file name", SelectedFile.Name);
             if (inputWindow.ShowDialog() == true)
             {
                 SelectedFile.Rename(inputWindow.InputName);
                 FilterFiles();
             }
         }
+
+        private void EvaluatePath(string value)
+        {
+            if (string.IsNullOrEmpty(value))
+            {
+                _actualPath = _driveLetter;
+            }
+            else if (value.Equals("%temp%", StringComparison.OrdinalIgnoreCase))
+            {
+                string path = Path.GetTempPath();
+                _actualPath = path;
+                _historyManager.Add(path);
+            }
+            else if(value.Equals("%programdata%", StringComparison.OrdinalIgnoreCase))
+            {
+                string path = Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData);
+                _actualPath = path;
+                _historyManager.Add(path);
+            }
+            else
+            {
+                _actualPath = value;
+                _historyManager.Add(value);
+            }
+        }
+
         #endregion
 
         #region Property
@@ -524,17 +550,8 @@ namespace Comander.ViewModel
             get { return _actualPath; }
             set
             {
-                if (string.IsNullOrEmpty(value))
-                {
-                    _actualPath = _driveLetter;
-                    CurrentOperation = string.Empty;
-                }
-                else
-                {
-                    _actualPath = value;
-                    _historyManager.Add(value);
-                    CurrentOperation = string.Empty;
-                }
+                EvaluatePath(value);
+                CurrentOperation = string.Empty;
                 FilterFiles();
                 OnPropertyChanged("ActualPath");
             }

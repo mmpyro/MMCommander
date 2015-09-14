@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Globalization;
 using System.Windows.Data;
-using Comander.Other;
+using Comander.Core;
 
 namespace Comander.Converters
 {

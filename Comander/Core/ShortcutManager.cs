@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace Comander.Other
+namespace Comander.Core
 {
     public interface IShortcutManager
     {

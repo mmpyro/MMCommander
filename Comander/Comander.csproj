@@ -38,6 +38,10 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="RxFramework, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\ReactiveFramework\ReactiveFramework\RxFramework\bin\Debug\RxFramework.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.Composition" />
     <Reference Include="System.Data" />
@@ -336,10 +340,6 @@
     <AppDesigner Include="Properties\" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\..\Tests\ReactiveFramework\RxFramework\RxFramework.csproj">
-      <Project>{cc5523e6-64ed-4f8c-8c0b-fec777792f75}</Project>
-      <Name>RxFramework</Name>
-    </ProjectReference>
     <ProjectReference Include="..\CommanderPlugin\CommanderPlugin.csproj">
       <Project>{e7bc9d1c-c975-499e-878b-6644da6cd61a}</Project>
       <Name>CommanderPlugin</Name>

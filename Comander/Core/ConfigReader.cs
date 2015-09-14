@@ -4,7 +4,7 @@ using System.Linq;
 using System.Xml.Serialization;
 using Microsoft.Win32;
 
-namespace Comander.Other
+namespace Comander.Core
 {
     public class ConfigReader
     {
@@ -95,8 +95,8 @@ namespace Comander.Other
 
 
     #region Configuration
-    [System.Xml.Serialization.XmlTypeAttribute(AnonymousType = true)]
-    [System.Xml.Serialization.XmlRootAttribute(Namespace = "", IsNullable = false)]
+    [XmlType(AnonymousType = true)]
+    [XmlRoot(Namespace = "", IsNullable = false)]
     public partial class Configuration
     {
         /// <remarks/>
@@ -109,7 +109,7 @@ namespace Comander.Other
     }
 
     /// <remarks/>
-    [System.Xml.Serialization.XmlTypeAttribute(AnonymousType = true)]
+    [XmlType(AnonymousType = true)]
     public partial class ConfigurationProgram
     {
         /// <remarks/>

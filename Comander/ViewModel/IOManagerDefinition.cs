@@ -5,7 +5,6 @@ using System.Reactive.Linq;
 using System.Windows.Input;
 using Comander.CommanderIO;
 using Comander.Core;
-using Comander.Other;
 using Comander.ViewModel.Commands;
 using IOLib;
 using IOLinq;
@@ -60,8 +59,8 @@ namespace Comander.ViewModel
             CreateFileCommand = new ExecuteCommand(CreateFile, _logger);
             ZipCommand = new ExecuteCommand(ZipFiles, _logger);
             EnterIntoDirCommand = new ExecuteCommand(EnterIntoDir, _logger);
-            RunFileCommand = new ExecuteCommand(() => Run(), _logger);
-            RunAsAdminCommand = new ExecuteCommand(() => RunAsAdmin(), _logger);
+            RunFileCommand = new ExecuteCommand(Run, _logger);
+            RunAsAdminCommand = new ExecuteCommand(RunAsAdmin, _logger);
             NotepadCommand = new ExecuteCommand(() => Process.Start(_configReader["notepad"], SelectedFile.FullName), _logger);
             AddShortCutsCommand = new ExecuteCommand(() => _shortcutManager.Add(ActualPath), _logger);
             

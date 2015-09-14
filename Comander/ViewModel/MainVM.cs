@@ -9,7 +9,7 @@ using System.Windows;
 using System.Windows.Input;
 using Comander.Annotations;
 using Comander.CommanderIO;
-using Comander.Other;
+using Comander.Core;
 using Comander.View;
 using Comander.ViewModel.Commands;
 using IOLib;
