@@ -84,7 +84,12 @@ namespace Comander.CommanderIO
 
         public override bool Equals(object obj)
         {
-            return _filestructure.Equals(obj);
+            var metaData = obj as FileMetaDataStructure;
+            if (metaData != null)
+            {
+                return _filestructure.Equals(metaData._filestructure);
+            }
+            return false;
         }
 
         public override int GetHashCode()
