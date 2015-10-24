@@ -28,7 +28,7 @@ namespace Comander.ViewModel
             _settingsVm = new SettingsVm();
             Notifier = null;
             IPluginManager pluginManager = CreatePluginManager();
-
+            IPathResolver pathResolver = new PathResolver();
             var shortcutManager = new ShortcutManager();
             var historyManager1 = new HistoryManager();
             var historyManager2 = new HistoryManager();
@@ -36,8 +36,8 @@ namespace Comander.ViewModel
             var fileFactory = new MetaDataFileFactory();
             var fileSystemManager = new FileSystemManager(new FileManager( fileFactory), new DriveManager(), new DirectoryManager( fileFactory), new FileNameComparer());
             var syntaxParser = new SyntaxParser(fileFactory);
-            var io1 = new IOManager(configReader["IO1"], fileSystemManager,syntaxParser,historyManager1, configReader, _mainWindowEventResolver, pluginManager, logger);
-            var io2 = new IOManager(configReader["IO2"], fileSystemManager,syntaxParser,historyManager2, configReader, _mainWindowEventResolver,pluginManager, logger);
+            var io1 = new IOManager(configReader["IO1"], fileSystemManager,syntaxParser,historyManager1, configReader, _mainWindowEventResolver, pluginManager, logger, pathResolver);
+            var io2 = new IOManager(configReader["IO2"], fileSystemManager,syntaxParser,historyManager2, configReader, _mainWindowEventResolver,pluginManager, logger, pathResolver);
             io1.SecondManager = io2;
             io2.SecondManager = io1;
             _mainVm = new MainVM(io1, io2, configReader ,logger);

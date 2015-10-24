@@ -443,15 +443,9 @@ namespace Comander.ViewModel
             {
                 _actualPath = _driveLetter;
             }
-            else if (value.Equals("%temp%", StringComparison.OrdinalIgnoreCase))
+            else if (_pathResolver.ContainsPath(value))
             {
-                string path = Path.GetTempPath();
-                _actualPath = path;
-                _historyManager.Add(path);
-            }
-            else if(value.Equals("%programdata%", StringComparison.OrdinalIgnoreCase))
-            {
-                string path = Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData);
+                string path = _pathResolver.GetPath(value);
                 _actualPath = path;
                 _historyManager.Add(path);
             }

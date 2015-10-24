@@ -113,6 +113,7 @@
     <Compile Include="Converters\LogMessageConverter.cs" />
     <Compile Include="Converters\SelectedConverter.cs" />
     <Compile Include="Converters\VisibilityConverter.cs" />
+    <Compile Include="Core\PathResolver.cs" />
     <Compile Include="Core\PluginManager.cs" />
     <Compile Include="MainWindowEventResolver.cs" />
     <Compile Include="Core\AssemblyVersionResolver.cs" />

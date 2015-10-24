@@ -17,6 +17,7 @@ namespace Comander.ViewModel
     public partial class IOManager
     {
         private readonly ILogger _logger;
+        private readonly IPathResolver _pathResolver;
         private ObservableCollection<IMetadataFileStructure> _files;
         private ObservableCollection<DriveStruct> _drives;
         private string _actualPath;
@@ -36,8 +37,9 @@ namespace Comander.ViewModel
         private string _filter;
         private ObservableCollection<IMetadataFileStructure> _selectedFiles;
 
-        public IOManager(string actualPath, IFileSystemManager fileManager, SyntaxParser syntaxParser, HistoryManager historyManager,
-            ConfigReader configReader, MainWindowEventResolver mainWindowEventResolver, IPluginManager pluginManager, ILogger logger)
+        public IOManager(string actualPath, IFileSystemManager fileManager, SyntaxParser syntaxParser, 
+            HistoryManager historyManager, ConfigReader configReader, MainWindowEventResolver mainWindowEventResolver,
+            IPluginManager pluginManager, ILogger logger, IPathResolver pathResolver)
         {
             _actualPath = actualPath;
             _fileManager = fileManager;
@@ -48,6 +50,7 @@ namespace Comander.ViewModel
             _mainWindowEventResolver = mainWindowEventResolver;
             _pluginManager = pluginManager;
             _logger = logger;
+            _pathResolver = pathResolver;
             ChooseDirCommand = new DirChooseCommand(this);
             RootDirCommand = new RootDirCommand(this);
             ParentDirCommand = new ParentDirCommand(this);
