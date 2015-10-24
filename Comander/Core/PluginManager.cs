@@ -2,7 +2,9 @@
 using System.Collections.Generic;
 using System.ComponentModel.Composition;
 using System.ComponentModel.Composition.Hosting;
+using System.IO;
 using System.Linq;
+using System.Reflection;
 using CommanderPlugin;
 using IOLib;
 
@@ -45,7 +47,19 @@ namespace Comander.Core
         public void LoadPlugins(string path)
         {
             var catalog = new AggregateCatalog();
-            catalog.Catalogs.Add(new DirectoryCatalog(path));
+            var di = new DirectoryInfo(path);
+            foreach (var file in di.GetFileSystemInfos())
+            {
+                try
+                {
+                    var ac = new AssemblyCatalog(Assembly.LoadFile(file.FullName));
+                    ac.Parts.ToArray();
+                    catalog.Catalogs.Add(ac);
+                }
+                catch (ReflectionTypeLoadException e)
+                {
+                }
+            }
 
             var container = new CompositionContainer(catalog);
             container.ComposeParts(this);

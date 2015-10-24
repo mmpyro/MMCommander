@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using IOLib;
 using NUnit.Framework;
 
@@ -55,12 +56,7 @@ namespace IOLinqTest
 
         public List<FakeAbstractFile> CreateFiles(string[][] names)
         {
-            var list = new List<FakeAbstractFile>();
-            foreach (string[] tab in names)
-            {
-                list.Add(CreateFile(tab));
-            }
-            return list;
+            return names.Select(CreateFile).ToList();
         }
     }
 }

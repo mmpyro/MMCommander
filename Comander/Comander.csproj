@@ -40,7 +40,7 @@
   <ItemGroup>
     <Reference Include="RxFramework, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\ReactiveFramework\ReactiveFramework\RxFramework\bin\Debug\RxFramework.dll</HintPath>
+      <HintPath>..\..\ReactiveFramework\ReactiveFramework\RxTest\bin\Debug\RxFramework.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.Composition" />

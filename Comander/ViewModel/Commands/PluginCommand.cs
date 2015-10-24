@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using System.Windows.Input;
 using Comander.Core;
 using IOLib;
@@ -27,14 +28,7 @@ namespace Comander.ViewModel.Commands
 
         public void Execute(object parameter)
         {
-            try
-            {
-                _pluginManager.InvokeMethod(parameter.ToString(), _files);
-            }
-            catch (Exception e)
-            {
-                _logger.WriteLine(e, LogInfo.Error);
-            }
+            Task.Run(() => ActionToPerform(parameter));
         }
 
         public event EventHandler CanExecuteChanged
@@ -46,6 +40,18 @@ namespace Comander.ViewModel.Commands
             remove
             {
                 CommandManager.RequerySuggested -= value;
+            }
+        }
+
+        private void ActionToPerform(object parameter)
+        {
+            try
+            {
+                _pluginManager.InvokeMethod(parameter.ToString(), _files);
+            }
+            catch (Exception e)
+            {
+                _logger.WriteLine(e, LogInfo.Error);
             }
         }
     }

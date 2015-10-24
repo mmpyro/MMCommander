@@ -44,8 +44,10 @@
   <ItemGroup>
     <Compile Include="Parsers\ExtEqualsParser.cs" />
     <Compile Include="Parsers\ExtInParser.cs" />
+    <Compile Include="Parsers\ExtNotInParser.cs" />
     <Compile Include="Parsers\NameEqualsParser.cs" />
     <Compile Include="Parsers\NameLikeParser.cs" />
+    <Compile Include="Parsers\NotExtEqualsParser.cs" />
     <Compile Include="Parsers\Parser.cs" />
     <Compile Include="Parsers\Unit.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
