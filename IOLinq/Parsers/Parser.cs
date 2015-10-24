@@ -15,14 +15,25 @@ namespace IOLinq
             return Regex.IsMatch(input, @"ext\s*->\s*[(?]\s*[a-zA-Z0-9].*\s*[)?]");
         }
 
+        public static bool IsExtNotIn(string input)
+        {
+            return Regex.IsMatch(input, @"ext\s*<>\s*[(?]\s*[a-zA-Z0-9].*\s*[)?]");
+        }
+
+
         public static bool IsExtEquals(string input)
         {
             return Regex.IsMatch(input, @"ext\s*[=]{2}\s*[a-zA-Z0-9].*");
         }
 
+        public static bool IsNotExtEquals(string input)
+        {
+            return Regex.IsMatch(input, @"ext\s*[!][=]\s*[a-zA-Z0-9].*");
+        }
+
         public static bool IsNameEquals(string input)
         {
-            return Regex.IsMatch(input, @"name\s*[=]{2}\s*[a-zA-Z0-9].*");
+            return Regex.IsMatch(input, @"name\s*[=]{2}\s*.*");
         }
 
         public static bool IsLikeNameParser(string input)

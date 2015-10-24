@@ -7,7 +7,7 @@ namespace IOLinq
 {
     class Unit 
     {
-        private IAbstractFileStructure[] _abstractFiles;
+        private readonly IAbstractFileStructure[] _abstractFiles;
 
         public Unit(IAbstractFileStructure[] abstractFiles)
         {

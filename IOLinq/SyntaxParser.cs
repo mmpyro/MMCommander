@@ -12,15 +12,17 @@ namespace IOLinq
         ExtEquals,
         ExtIn,
         NameEquals,
-        LiekName
+        LiekName,
+        ExtNotEquals,
+        ExtNotIn
     }
 
     public class SyntaxParser
     {
         private readonly IFileFactory _fileFactory;
-        private Queue<string> _syntaxQueue = new Queue<string>();
-        private Dictionary<ParserType, Parser> _parserDict = new Dictionary<ParserType, Parser>();
-        private Queue<Unit> _operationQueue = new Queue<Unit>();
+        private readonly Queue<string> _syntaxQueue = new Queue<string>();
+        private readonly Dictionary<ParserType, Parser> _parserDict = new Dictionary<ParserType, Parser>();
+        private readonly Queue<Unit> _operationQueue = new Queue<Unit>();
         private IAbstractFileStructure[] _abstractFiles;
 
         public SyntaxParser(IFileFactory fileFactory )
@@ -30,6 +32,8 @@ namespace IOLinq
             _parserDict.Add(ParserType.ExtIn, new ExtInParser());
             _parserDict.Add(ParserType.NameEquals, new NameEqualsParser());
             _parserDict.Add(ParserType.LiekName, new NameLikeParser());
+            _parserDict.Add(ParserType.ExtNotEquals, new NotExtEqualsParser());
+            _parserDict.Add(ParserType.ExtNotIn, new ExtNotInParser());
         }
 
         public List<IAbstractFileStructure> Perform(string txt, IAbstractFileStructure[] abstractFiles)
@@ -95,12 +99,18 @@ namespace IOLinq
             if (Parser.IsExtIn(value))
             {
                 return _parserDict[ParserType.ExtIn].Perform(value, _abstractFiles);
-
             }
-            if(Parser.IsNameEquals(value))
+            if (Parser.IsExtNotIn(value))
+            {
+                return _parserDict[ParserType.ExtNotIn].Perform(value, _abstractFiles);
+            }
+            if (Parser.IsNotExtEquals(value))
+            {
+                return _parserDict[ParserType.ExtNotEquals].Perform(value, _abstractFiles);
+            }
+            if (Parser.IsNameEquals(value))
             {
                 return _parserDict[ParserType.NameEquals].Perform(value, _abstractFiles);
-                
             }
             if (Parser.IsLikeNameParser(value))
             {

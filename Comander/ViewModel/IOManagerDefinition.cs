@@ -16,9 +16,7 @@ namespace Comander.ViewModel
 {
     public partial class IOManager
     {
-
         private readonly ILogger _logger;
-
         private ObservableCollection<IMetadataFileStructure> _files;
         private ObservableCollection<DriveStruct> _drives;
         private string _actualPath;
