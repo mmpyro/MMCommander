@@ -27,8 +27,8 @@ namespace Comander.ViewModel
         private string _driveLetter;
         private string _currentOperation;
         private IMetadataFileStructure _rootDirectory;
-        private readonly HistoryManager _historyManager;
-        private readonly ConfigReader _configReader;
+        private readonly IHistoryManager _historyManager;
+        private readonly IConfigReader _configReader;
         private readonly IShortcutManager _shortcutManager;
         private readonly MainWindowEventResolver _mainWindowEventResolver;
         private readonly IPluginManager _pluginManager;
@@ -38,7 +38,7 @@ namespace Comander.ViewModel
         private ObservableCollection<IMetadataFileStructure> _selectedFiles;
 
         public IOManager(string actualPath, IFileSystemManager fileManager, SyntaxParser syntaxParser, 
-            HistoryManager historyManager, ConfigReader configReader, MainWindowEventResolver mainWindowEventResolver,
+            IHistoryManager historyManager, IConfigReader configReader, MainWindowEventResolver mainWindowEventResolver,
             IPluginManager pluginManager, ILogger logger, IPathResolver pathResolver)
         {
             _actualPath = actualPath;

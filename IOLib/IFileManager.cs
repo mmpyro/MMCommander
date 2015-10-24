@@ -124,10 +124,7 @@ namespace IOLib
             else
             {
                 int numberofParts = (int)Math.Ceiling((double)abstractFile.Size / ConvertFileSize(partSize, unit));
-                Parallel.For(0, numberofParts, (i) =>
-                {
-                    DevideFile(abstractFile, partSize, unit, destinationPath, i);
-                });
+                Parallel.For(0, numberofParts, (i) => DevideFile(abstractFile, partSize, unit, destinationPath, i));
 
             }
         }
@@ -140,10 +137,11 @@ namespace IOLib
         /// <param name="destinationFileName">Destination full path with extension</param>
         public void Join(string sourcePath, string fileName, string destinationFileName)
         {
-            string[] fileNames = Directory.GetFiles(sourcePath);
+            var fileNames = Directory.GetFiles(sourcePath);
             Regex regex = new Regex(@".*[_]{2}");
-            var filterFiles = fileNames.Where( AbstractFileStructure => Regex.IsMatch(Path.GetFileNameWithoutExtension(AbstractFileStructure), fileName + @"[0-9]*"))
-                .Select(AbstractFileStructure => Path.Combine(sourcePath, AbstractFileStructure)).OrderBy(AbstractFileStructure => int.Parse(regex.Replace(AbstractFileStructure, "")));
+            fileName = CleanInvalidPassword(fileName);
+            var filterFiles = fileNames.Where( t => Regex.IsMatch(RemovePath(t,sourcePath), fileName + @"[0-9]*"))
+                .Select(t => Path.Combine(sourcePath, t)).OrderBy(t => int.Parse(regex.Replace(t, "")));
             int numberOfFiles = filterFiles.Count();
             if (numberOfFiles < 2)
                 throw new ArgumentException("Join need at least two files");
@@ -156,6 +154,15 @@ namespace IOLib
             }
         }
 
+        private string CleanInvalidPassword(string value)
+        {
+            return value.Replace("(", "").Replace(")", "");
+        }
+
+        private string RemovePath(string fullPath, string sourcePath)
+        {
+            return CleanInvalidPassword(fullPath.Replace(sourcePath, ""));
+        }
     }
 
 }

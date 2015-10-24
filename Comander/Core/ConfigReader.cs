@@ -6,7 +6,14 @@ using Microsoft.Win32;
 
 namespace Comander.Core
 {
-    public class ConfigReader
+    public interface IConfigReader
+    {
+        string this[string key] { get; set; }
+        IShortcutManager ShortcutManager { get; }
+        void SavePaths(string source, string target);
+    }
+
+    public class ConfigReader : IConfigReader
     {
         private readonly string shortCutsPath = Path.Combine(Directory.GetCurrentDirectory(), "Config.xml");
         private readonly RegistryKey registryKey = Registry.CurrentUser.OpenSubKey("Software", true);

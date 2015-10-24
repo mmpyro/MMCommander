@@ -40,7 +40,7 @@ namespace Comander.ViewModel
             var io2 = new IOManager(configReader["IO2"], fileSystemManager,syntaxParser,historyManager2, configReader, _mainWindowEventResolver,pluginManager, logger, pathResolver);
             io1.SecondManager = io2;
             io2.SecondManager = io1;
-            _mainVm = new MainVM(io1, io2, configReader ,logger);
+            _mainVm = new MainVM(io1, io2, configReader ,logger, new AssemblyVersionResolver());
         }
 
         public  MainVM Main

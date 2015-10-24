@@ -3,7 +3,13 @@ using System.Linq;
 
 namespace Comander.Core
 {
-    public class HistoryManager
+    public interface IHistoryManager
+    {
+        void Add(string value);
+        IEnumerable<string> GetHistory();
+    }
+
+    public class HistoryManager : IHistoryManager
     {
         IList<string> _history = new List<string>();
         private const int MaxHistorySize = 30;

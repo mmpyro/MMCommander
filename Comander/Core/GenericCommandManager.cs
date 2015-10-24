@@ -7,8 +7,13 @@ using LogLib;
 
 namespace Comander.Core
 {
+    public interface IGenericCommandManager
+    {
+        GenericCommandInvoker GetCommandByKey(string key);
+        GenericCommandInvoker GetCommandByName(string name);
+    }
 
-    public class GenericCommandManager
+    public class GenericCommandManager : IGenericCommandManager
     {
         private readonly ILogger _logger;
         private const string InitFilePath = "Commands.xml";

@@ -22,17 +22,19 @@ namespace Comander.ViewModel
     {
         private IOManager _io1;
         private IOManager _io2;
-        private readonly ConfigReader _configReader;
+        private readonly IConfigReader _configReader;
+        private readonly IAssemblyVersionResolver _assemblyVersionResolver;
         private ObservableCollection<LogMsg> _logsCollection = new ObservableCollection<LogMsg>();
         private LogMsg _currentLogMsg;
         private readonly GUILogger _logger;
         private int _current = 0;
         private string _logCount;
 
-        public MainVM(IOManager io1, IOManager io2, ConfigReader configReader ,GUILogger logger)
+        public MainVM(IOManager io1, IOManager io2, IConfigReader configReader ,GUILogger logger, IAssemblyVersionResolver assemblyVersionResolver)
         {
             _configReader = configReader;
             _logger = logger;
+            _assemblyVersionResolver = assemblyVersionResolver;
             _logger.NotifyEvent += AddLogInfo;
             _io1 = io1;
             _io2 = io2;
@@ -56,7 +58,7 @@ namespace Comander.ViewModel
             CompareDirCommand = new ExecuteCommand(CompareDirectories);
             GenericCommand = new GenericCommand(Io1, Io2, _logger);
             AboutCommand = new ExecuteCommand(() => (new AboutWindow(string.Format("Product version: {0}\nCreated by Michał Marszałek.", 
-                AssemblyVersionResolver.GetProductVersion(this.GetType())))).ShowDialog());
+                _assemblyVersionResolver.GetProductVersion(GetType())))).ShowDialog());
             KeyMapCommand = new ExecuteCommand( () => Process.Start(_configReader["web"],@".\Manuals\keymap.html"),_logger);
             SearchCommand = new ExecuteCommand(Search,_logger);
         }
