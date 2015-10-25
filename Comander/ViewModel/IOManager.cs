@@ -46,12 +46,12 @@ namespace Comander.ViewModel
                         zipper.CompressFiles(zipParameters, files);
                     else
                         zipper.CompressFilesWithEncryption(zipParameters, files);
-                    Application.Current.Dispatcher.Invoke(() => _logger.WriteLine("Zip proccess was finished without errors.", LogInfo.Info, LogLevel.Minimal));
+                    Application.Current.Dispatcher.Invoke(() => _logger.Info("Zip proccess was finished without errors."));
                     UnsetBusyApp();
                 }
                 catch (Exception ex)
                 {
-                    Application.Current.Dispatcher.Invoke(() => _logger.WriteLine(ex, LogInfo.Error, LogLevel.Minimal));
+                    Application.Current.Dispatcher.Invoke(() => _logger.Error(ex));
                     UnsetBusyApp();
                 }
                 finally
@@ -73,12 +73,12 @@ namespace Comander.ViewModel
                         zipper.CompressDir(zipParameters, dir.FullName);
                     else
                         zipper.CompressFilesWithEncryption(zipParameters, dir.FullName);
-                    Application.Current.Dispatcher.Invoke(() => _logger.WriteLine("Zip proccess was finished without errors.", LogInfo.Info, LogLevel.Minimal));
+                    Application.Current.Dispatcher.Invoke(() => _logger.Info("Zip proccess was finished without errors."));
                     UnsetBusyApp();
                 }
                 catch (Exception ex)
                 {
-                    Application.Current.Dispatcher.Invoke(() => _logger.WriteLine(ex, LogInfo.Error, LogLevel.Minimal));
+                    Application.Current.Dispatcher.Invoke(() => _logger.Error(ex));
                     UnsetBusyApp();
                 }
                 finally
@@ -115,7 +115,7 @@ namespace Comander.ViewModel
             }
             else
             {
-                _logger.WriteLine("Any file was selected.", LogInfo.Warrning, LogLevel.Minimal);
+                _logger.Warn("Any file was selected.");
             }
         }
 
@@ -132,7 +132,7 @@ namespace Comander.ViewModel
             }
             catch (Exception e)
             {
-                _logger.WriteLine(e.Message, LogInfo.Error, LogLevel.Minimal);
+                _logger.Error(e.Message);
             }
         }
 
@@ -154,12 +154,12 @@ namespace Comander.ViewModel
                         zipper.UnCompressFile(zipParameters, extractionPath );
                     }
                     Application.Current.Dispatcher.Invoke(
-                        () => _logger.WriteLine("UnZip proccess was finished without errors.", LogInfo.Info, LogLevel.Minimal));
+                        () => _logger.Info("UnZip proccess was finished without errors."));
                     UnsetBusyApp();
                 }
                 catch (Exception ex)
                 {
-                    Application.Current.Dispatcher.Invoke(() => _logger.WriteLine(ex, LogInfo.Error, LogLevel.Minimal));
+                    Application.Current.Dispatcher.Invoke(() => _logger.Error(ex));
                     UnsetBusyApp();
                 }
                 finally
@@ -191,7 +191,7 @@ namespace Comander.ViewModel
                     }
                     catch (Exception ex)
                     {
-                        Application.Current.Dispatcher.Invoke(() => _logger.WriteLine(ex, LogInfo.Error, LogLevel.Minimal));
+                        Application.Current.Dispatcher.Invoke(() => _logger.Error(ex));
                         UnsetBusyApp();
                     }
                 });
@@ -251,7 +251,7 @@ namespace Comander.ViewModel
                 }
                 catch (Exception ex)
                 {
-                    Application.Current.Dispatcher.Invoke(() => _logger.WriteLine(ex, LogInfo.Error, LogLevel.Minimal));
+                    Application.Current.Dispatcher.Invoke(() => _logger.Error(ex));
                     UnsetBusyApp();
                 }
             });
@@ -301,7 +301,7 @@ namespace Comander.ViewModel
                 }
                 catch (Exception ex)
                 {
-                    Application.Current.Dispatcher.Invoke(() => _logger.WriteLine(ex, LogInfo.Error, LogLevel.Minimal));
+                    Application.Current.Dispatcher.Invoke(() => _logger.Error(ex));
                     UnsetBusyApp();
                 }
             });
@@ -325,7 +325,7 @@ namespace Comander.ViewModel
                 }
                 catch
                 {
-                    _logger.WriteLine("Directory wasn't created", LogInfo.Error, LogLevel.Minimal);
+                    _logger.Error("Directory wasn't created");
                 }
             }
         }
@@ -343,7 +343,7 @@ namespace Comander.ViewModel
                 }
                 catch
                 {
-                    _logger.WriteLine("File wasn't created", LogInfo.Error, LogLevel.Minimal);
+                    _logger.Error("File wasn't created");
                 }
             }
         }

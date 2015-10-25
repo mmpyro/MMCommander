@@ -62,7 +62,7 @@ namespace Comander.ViewModel.Commands
             }
             catch (Exception e)
             {
-                _logger.WriteLine(e, LogInfo.Error, LogLevel.Minimal);
+                _logger.Error(e);
             }
 
         }

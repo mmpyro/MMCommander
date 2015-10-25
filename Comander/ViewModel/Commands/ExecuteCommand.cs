@@ -28,7 +28,7 @@ namespace Comander.ViewModel.Commands
             catch(Exception ex)
             {
                 if (_logger != null)
-                    _logger.WriteLine(ex,LogInfo.Error);
+                    _logger.Error(ex);
             }
         }
 

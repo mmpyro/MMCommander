@@ -43,11 +43,11 @@ namespace Comander.View
                 FileSizeUnit unit = (FileSizeUnit) UnitComboBox.SelectedItem;
                 fileManager.Split(fileFactory.CreateFileMsg(SplitPathTextBox.Text), _fileSize, unit,
                     PathTextBox.Text);
-                _logger.WriteLine("Split was finished without errors.", LogInfo.Info, LogLevel.Minimal);
+                _logger.Info("Split was finished without errors.");
             }
             catch (Exception ex)
             {
-                _logger.WriteLine(ex, LogInfo.Error, LogLevel.Minimal);
+                _logger.Error(ex);
             }
             finally
             {
@@ -57,7 +57,7 @@ namespace Comander.View
 
         private void BrowseButton1_OnClick(object sender, RoutedEventArgs e)
         {
-            System.Windows.Forms.OpenFileDialog dialog = new System.Windows.Forms.OpenFileDialog();
+            var dialog = new System.Windows.Forms.OpenFileDialog();
             System.Windows.Forms.DialogResult result = dialog.ShowDialog();
             if (result.Equals(System.Windows.Forms.DialogResult.OK))
             {

@@ -4,52 +4,84 @@ namespace LogLib
 {
     public class GUILogger : ILogger
     {
-        private readonly LogLevel _logLevel;
-        public delegate void Notify(LogInfo info, string message);
+
+        
+        public void Info(string message)
+        {
+            PerformInfoMessage(message);
+        }
+
+        public void Warn(string message)
+        {
+            PerformWarnMessage(message);
+        }
+
+        public void Error(string message)
+        {
+            PerformErrorMessage(message);
+        }
+
+        public void Info(Exception ex)
+        {
+            PerformInfoMessage(ex.ToString());
+        }
+
+        public void Warn(Exception ex)
+        {
+            PerformWarnMessage(ex.ToString());
+        }
+
+        public void Error(Exception ex)
+        {
+            PerformErrorMessage(ex.ToString());
+        }
+
+        public void Info(string message, Exception ex)
+        {
+            PerformInfoMessage(message+" | "+ex);
+        }
+
+        public void Warn(string message, Exception ex)
+        {
+            PerformWarnMessage(message+" | "+ex);
+        }
+
+        public void Error(string message, Exception ex)
+        {
+            PerformErrorMessage(message+" | "+ex);
+        }
+
         public event Notify NotifyEvent;
 
-        private string PerformMessage(string message)
+        protected void PerformInfoMessage(string message)
+        {
+            if (NotifyEvent != null)
+                NotifyEvent(LogInfo.Info, PerformLogMessage(message));
+        }
+
+        protected void PerformErrorMessage(string message)
+        {
+            if (NotifyEvent != null)
+                NotifyEvent(LogInfo.Error, PerformLogMessage(message));
+        }
+
+        protected void PerformWarnMessage(string message)
+        {
+            if (NotifyEvent != null)
+                NotifyEvent(LogInfo.Warrning, PerformLogMessage(message));
+        }
+
+        protected string PerformLogMessage(string message)
         {
             DateTime dt = DateTime.Now;
             return string.Format("{0}|{1}",dt.ToShortTimeString() , message);
         }
 
-        private string PerformMessage(Exception ex)
+        protected string PerformLogMessage(Exception ex)
         {
-            DateTime dt = DateTime.Now;
-            return string.Format("{0}|{1}", dt.ToShortTimeString(), ex.Message);
+            return PerformLogMessage(ex.Message);
         }
 
-        public GUILogger(LogLevel logLevel)
-        {
-            _logLevel = logLevel;
-        }
 
-        public void WriteLine(string message, LogInfo info, LogLevel level)
-        {
-            if (_logLevel >= level && NotifyEvent != null)
-                NotifyEvent(info, PerformMessage(message));
-        }
-
-        public void WriteLine(string message, LogInfo info)
-        {
-            WriteLine(message,info, LogLevel.Minimal);
-        }
-
-        public void WriteLine(Exception ex, LogInfo info, LogLevel level)
-        {
-            if ( _logLevel >= level && NotifyEvent != null)
-                NotifyEvent(info, PerformMessage(ex));
-        }
-
-        public void WriteLine(Exception ex, LogInfo info)
-        {
-            WriteLine(ex,info, LogLevel.Minimal);
-        }
-
-        public void WriteLine(string message, Exception ex, LogInfo info, LogLevel level)
-        {
-            
-        }
     }
 }

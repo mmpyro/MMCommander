@@ -2,11 +2,6 @@
 
 namespace LogLib
 {
-    public enum LogLevel
-    {
-        Minimal,
-        Debug
-    }
 
     public enum LogInfo
     {
@@ -15,12 +10,19 @@ namespace LogLib
         Error,
     }
 
+    public delegate void Notify(LogInfo info, string message);
+
     public interface ILogger
     {
-        void WriteLine(string message, LogInfo info, LogLevel level);
-        void WriteLine(string message, LogInfo info);
-        void WriteLine(Exception ex, LogInfo info, LogLevel level);
-        void WriteLine(Exception ex, LogInfo info);
-        void WriteLine(string message, Exception ex,LogInfo info , LogLevel level);
+        void Info(string message);
+        void Warn(string message);
+        void Error(string message);
+        void Info(Exception ex);
+        void Warn(Exception ex);
+        void Error(Exception ex);
+        void Info(string message, Exception ex);
+        void Warn(string message, Exception ex);
+        void Error(string message, Exception ex);
+        event Notify NotifyEvent;
     }
 }

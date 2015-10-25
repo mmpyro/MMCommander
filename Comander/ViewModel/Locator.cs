@@ -22,7 +22,7 @@ namespace Comander.ViewModel
         static Locator()
         {
             _mainWindowEventResolver = new MainWindowEventResolver();
-            var logger = new GUILogger(LogLevel.Debug);
+            var logger = new ComplexLogger(new GUILogger(), new FileLogger());
             _genericCommandManager = new GenericCommandManager(logger);
             _searchVm = new SearchVm();
             _settingsVm = new SettingsVm();

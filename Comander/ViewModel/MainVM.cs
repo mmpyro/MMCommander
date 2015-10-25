@@ -26,11 +26,11 @@ namespace Comander.ViewModel
         private readonly IAssemblyVersionResolver _assemblyVersionResolver;
         private ObservableCollection<LogMsg> _logsCollection = new ObservableCollection<LogMsg>();
         private LogMsg _currentLogMsg;
-        private readonly GUILogger _logger;
+        private readonly ILogger _logger;
         private int _current = 0;
         private string _logCount;
 
-        public MainVM(IOManager io1, IOManager io2, IConfigReader configReader ,GUILogger logger, IAssemblyVersionResolver assemblyVersionResolver)
+        public MainVM(IOManager io1, IOManager io2, IConfigReader configReader ,ILogger logger, IAssemblyVersionResolver assemblyVersionResolver)
         {
             _configReader = configReader;
             _logger = logger;
@@ -72,7 +72,7 @@ namespace Comander.ViewModel
             }
             catch (Exception e)
             {
-                _logger.WriteLine(e, LogInfo.Error);
+                _logger.Error(e);
             }
         }
 
@@ -135,12 +135,11 @@ namespace Comander.ViewModel
                     string fileName = Path.GetFileName(joinPath);
                     fileName = regex.Replace(fileName, "");
                     fileManager.Join(Path.GetDirectoryName(joinPath), fileName, Path.Combine(destinationPath, joinedFileName));
-                    Application.Current.Dispatcher.Invoke(() => _logger.WriteLine("Join was finished without errors.", LogInfo.Info,
-                        LogLevel.Minimal));
+                    Application.Current.Dispatcher.Invoke(() => _logger.Info("Join was finished without errors."));
                 }
                 catch (Exception ex)
                 {
-                    Application.Current.Dispatcher.Invoke(() => _logger.WriteLine(ex, LogInfo.Info, LogLevel.Minimal));
+                    Application.Current.Dispatcher.Invoke(() => _logger.Info(ex));
                 }
             });
         }
@@ -151,7 +150,7 @@ namespace Comander.ViewModel
             joinWindow.ShowDialog();
             if (joinWindow.JoinParameter != null)
             {
-                _logger.WriteLine("Join in progress...", LogInfo.Info, LogLevel.Minimal);
+                _logger.Info("Join in progress...");
                 JoinFileProcessor(joinWindow.JoinParameter.JoinPath, 
                     joinWindow.JoinParameter.DestinationPath, joinWindow.JoinParameter.FileName);
             }

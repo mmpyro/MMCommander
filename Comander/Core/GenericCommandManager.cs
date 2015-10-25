@@ -29,7 +29,7 @@ namespace Comander.Core
             }
             catch (Exception e)
             {
-                _logger.WriteLine(e, LogInfo.Error);
+                _logger.Error(e);
             }
         }
 
