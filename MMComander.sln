@@ -21,6 +21,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ZipLib", "ZipAdapter\ZipLib
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ZipLibTest", "ZipLibTest\ZipLibTest.csproj", "{BB926252-AB7B-4B70-923E-26E7DC5FD48F}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Messanger", "Messanger\Messanger.csproj", "{6531E779-F08F-461D-88D7-5F58D485B36C}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -131,6 +133,16 @@ Global
 		{BB926252-AB7B-4B70-923E-26E7DC5FD48F}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
 		{BB926252-AB7B-4B70-923E-26E7DC5FD48F}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 		{BB926252-AB7B-4B70-923E-26E7DC5FD48F}.Release|x86.ActiveCfg = Release|Any CPU
+		{6531E779-F08F-461D-88D7-5F58D485B36C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6531E779-F08F-461D-88D7-5F58D485B36C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6531E779-F08F-461D-88D7-5F58D485B36C}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{6531E779-F08F-461D-88D7-5F58D485B36C}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{6531E779-F08F-461D-88D7-5F58D485B36C}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{6531E779-F08F-461D-88D7-5F58D485B36C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6531E779-F08F-461D-88D7-5F58D485B36C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6531E779-F08F-461D-88D7-5F58D485B36C}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{6531E779-F08F-461D-88D7-5F58D485B36C}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{6531E779-F08F-461D-88D7-5F58D485B36C}.Release|x86.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
