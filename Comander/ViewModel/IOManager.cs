@@ -73,7 +73,7 @@ namespace Comander.ViewModel
                         zipper.CompressDir(zipParameters, dir.FullName);
                     else
                         zipper.CompressFilesWithEncryption(zipParameters, dir.FullName);
-                    Application.Current.Dispatcher.Invoke(() => _logger.Info("Zip proccess was finished without errors."));
+                    Application.Current.Dispatcher.Invoke(() => _logger.Info(string.Format("Zip {0} was finished without errors.", dir.Name)));
                     UnsetBusyApp();
                 }
                 catch (Exception ex)
@@ -154,7 +154,7 @@ namespace Comander.ViewModel
                         zipper.UnCompressFile(zipParameters, extractionPath );
                     }
                     Application.Current.Dispatcher.Invoke(
-                        () => _logger.Info("UnZip proccess was finished without errors."));
+                        () => _logger.Info(string.Format("UnZip {0} was finished without errors.", ActualPath)));
                     UnsetBusyApp();
                 }
                 catch (Exception ex)
@@ -186,6 +186,7 @@ namespace Comander.ViewModel
                         {
                             Notify(string.Format("Delete {0} of {1} files", iterator++, allfiles));
                             file.Delete();
+                            _logger.Debug("Delete "+ file.Name);
                         }
                         UnsetBusyApp();
                     }
@@ -246,6 +247,7 @@ namespace Comander.ViewModel
                     {
                         Notify(string.Format("Move {0} of {1} files",iterator++, allfiles));
                         file.Move(destinationDir);
+                        _logger.Debug(string.Format("Move {0} to {1}", file.Name, destinationDir.FullName));
                     }
                     UnsetBusyApp();
                 }
@@ -295,7 +297,8 @@ namespace Comander.ViewModel
                     foreach (var file in bfiles)
                     {
                         Notify(string.Format("Copy {0} of {1} files", iterator++, allfiles));
-                       file.OverrideCopy(destinationDir);
+                        file.OverrideCopy(destinationDir);
+                        _logger.Debug(string.Format("Copy {0} to {1}", file.Name, destinationDir.FullName));
                     }
                     UnsetBusyApp();
                 }
@@ -321,6 +324,7 @@ namespace Comander.ViewModel
                 {
                     string path = Path.Combine(ActualPath, inputWindow.InputName);
                     _fileManager.CreateDirectory(path);
+                    _logger.Debug("Create new directory "+path);
                     FilterFiles();
                 }
                 catch
@@ -339,6 +343,7 @@ namespace Comander.ViewModel
                 {
                     string path = Path.Combine(ActualPath, inputWindow.InputName);
                     _fileManager.CreateFile(path);
+                    _logger.Debug("Create new file "+path);
                     FilterFiles();
                 }
                 catch
@@ -377,6 +382,7 @@ namespace Comander.ViewModel
                 Verb = "runas"
             };
             Process.Start(info);
+            _logger.Debug("Run as administrator " + SelectedFile.FullName);
         }
 
         private void Run()
@@ -387,6 +393,7 @@ namespace Comander.ViewModel
                 WorkingDirectory = ActualPath,
             };
             Process.Start(info);
+            _logger.Debug("Run " + SelectedFile.FullName);
         }
 
         private void ShowShortcutsWindow()
@@ -433,6 +440,7 @@ namespace Comander.ViewModel
             if (inputWindow.ShowDialog() == true)
             {
                 SelectedFile.Rename(inputWindow.InputName);
+                _logger.Debug(string.Format("Rename {0} to {1}",SelectedFile.Name,inputWindow.InputName));
                 FilterFiles();
             }
         }

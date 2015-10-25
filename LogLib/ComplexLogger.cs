@@ -28,6 +28,11 @@ namespace LogLib
             _loggers.ForEach(t => t.Error(message));
         }
 
+        public void Debug(string message)
+        {
+            _loggers.ForEach(t => t.Debug(message));
+        }
+
         public void Info(Exception ex)
         {
             _loggers.ForEach(t => t.Info(ex));

@@ -27,6 +27,11 @@ namespace LogLib
             _logger.Error(message);
         }
 
+        public void Debug(string message)
+        {
+            _logger.Debug(message);
+        }
+
         public void Info(Exception ex)
         {
             _logger.Info(ex);

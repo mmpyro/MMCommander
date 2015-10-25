@@ -21,6 +21,11 @@ namespace LogLib
             PerformErrorMessage(message);
         }
 
+        public void Debug(string message)
+        {
+            
+        }
+
         public void Info(Exception ex)
         {
             PerformInfoMessage(ex.ToString());

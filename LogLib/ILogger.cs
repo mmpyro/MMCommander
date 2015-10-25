@@ -17,6 +17,7 @@ namespace LogLib
         void Info(string message);
         void Warn(string message);
         void Error(string message);
+        void Debug(string message);
         void Info(Exception ex);
         void Warn(Exception ex);
         void Error(Exception ex);
