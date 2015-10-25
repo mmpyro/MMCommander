@@ -78,7 +78,7 @@
             </Button>
         </Grid>
         <Border>
-         <TextBox BorderBrush="Aqua" BorderThickness="2" Text="{Binding Filter, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+            <TextBox BorderBrush="#FF0092BE" BorderThickness="2" Text="{Binding Filter, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
         </Border>
     </StackPanel>
 </UserControl>

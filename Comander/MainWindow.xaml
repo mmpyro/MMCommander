@@ -76,7 +76,7 @@
                 <ColumnDefinition Width="40"/>
                 <ColumnDefinition Width="40"/>
             </Grid.ColumnDefinitions>
-            <controls:Worker Width="30" Height="30" x:Name="ProgressWorker" Background="#FF181818" Foreground="Aqua" ElipseSize="3" NumberOfEllipses="5" Radius="10" Grid.Column="0" />
+            <controls:Worker Width="30" Height="30" x:Name="ProgressWorker" Background="#FF181818" Foreground="#FF0092BE" ElipseSize="3" NumberOfEllipses="5" Radius="10" Grid.Column="0" />
             <Image Width="20" Height="20" Grid.Column="1" Source="{Binding CurrentLogMsg,Converter={StaticResource LogIconConverter}}"/>
             <TextBlock Foreground="White" Padding="5,10,0,0" Text="{Binding LogCount}" Grid.Column="2"/>
             <TextBlock Foreground="White" Padding="5,10,0,0" Text="{Binding CurrentLogMsg, Converter={StaticResource LogMessageConverter}}" Grid.Column="3"/>
