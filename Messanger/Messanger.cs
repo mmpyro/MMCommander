@@ -20,11 +20,9 @@ namespace Messanger
 
         public void Register(Type type, Action<object> action)
         {
-            List<Action<object>> list = null;
             if (!_dict.ContainsKey(type))
-            {
-                list = _dict[type] ?? new List<Action<object>>();
-            }
+                _dict.Add(type, new List<Action<object>>());
+            var list = _dict[type];
             list.Add(action);
         }
 

@@ -23,6 +23,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ZipLibTest", "ZipLibTest\Zi
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Messanger", "Messanger\Messanger.csproj", "{6531E779-F08F-461D-88D7-5F58D485B36C}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MessangerTest", "MessangerTest\MessangerTest.csproj", "{EF405DB8-40D3-4610-B003-BA85BADABC72}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -143,6 +145,16 @@ Global
 		{6531E779-F08F-461D-88D7-5F58D485B36C}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
 		{6531E779-F08F-461D-88D7-5F58D485B36C}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 		{6531E779-F08F-461D-88D7-5F58D485B36C}.Release|x86.ActiveCfg = Release|Any CPU
+		{EF405DB8-40D3-4610-B003-BA85BADABC72}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EF405DB8-40D3-4610-B003-BA85BADABC72}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EF405DB8-40D3-4610-B003-BA85BADABC72}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{EF405DB8-40D3-4610-B003-BA85BADABC72}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{EF405DB8-40D3-4610-B003-BA85BADABC72}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{EF405DB8-40D3-4610-B003-BA85BADABC72}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EF405DB8-40D3-4610-B003-BA85BADABC72}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EF405DB8-40D3-4610-B003-BA85BADABC72}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{EF405DB8-40D3-4610-B003-BA85BADABC72}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{EF405DB8-40D3-4610-B003-BA85BADABC72}.Release|x86.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
