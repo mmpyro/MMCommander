@@ -63,6 +63,11 @@ namespace LogLib
             _loggers.ForEach(t => t.Error(message, ex));
         }
 
+        public void Fatal(Exception ex)
+        {
+            _loggers.ForEach(t => t.Fatal(ex));
+        }
+
         public event Notify NotifyEvent
         {
             add

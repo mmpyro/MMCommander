@@ -4,7 +4,7 @@ namespace LogLib
 {
     public class GUILogger : ILogger
     {
-
+        private const string FatalMessage = "Unhandled exception occour check logs";
         
         public void Info(string message)
         {
@@ -87,6 +87,9 @@ namespace LogLib
             return PerformLogMessage(ex.Message);
         }
 
-
+        public void Fatal(Exception ex)
+        {
+            Error(FatalMessage);
+        }
     }
 }

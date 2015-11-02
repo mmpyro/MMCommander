@@ -62,6 +62,11 @@ namespace LogLib
             _logger.Error(message, ex);
         }
 
+        public void Fatal(Exception ex)
+        {
+            _logger.Fatal(ex);
+        }
+
         public event Notify NotifyEvent;
     }
 }

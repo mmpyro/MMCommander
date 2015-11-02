@@ -21,6 +21,7 @@ namespace LogLib
         void Info(Exception ex);
         void Warn(Exception ex);
         void Error(Exception ex);
+        void Fatal(Exception ex);
         void Info(string message, Exception ex);
         void Warn(string message, Exception ex);
         void Error(string message, Exception ex);
