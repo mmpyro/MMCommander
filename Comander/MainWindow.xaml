@@ -4,7 +4,7 @@
         xmlns:local="clr-namespace:Comander.View"
         xmlns:controls="clr-namespace:Comander.Controls"
         Title="MMCommander" Name="Main" Icon="Icons/main.ico" Height="535.714" Width="1000" Closed="MainWindow_OnClosed"
-        DataContext="{Binding Main, Source={StaticResource Locator}}" Background="#FF181818">
+        DataContext="{Binding Main, Source={StaticResource Locator}}" Background="#FF181818" MouseMove="Main_MouseMove">
 <Window.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>

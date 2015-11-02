@@ -15,6 +15,8 @@ using Comander.ViewModel.Commands;
 using IOLib;
 using LogLib;
 using Search;
+using Messanger;
+using Comander.Messages;
 
 namespace Comander.ViewModel
 {
@@ -61,6 +63,8 @@ namespace Comander.ViewModel
                 _assemblyVersionResolver.GetProductVersion(GetType())))).ShowDialog());
             KeyMapCommand = new ExecuteCommand( () => Process.Start(_configReader["web"],@".\Manuals\keymap.html"),_logger);
             SearchCommand = new ExecuteCommand(Search,_logger);
+            IMessanger messanger = Messanger.Messanger.GetInstance();
+            messanger.Register(typeof(WindowCloseEventArgs),OnClose);
         }
 
         private void Search()
@@ -88,7 +92,7 @@ namespace Comander.ViewModel
             NextLog();
         }
 
-        public void BeforeClose()
+        public void OnClose(object e)
         {
             try
             {

@@ -15,6 +15,8 @@ using RxFramework;
 using Search;
 using ZipLib;
 using ZipAdapter = ZipLib.ZipAdapter;
+using Comander.Core;
+using Comander.Messages;
 
 namespace Comander.ViewModel
 {
@@ -424,13 +426,20 @@ namespace Comander.ViewModel
             Process.Start(processInfo);
         }
 
+        private void MouseMoveCallback(object e)
+        {
+            var args = e as WindowPositionEventArgs;
+            if(args != null)
+            {
+                _currentPosition = args.CurrentCursorPosition;
+            }
+        }
+
         private void ShowInfoWindow()
         {
             InfoWindow infoWindow = new InfoWindow(SelectedFile);
-            var point = _mainWindowEventResolver.MousePoint;
-            var positionPoint = _mainWindowEventResolver.GetWindowsPositionAction();
-            infoWindow.Left = positionPoint.X + point.X;
-            infoWindow.Top = positionPoint.Y + point.Y;
+            infoWindow.Left = _currentPosition.X;
+            infoWindow.Top = _currentPosition.Y;
             infoWindow.Show();
         }
 
@@ -603,10 +612,8 @@ namespace Comander.ViewModel
         private void ShowPluginWindow()
         {
             var pluginWindow = new PluginWindow(_pluginManager, Files.Where(t => t.IsSelected()), _logger);
-            var point = _mainWindowEventResolver.MousePoint;
-            var positionPoint = _mainWindowEventResolver.GetWindowsPositionAction();
-            pluginWindow.Left = positionPoint.X + point.X;
-            pluginWindow.Top = positionPoint.Y + point.Y;
+            pluginWindow.Left = _currentPosition.X;
+            pluginWindow.Top = _currentPosition.Y;
             pluginWindow.Show();
         }
     }

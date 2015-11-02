@@ -10,7 +10,9 @@ using IOLib;
 using IOLinq;
 using LogLib;
 using RxFramework;
-
+using Messanger;
+using System.Windows;
+using Comander.Messages;
 
 namespace Comander.ViewModel
 {
@@ -30,15 +32,15 @@ namespace Comander.ViewModel
         private readonly IHistoryManager _historyManager;
         private readonly IConfigReader _configReader;
         private readonly IShortcutManager _shortcutManager;
-        private readonly MainWindowEventResolver _mainWindowEventResolver;
         private readonly IPluginManager _pluginManager;
         private IOManager _secondManager;
         private bool _isAvaiable = true;
         private string _filter;
+        private Point _currentPosition;
         private ObservableCollection<IMetadataFileStructure> _selectedFiles;
 
         public IOManager(string actualPath, IFileSystemManager fileManager, SyntaxParser syntaxParser, 
-            IHistoryManager historyManager, IConfigReader configReader, MainWindowEventResolver mainWindowEventResolver,
+            IHistoryManager historyManager, IConfigReader configReader, 
             IPluginManager pluginManager, ILogger logger, IPathResolver pathResolver)
         {
             _actualPath = actualPath;
@@ -47,7 +49,6 @@ namespace Comander.ViewModel
             _historyManager = historyManager;
             _configReader = configReader;
             _shortcutManager = _configReader.ShortcutManager;
-            _mainWindowEventResolver = mainWindowEventResolver;
             _pluginManager = pluginManager;
             _logger = logger;
             _pathResolver = pathResolver;
@@ -84,6 +85,9 @@ namespace Comander.ViewModel
             RenameCommand = new ExecuteCommand(RenameFile, _logger);
             UnZipCommand = new ExecuteCommand(UnZipFiles, _logger);
             PluginCommand = new ExecuteCommand(ShowPluginWindow,_logger);
+
+            IMessanger messanger = Messanger.Messanger.GetInstance();
+            messanger.Register(typeof(WindowPositionEventArgs), MouseMoveCallback);
 
             ObservableFromProperty<string>("Filter")
                 .DistinctUntilChanged()

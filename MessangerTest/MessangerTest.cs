@@ -8,7 +8,7 @@ namespace MessangerTest
     [TestFixture,Category("Unit")]
     public class MessangerTest
     {
-        [Test, Category("unit")]
+        [Test]
         public void RegisterAndSend()
         {
             //Given
