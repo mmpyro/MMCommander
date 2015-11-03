@@ -1,7 +1,7 @@
 ﻿
 namespace Comander.Messages
 {
-    public class WindowCloseEventArgs
+    internal struct WindowCloseEventArgs
     {
     }
 }

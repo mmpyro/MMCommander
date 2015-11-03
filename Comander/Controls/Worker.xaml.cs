@@ -52,7 +52,7 @@ namespace Comander.Controls
 
     }
 
-    public partial class Worker : UserControl
+    public partial class Worker : UserControl, IDisposable
     {
         private readonly List<Circle> _circles = new List<Circle>();
         private int _numberOfElipses;
@@ -108,9 +108,10 @@ namespace Comander.Controls
         public  Worker()
         {
             this.InitializeComponent();
+            Init();
         }
 
-        public static void Wait()
+        public void Wait()
         {
             lock (locker)
             {
@@ -118,7 +119,7 @@ namespace Comander.Controls
             }
         }
 
-        public static  void Pulse()
+        public  void Pulse()
         {
             lock (locker)
             {
@@ -155,7 +156,7 @@ namespace Comander.Controls
             }
         }
 
-        public void Init()
+        protected void Init()
         {
             _th = new Thread(Draw);
             _th.IsBackground = true;
@@ -165,7 +166,7 @@ namespace Comander.Controls
         /// <summary>
         /// Use during OnClose
         /// </summary>
-        public  void DisposeWatcher()
+        public void Dispose()
         {
             _th.Abort();
         }

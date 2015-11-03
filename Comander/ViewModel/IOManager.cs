@@ -358,7 +358,7 @@ namespace Comander.ViewModel
         private void SetBusyApp()
         {
             IsAvaiable = false;
-            Worker.Pulse();
+            _messanger.Send(new PulseMessage());
         }
 
         private void Notify(string msg)
@@ -368,7 +368,7 @@ namespace Comander.ViewModel
 
         private void UnsetBusyApp()
         {
-            Worker.Wait();
+            _messanger.Send(new WaitMessage());
             CurrentOperation = string.Empty;
             IsAvaiable = true;
             FilterFiles();
@@ -592,7 +592,6 @@ namespace Comander.ViewModel
                 OnPropertyChanged("Drives");
             }
         }
-
         #endregion
 
         public void Notify(IAbstractFileStructure file)

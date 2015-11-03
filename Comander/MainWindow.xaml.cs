@@ -1,9 +1,5 @@
-﻿
-using System;
+﻿using System;
 using System.Windows;
-using Comander.ViewModel;
-using Messanger;
-using Comander.Core;
 using Comander.Messages;
 
 namespace Comander
@@ -15,14 +11,15 @@ namespace Comander
         public MainWindow()
         {
             InitializeComponent();
-            ProgressWorker.Init();
             _messanger = Messanger.Messanger.GetInstance();
+            _messanger.Register(typeof(PulseMessage), _ => ProgressWorker.Pulse());
+            _messanger.Register(typeof(WaitMessage), _ => ProgressWorker.Wait());
         }
 
         private void MainWindow_OnClosed(object sender, EventArgs e)
         {
             _messanger.Send(new WindowCloseEventArgs());
-            ProgressWorker.DisposeWatcher();
+            ProgressWorker.Dispose();
         }
 
         private void Main_MouseMove(object sender, System.Windows.Input.MouseEventArgs e)

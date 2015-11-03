@@ -115,6 +115,7 @@
     <Compile Include="Converters\VisibilityConverter.cs" />
     <Compile Include="Core\PathResolver.cs" />
     <Compile Include="Core\PluginManager.cs" />
+    <Compile Include="Messages\PulseMessage.cs" />
     <Compile Include="Messages\WindowCloseEventArgs.cs" />
     <Compile Include="Messages\WindowPositionEventArgs.cs" />
     <Compile Include="Core\AssemblyVersionResolver.cs" />

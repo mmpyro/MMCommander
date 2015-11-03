@@ -38,6 +38,7 @@ namespace Comander.ViewModel
         private string _filter;
         private Point _currentPosition;
         private ObservableCollection<IMetadataFileStructure> _selectedFiles;
+        private IMessanger _messanger;
 
         public IOManager(string actualPath, IFileSystemManager fileManager, SyntaxParser syntaxParser, 
             IHistoryManager historyManager, IConfigReader configReader, 
@@ -86,8 +87,8 @@ namespace Comander.ViewModel
             UnZipCommand = new ExecuteCommand(UnZipFiles, _logger);
             PluginCommand = new ExecuteCommand(ShowPluginWindow,_logger);
 
-            IMessanger messanger = Messanger.Messanger.GetInstance();
-            messanger.Register(typeof(WindowPositionEventArgs), MouseMoveCallback);
+            _messanger = Messanger.Messanger.GetInstance();
+            _messanger.Register(typeof(WindowPositionEventArgs), MouseMoveCallback);
 
             ObservableFromProperty<string>("Filter")
                 .DistinctUntilChanged()
