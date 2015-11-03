@@ -32,7 +32,7 @@ namespace Comander.ViewModel
         private int _current = 0;
         private string _logCount;
 
-        public MainVM(IOManager io1, IOManager io2, IConfigReader configReader ,ILogger logger, IAssemblyVersionResolver assemblyVersionResolver)
+        public MainVM(IOManager io1, IOManager io2, IConfigReader configReader, ILogger logger, IAssemblyVersionResolver assemblyVersionResolver)
         {
             _configReader = configReader;
             _logger = logger;
@@ -47,6 +47,8 @@ namespace Comander.ViewModel
             SplitFileCommand = new ExecuteCommand(SplitFile, _logger);
             JoinFileCommand = new ExecuteCommand(JoinFile, _logger);
             RunNotepadCommand = new ExecuteCommand(() => Process.Start(_configReader["notepad"]), _logger);
+            ReadLogsCommand = new ExecuteCommand(() => Process.Start(_configReader["notepad"],
+                Path.Combine(Path.GetTempPath(), @"mmcommander\log.txt")), _logger);
             RunCmdCommand = new ExecuteCommand(() =>
             {
                 var processInfo = new ProcessStartInfo(_configReader["cmd"]);
@@ -59,9 +61,11 @@ namespace Comander.ViewModel
             PreviusLogCommand = new ExecuteCommand(BackLog);
             CompareDirCommand = new ExecuteCommand(CompareDirectories);
             GenericCommand = new GenericCommand(Io1, Io2, _logger);
-            AboutCommand = new ExecuteCommand(() => (new AboutWindow(string.Format("Product version: {0}\nCreated by Michał Marszałek.", 
+            AboutCommand = new ExecuteCommand(() => (new AboutWindow(string.Format("Product version: {0}\nCreated by Michał Marszałek.",
                 _assemblyVersionResolver.GetProductVersion(GetType())))).ShowDialog());
-            KeyMapCommand = new ExecuteCommand( () => Process.Start(_configReader["web"],@".\Manuals\keymap.html"),_logger);
+            KeyMapCommand = new ExecuteCommand(() =>  Process.Start(_configReader["web"], 
+                Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"Manuals\keymap.html")), _logger);
+
             SearchCommand = new ExecuteCommand(Search,_logger);
             IMessanger messanger = Messanger.Messanger.GetInstance();
             messanger.Register(typeof(WindowCloseEventArgs),OnClose);
@@ -191,7 +195,6 @@ namespace Comander.ViewModel
         }
 
 
-
         #region Commands
         public ICommand RunNotepadCommand { get; set; }
         public ICommand RunCmdCommand { get; set; }
@@ -208,6 +211,7 @@ namespace Comander.ViewModel
         public ICommand AboutCommand { get; set; }
         public ICommand KeyMapCommand { get; set; }
         public ICommand SearchCommand { get; set; }
+        public ICommand ReadLogsCommand { get; set; }
         #endregion
 
         #region Property

@@ -11,10 +11,15 @@ namespace Comander.Converters
         {
             LogMsg logMsg = value as LogMsg;
             if (logMsg != null)
-            {
                 return string.Format("[{0}]: {1}", logMsg.Time ,logMsg.Message);
-            }
             return string.Empty;
+        }
+
+        private string TrimMessage(string value)
+        {
+            if (value.Length > 50)
+                return value.Substring(0, 50);
+            return value;
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
