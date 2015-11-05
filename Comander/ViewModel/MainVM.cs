@@ -47,8 +47,7 @@ namespace Comander.ViewModel
             SplitFileCommand = new ExecuteCommand(SplitFile, _logger);
             JoinFileCommand = new ExecuteCommand(JoinFile, _logger);
             RunNotepadCommand = new ExecuteCommand(() => Process.Start(_configReader["notepad"]), _logger);
-            ReadLogsCommand = new ExecuteCommand(() => Process.Start(_configReader["notepad"],
-                Path.Combine(Path.GetTempPath(), @"mmcommander\log.txt")), _logger);
+            ReadLogsCommand = new ExecuteCommand(() => Process.Start("explorer.exe", Path.Combine(Path.GetTempPath(), @"mmcommander")), _logger);
             RunCmdCommand = new ExecuteCommand(() =>
             {
                 var processInfo = new ProcessStartInfo(_configReader["cmd"]);
@@ -192,6 +191,7 @@ namespace Comander.ViewModel
             LogsCollection.Clear();
             CurrentLogMsg = null;
             LogCount = string.Empty;
+            _current = 0;
         }
 
 

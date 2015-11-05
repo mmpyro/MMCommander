@@ -25,7 +25,7 @@
             <MenuItem Header="Options" >
                 <MenuItem Header="Switch" Command="{Binding SwitchCommand}"/>
                 <MenuItem Header="Reload drives"  Command="{Binding RefreshCommand}" />
-                <MenuItem Header="Read logs" Command="{Binding ReadLogsCommand}"/>
+                <MenuItem Header="Open logs" Command="{Binding ReadLogsCommand}"/>
                 <MenuItem Header="Clen logs" Command="{Binding ClearLogCommand}"/>
             </MenuItem>
             <MenuItem Header="Run" >
