@@ -4,7 +4,7 @@
         xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
         xmlns:converters="clr-namespace:Comander.Converters"
         xmlns:view="clr-namespace:Comander.View"
-        Title="InfoWindow" BorderBrush="Aqua" BorderThickness="2" 
+        Title="InfoWindow" BorderBrush="{DynamicResource MainBorderBrush}" BorderThickness="2" 
         Background="Black" AllowsTransparency="True" WindowStyle="None" Height="100" 
         Width="300"  x:Name="MainWindow" ResizeMode="NoResize">
     <Window.Triggers>
@@ -25,6 +25,7 @@
                 <ResourceDictionary Source="../Themes/MetroDark/MetroDark.MSControls.Core.Implicit.xaml" />
                 <ResourceDictionary Source="../Themes/MetroDark/MetroDark.MSControls.Toolkit.Implicit.xaml" />
                 <ResourceDictionary Source="../Themes/Custom/CoWindowDictionary.xaml"/>
+                <ResourceDictionary x:Name="brushes" Source="../Themes/Custom/CustomBrushes.xaml"/>
             </ResourceDictionary.MergedDictionaries>
             <converters:FileAttributesConverter x:Key="AttributesConverter"/>
         </ResourceDictionary>

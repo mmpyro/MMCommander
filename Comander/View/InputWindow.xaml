@@ -2,7 +2,7 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:type="clr-namespace:Comander.Controls"
-        Title="InputWindow" Name="MainWindow" AllowsTransparency="True" BorderThickness="2" BorderBrush="Aqua" Background="Black" WindowStyle="None" Height="150" Width="280" ResizeMode="CanMinimize" WindowStartupLocation="CenterScreen">
+        Title="InputWindow" Name="MainWindow" AllowsTransparency="True" BorderThickness="2" BorderBrush="{DynamicResource MainBorderBrush}" Background="Black" WindowStyle="None" Height="150" Width="280" ResizeMode="CanMinimize" WindowStartupLocation="CenterScreen">
     <Window.Triggers>
         <EventTrigger RoutedEvent="Window.Loaded">
             <BeginStoryboard>
@@ -15,27 +15,32 @@
         </EventTrigger>
     </Window.Triggers>
     <Window.Resources>
-        <Style x:Key="ButtonStyle" TargetType="{x:Type type:ImageButton}">
-            <Setter Property="Background" Value="Black"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="{x:Type type:ImageButton}" >
-                        <Image Source="{TemplateBinding ImageSource}" Width="32" Height="32"/>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-        <Style TargetType="TextBox" x:Key="TextBoxStyle">
-            <Setter Property="Background" Value="Black"/>
-            <Setter Property="Foreground" Value="White"/>
-            <Setter Property="FontWeight" Value="Bold"/>
-        </Style>
-        <Style x:Key="BorderStyle" TargetType="Border">
-            <Setter Property="BorderBrush" Value="Aqua"/>
-            <Setter Property="CornerRadius" Value="5"/>
-            <Setter Property="BorderThickness" Value="2"/>
-        </Style>
-        
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary x:Name="brushes" Source="../Themes/Custom/CustomBrushes.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+            <Style x:Key="ButtonStyle" TargetType="{x:Type type:ImageButton}">
+                    <Setter Property="Background" Value="Black"/>
+                    <Setter Property="Template">
+                        <Setter.Value>
+                            <ControlTemplate TargetType="{x:Type type:ImageButton}" >
+                                <Image Source="{TemplateBinding ImageSource}" Width="32" Height="32"/>
+                            </ControlTemplate>
+                        </Setter.Value>
+                    </Setter>
+                </Style>
+                <Style TargetType="TextBox" x:Key="TextBoxStyle">
+                    <Setter Property="Background" Value="Black"/>
+                    <Setter Property="Foreground" Value="White"/>
+                    <Setter Property="FontWeight" Value="Bold"/>
+                </Style>
+                <Style x:Key="BorderStyle" TargetType="Border">
+                    <Setter Property="BorderBrush" Value="{DynamicResource MainBorderBrush}"/>
+                    <Setter Property="CornerRadius" Value="5"/>
+                    <Setter Property="BorderThickness" Value="2"/>
+                </Style>
+            
+        </ResourceDictionary>
     </Window.Resources>
     <Grid Width="250" MouseLeftButtonDown="Move_OnMouseLeftButtonDown">
         <Grid.RowDefinitions>
@@ -44,7 +49,7 @@
             <RowDefinition Height="1*"/>
         </Grid.RowDefinitions>
         <TextBlock Foreground="White" TextAlignment="Center"  FontWeight="Bold" Text="Pleas enter a valid directory name."  FontStyle="Italic" Name="InfoTextBlock" Height="25" Grid.Row="0"/>
-        <TextBox Name="InputTextBox" BorderBrush="Aqua" Background="Black" Foreground="White" BorderThickness="2" Height="25" Grid.Row="1" />
+        <TextBox Name="InputTextBox" BorderBrush="{StaticResource MainBorderBrush}" Background="Black" Foreground="White" BorderThickness="2" Height="25" Grid.Row="1" />
         <Grid Grid.Row="2">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>

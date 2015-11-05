@@ -11,6 +11,7 @@
                 <ResourceDictionary Source="../Themes/MetroDark/MetroDark.MSControls.Core.Implicit.xaml" />
                 <ResourceDictionary Source="../Themes/MetroDark/MetroDark.MSControls.Toolkit.Implicit.xaml" />
                 <ResourceDictionary Source="../Themes/Custom/DataGridStyle.xaml" />
+                <ResourceDictionary Source="../Themes/Custom/CustomBrushes.xaml"/>
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </UserControl.Resources>
@@ -78,7 +79,7 @@
             </Button>
         </Grid>
         <Border>
-            <TextBox BorderBrush="#FF0092BE" BorderThickness="2" Text="{Binding Filter, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+            <TextBox BorderBrush="{StaticResource MainBorderBrush}" BorderThickness="2" Text="{Binding Filter, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
         </Border>
     </StackPanel>
 </UserControl>

@@ -1,7 +1,7 @@
 ﻿<Window x:Class="Comander.View.AboutWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-         Title="ConfirmWindow" Name="MainWindow" BorderBrush="Aqua" BorderThickness="2" Background="Black" AllowsTransparency="True" WindowStyle="None" Height="120" Width="330" ResizeMode="CanMinimize" WindowStartupLocation="CenterScreen" >
+         Title="ConfirmWindow" Name="MainWindow" BorderBrush="{DynamicResource MainBorderBrush}" BorderThickness="2" Background="Black" AllowsTransparency="True" WindowStyle="None" Height="120" Width="330" ResizeMode="CanMinimize" WindowStartupLocation="CenterScreen" >
     <Window.Triggers>
         <EventTrigger RoutedEvent="Window.Loaded">
             <BeginStoryboard>
@@ -14,8 +14,12 @@
         </EventTrigger>
     </Window.Triggers>
     <Window.Resources>
-        <Style x:Key="BorderStyle" TargetType="Border">
-            <Setter Property="BorderBrush" Value="Aqua"/>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary x:Name="brushes" Source="../Themes/Custom/CustomBrushes.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+            <Style x:Key="BorderStyle" TargetType="Border">
+            <Setter Property="BorderBrush" Value="{DynamicResource MainBorderBrush}"/>
             <Setter Property="CornerRadius" Value="5"/>
             <Setter Property="BorderThickness" Value="2"/>
         </Style>
@@ -27,9 +31,10 @@
                 </Border>
             </DockPanel>
         </ControlTemplate>
+        </ResourceDictionary>
     </Window.Resources>
     <Grid MouseLeftButtonDown="UIElement_OnMouseLeftButtonDown">
-        <Button Height="30" Width="30" Foreground="Aqua" Content="X" FontSize="15"  Margin="0,-60,-270,10" Click="ButtonBase_OnClick" Template="{StaticResource closeButtonTemplate}"/>
+        <Button Height="30" Width="30" Foreground="{StaticResource MainBorderBrush}" Content="X" FontSize="15"  Margin="0,-60,-270,10" Click="ButtonBase_OnClick" Template="{StaticResource closeButtonTemplate}"/>
         <TextBlock Name="InformationTb" Foreground="White" TextWrapping="Wrap" FontSize="16" Margin="10,19,66,25"/>
     </Grid>
 </Window>

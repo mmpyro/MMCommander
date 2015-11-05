@@ -3,13 +3,14 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:view="clr-namespace:Comander.View"
         xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
-        Title="PluginWindow"  BorderBrush="Aqua" BorderThickness="2" 
+        Title="PluginWindow"  BorderBrush="{DynamicResource MainBorderBrush}" BorderThickness="2" 
         Background="Black" AllowsTransparency="True" WindowStyle="None" Height="100" 
         Width="300"  x:Name="MainWindow" ResizeMode="NoResize">
     <view:HidenWindowBase.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="../Themes/Custom/SearchStyle.xaml"/>
+                <ResourceDictionary x:Name="brushes" Source="../Themes/Custom/CustomBrushes.xaml"/>
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </view:HidenWindowBase.Resources>
