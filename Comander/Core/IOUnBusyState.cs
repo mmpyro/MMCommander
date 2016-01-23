@@ -335,6 +335,7 @@ namespace Comander.Core
         private void Avaiable()
         {
             _ioManager.ChangeState(new IOUnBusyState(_ioManager, _fileManager));
+
         }
 
         private void Busy()

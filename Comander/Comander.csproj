@@ -116,8 +116,10 @@
     <Compile Include="Core\IOBusyState.cs" />
     <Compile Include="Core\IOState.cs" />
     <Compile Include="Core\IOUnBusyState.cs" />
+    <Compile Include="Core\ManagerType.cs" />
     <Compile Include="Core\PathResolver.cs" />
     <Compile Include="Core\PluginManager.cs" />
+    <Compile Include="Messages\FocusMessage.cs" />
     <Compile Include="Messages\PulseMessage.cs" />
     <Compile Include="Messages\WindowCloseEventArgs.cs" />
     <Compile Include="Messages\WindowPositionEventArgs.cs" />

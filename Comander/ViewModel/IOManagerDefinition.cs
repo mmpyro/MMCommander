@@ -23,6 +23,7 @@ namespace Comander.ViewModel
         private ObservableCollection<IMetadataFileStructure> _files;
         private ObservableCollection<DriveStruct> _drives;
         private string _actualPath;
+        private bool _focus;
         private readonly IFileSystemManager _fileManager;
         private readonly SyntaxParser _syntaxParser;
         private IMetadataFileStructure _selectedFile;
@@ -40,12 +41,14 @@ namespace Comander.ViewModel
         private ObservableCollection<IMetadataFileStructure> _selectedFiles;
         private IMessanger _messanger;
         private IOState _state;
+        private ManagerType _type;
 
-        public IOManager(string actualPath, IFileSystemManager fileManager, SyntaxParser syntaxParser, 
+        public IOManager(ManagerType type,string actualPath, IFileSystemManager fileManager, SyntaxParser syntaxParser, 
             IHistoryManager historyManager, IConfigReader configReader, 
             IPluginManager pluginManager, ILogger logger, IPathResolver pathResolver)
         {
             _state = new IOUnBusyState(this, fileManager);
+            _type = type;
             _actualPath = actualPath;
             _fileManager = fileManager;
             _syntaxParser = syntaxParser;
@@ -91,6 +94,7 @@ namespace Comander.ViewModel
 
             _messanger = Messanger.Messanger.GetInstance();
             _messanger.Register(typeof(WindowPositionEventArgs), MouseMoveCallback);
+            _messanger.Register(typeof(FocusMessage), ReceivedFocusCallback);
 
             ObservableFromProperty<string>("Filter")
                 .DistinctUntilChanged()

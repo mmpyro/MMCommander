@@ -74,12 +74,23 @@ namespace Comander.ViewModel
         {
             var dirs = await _fileManager.GetAllStructuresAsync(ActualPath);
             Files = new ObservableCollection<IMetadataFileStructure>(dirs.Cast<IMetadataFileStructure>());
+            SetFocus();
+        }
+
+        private void SetFocus()
+        {
+            if(_focus == true)
+                _messanger.Send(new SetFocusMessage
+                {
+                    GridName = _type.ToString()
+                });
         }
 
         public async void FilterFiles()
         {
             try
             {
+                SetFocus();
                 if (string.IsNullOrEmpty(Filter))
                     Refresh();
                 else
@@ -235,6 +246,15 @@ namespace Comander.ViewModel
         {
             Application.Current.Dispatcher.Invoke(
                        () => _logger.Info(message));
+        }
+  
+        private void ReceivedFocusCallback(object e)
+        {
+            var focusMessage = (FocusMessage)e;
+            if (focusMessage.ManagerType.Equals(_type.ToString()))
+                _focus = true;
+            else
+                _focus = false;
         }
         #endregion
 

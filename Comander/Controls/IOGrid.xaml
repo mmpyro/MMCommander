@@ -20,7 +20,7 @@
             <RowDefinition Height="30"/>
         </Grid.RowDefinitions>
         <TextBox IsReadOnly="True" Text="{Binding CurrentOperation}" Grid.Row="1"/>
-        <DataGrid Grid.Row="0" Style="{StaticResource DataGridCustomStyle}" RowHeaderWidth="0"  Name="DataGrid1" AutoGenerateColumns="False" VerticalScrollBarVisibility="Visible" 
+        <DataGrid FocusManager.GotFocus="DataGrid1_GotFocus" Grid.Row="0" Style="{StaticResource DataGridCustomStyle}" RowHeaderWidth="0"  Name="DataGrid1" AutoGenerateColumns="False" VerticalScrollBarVisibility="Visible" 
                       GridLinesVisibility="None" SelectedItem="{Binding SelectedFile}"  ItemsSource="{Binding Files}"
                        RowStyle="{StaticResource DataGridRowStyleCustom}"  ColumnHeaderStyle="{StaticResource DataGridColumnHeaderStyleCustom}">              
             <DataGrid.Columns>

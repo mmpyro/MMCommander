@@ -64,9 +64,9 @@
                 <ColumnDefinition Width="10"/>
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
-            <controls:IOGrid DataContext="{Binding Io1}"/>
+            <controls:IOGrid DataContext="{Binding Io1}" GridName="Io1"/>
             <GridSplitter Width="10" HorizontalAlignment="Stretch" Grid.Column="1"/>
-            <controls:IOGrid DataContext="{Binding Io2}" Grid.Column="2"/>
+            <controls:IOGrid DataContext="{Binding Io2}" GridName="Io2" Grid.Column="2"/>
         </Grid>
         <Grid Grid.Row="3">
             <Grid.ColumnDefinitions>
