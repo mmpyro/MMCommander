@@ -39,11 +39,13 @@ namespace Comander.ViewModel
         private Point _currentPosition;
         private ObservableCollection<IMetadataFileStructure> _selectedFiles;
         private IMessanger _messanger;
+        private IOState _state;
 
         public IOManager(string actualPath, IFileSystemManager fileManager, SyntaxParser syntaxParser, 
             IHistoryManager historyManager, IConfigReader configReader, 
             IPluginManager pluginManager, ILogger logger, IPathResolver pathResolver)
         {
+            _state = new IOUnBusyState(this, fileManager);
             _actualPath = actualPath;
             _fileManager = fileManager;
             _syntaxParser = syntaxParser;

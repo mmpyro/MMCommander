@@ -113,6 +113,9 @@
     <Compile Include="Converters\LogMessageConverter.cs" />
     <Compile Include="Converters\SelectedConverter.cs" />
     <Compile Include="Converters\VisibilityConverter.cs" />
+    <Compile Include="Core\IOBusyState.cs" />
+    <Compile Include="Core\IOState.cs" />
+    <Compile Include="Core\IOUnBusyState.cs" />
     <Compile Include="Core\PathResolver.cs" />
     <Compile Include="Core\PluginManager.cs" />
     <Compile Include="Messages\PulseMessage.cs" />

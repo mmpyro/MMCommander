@@ -1,20 +1,13 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
-using System.IO;
 using System.Linq;
-using System.Threading.Tasks;
 using System.Windows;
 using Comander.CommanderIO;
-using Comander.Controls;
 using Comander.View;
 using IOLib;
-using LogLib;
 using RxFramework;
 using Search;
-using ZipLib;
-using ZipAdapter = ZipLib.ZipAdapter;
 using Comander.Core;
 using Comander.Messages;
 
@@ -23,182 +16,19 @@ namespace Comander.ViewModel
     public partial class IOManager : ReactiveObject, IFileNotifier
     {
         #region Methods
-        //private bool AllowReplace(string fileName)
-        //{
-        //    bool result = false;
-        //    Application.Current.Dispatcher.Invoke(() =>
-        //    {
-        //        ConfirmWindow confirmWindow =
-        //            new ConfirmWindow(string.Format("Do you want to replace {0} file ?", fileName));
-        //        result = confirmWindow.ShowDialog() ?? false;
-        //    });
-        //    return result;
-        //}
-
-        private void ZipFileProcessor(IEnumerable<IMetadataFileStructure> zFiles, ZipParameters zipParameters)
-        {
-            Task.Run(() =>
-            {
-                try
-                {
-                    SetBusyApp();
-                    ZipAdapter zipper = new ZipAdapter();
-                    var files = (from file in zFiles select file.FullName).ToArray();
-                    if(string.IsNullOrEmpty(zipParameters.Password))
-                        zipper.CompressFiles(zipParameters, files);
-                    else
-                        zipper.CompressFilesWithEncryption(zipParameters, files);
-                    Application.Current.Dispatcher.Invoke(() => _logger.Info("Zip proccess was finished without errors."));
-                    UnsetBusyApp();
-                }
-                catch (Exception ex)
-                {
-                    Application.Current.Dispatcher.Invoke(() => _logger.Error(ex));
-                    UnsetBusyApp();
-                }
-                finally
-                {
-                    Notify(string.Empty);
-                }
-            });
-        }
-
-        private void ZipDirProcessor(IMetadataFileStructure dir, ZipParameters zipParameters)
-        {
-            Task.Run(() =>
-            {
-                try
-                {
-                    SetBusyApp();
-                    ZipAdapter zipper = new ZipAdapter();
-                    if (string.IsNullOrEmpty(zipParameters.Password))
-                        zipper.CompressDir(zipParameters, dir.FullName);
-                    else
-                        zipper.CompressFilesWithEncryption(zipParameters, dir.FullName);
-                    Application.Current.Dispatcher.Invoke(() => _logger.Info(string.Format("Zip {0} was finished without errors.", dir.Name)));
-                    UnsetBusyApp();
-                }
-                catch (Exception ex)
-                {
-                    Application.Current.Dispatcher.Invoke(() => _logger.Error(ex));
-                    UnsetBusyApp();
-                }
-                finally
-                {
-                    Notify(string.Empty);
-                }
-            });
-        }
-
         private void ZipFiles()
         {
-            var files = Files.Where(t => t.IsSelected());
-            if (files.Count() == 1 && files.First().IsDirectory)
-            {
-                ZipWindow zipWindow = new ZipWindow(_actualPath);
-                zipWindow.ShowDialog();
-                if (zipWindow.ZipParameters != null)
-                {
-                    Notify("Zip in progress...");
-                    var parameters = zipWindow.ZipParameters;
-                    ZipDirProcessor(files.First(), parameters);
-                }
-            }
-            else if (files.Any())
-            {
-                ZipWindow zipWindow = new ZipWindow(_actualPath);
-                zipWindow.ShowDialog();
-                if ( zipWindow.ZipParameters != null)
-                {
-                    Notify("Zip in progress...");
-                    var parameters = zipWindow.ZipParameters;
-                    ZipFileProcessor( files, parameters);
-                }
-            }
-            else
-            {
-                _logger.Warn("Any file was selected.");
-            }
+            _state.ZipFiles();
         }
 
         private void UnZipFiles()
         {
-            try
-            {
-                UnZipWindow window = new UnZipWindow(SelectedFile);
-                window.ShowDialog();
-                if (window.ZipParameters != null)
-                {
-                    UnZipProcesor(window.ZipParameters, window.ExtractionType);
-                }
-            }
-            catch (Exception e)
-            {
-                _logger.Error(e.Message);
-            }
-        }
-
-        private void UnZipProcesor(ZipParameters zipParameters, ExtractType extractionType)
-        {
-            Task.Run(() =>
-            {
-                try
-                {
-                    SetBusyApp();
-                    var zipper = new ZipAdapter();
-                    if (extractionType == ExtractType.Here)
-                        zipper.UnCompressFile(zipParameters, ActualPath);
-                    else
-                    {
-                        string dir = zipParameters.ArchiveName.Split('.')[0];
-                        string extractionPath = Path.Combine(ActualPath, dir);
-                        _fileManager.CreateDirectory(extractionPath);
-                        zipper.UnCompressFile(zipParameters, extractionPath );
-                    }
-                    Application.Current.Dispatcher.Invoke(
-                        () => _logger.Info(string.Format("UnZip {0} was finished without errors.", ActualPath)));
-                    UnsetBusyApp();
-                }
-                catch (Exception ex)
-                {
-                    Application.Current.Dispatcher.Invoke(() => _logger.Error(ex));
-                    UnsetBusyApp();
-                }
-                finally
-                {
-                    Notify(string.Empty);
-                }
-            });
+            _state.UnZipFiles();
         }
 
         private void DeleteFile()
         {
-            var bfiles = _files.Where(t => t.IsSelected());
-            int allfiles = bfiles.Count();
-            ConfirmWindow confirmWindow = new ConfirmWindow("Do you want delete " + allfiles + " files ?");
-            if (confirmWindow.ShowDialog() == true)
-            {
-                Task.Run(() =>
-                {
-                    try
-                    {
-                        SetBusyApp();
-                        int iterator = 1;
-                        foreach (var file in bfiles)
-                        {
-                            Notify(string.Format("Delete {0} of {1} files", iterator++, allfiles));
-                            file.Delete();
-                            _logger.Debug("Delete "+ file.Name);
-                        }
-                        UnsetBusyApp();
-                    }
-                    catch (Exception ex)
-                    {
-                        Application.Current.Dispatcher.Invoke(() => _logger.Error(ex));
-                        UnsetBusyApp();
-                    }
-                });
-            }
+           _state.DeleteFile(_files.Where(t => t.IsSelected()));
         }
 
         public void LoadDrivers()
@@ -237,28 +67,7 @@ namespace Comander.ViewModel
 
         private void MoveFile()
         {
-            Task.Run(() =>
-            {
-                try
-                {
-                    SetBusyApp();
-                    var bfiles = _files.Where(t => t.IsSelected());
-                    int iterator = 1, allfiles = bfiles.Count();
-                    IAbstractFileStructure destinationDir = _fileManager.GetDirFromPath(_secondManager.ActualPath);
-                    foreach (var file in bfiles)
-                    {
-                        Notify(string.Format("Move {0} of {1} files",iterator++, allfiles));
-                        file.Move(destinationDir);
-                        _logger.Debug(string.Format("Move {0} to {1}", file.Name, destinationDir.FullName));
-                    }
-                    UnsetBusyApp();
-                }
-                catch (Exception ex)
-                {
-                    Application.Current.Dispatcher.Invoke(() => _logger.Error(ex));
-                    UnsetBusyApp();
-                }
-            });
+            _state.MoveFile(_files.Where(t => t.IsSelected()), _fileManager.GetDirFromPath(_secondManager.ActualPath));
         }
 
         private async void Refresh()
@@ -267,7 +76,7 @@ namespace Comander.ViewModel
             Files = new ObservableCollection<IMetadataFileStructure>(dirs.Cast<IMetadataFileStructure>());
         }
 
-        private async void FilterFiles()
+        public async void FilterFiles()
         {
             try
             {
@@ -288,28 +97,8 @@ namespace Comander.ViewModel
 
         private void CopyFile()
         {
-            Task.Run(() =>
-            {
-                try
-                {
-                    SetBusyApp();
-                    var bfiles = _files.Where(t => t.IsSelected());
-                    int iterator = 1, allfiles = bfiles.Count();
-                    IAbstractFileStructure destinationDir = _fileManager.GetDirFromPath(_secondManager.ActualPath);
-                    foreach (var file in bfiles)
-                    {
-                        Notify(string.Format("Copy {0} of {1} files", iterator++, allfiles));
-                        file.OverrideCopy(destinationDir);
-                        _logger.Debug(string.Format("Copy {0} to {1}", file.Name, destinationDir.FullName));
-                    }
-                    UnsetBusyApp();
-                }
-                catch (Exception ex)
-                {
-                    Application.Current.Dispatcher.Invoke(() => _logger.Error(ex));
-                    UnsetBusyApp();
-                }
-            });
+           var dir = _fileManager.GetDirFromPath(_secondManager.ActualPath);
+           _state.CopyFile(_files.Where(t => t.IsSelected()), dir);
         }
 
         public IAbstractFileStructure GetCurrentDirectory()
@@ -319,54 +108,26 @@ namespace Comander.ViewModel
 
         public void CreateDirectory()
         {
-            InputWindow inputWindow = new InputWindow("Please enter the directory name");
-            if (inputWindow.ShowDialog() == true)
-            {
-                try
-                {
-                    string path = Path.Combine(ActualPath, inputWindow.InputName);
-                    _fileManager.CreateDirectory(path);
-                    _logger.Debug("Create new directory "+path);
-                    FilterFiles();
-                }
-                catch
-                {
-                    _logger.Error("Directory wasn't created");
-                }
-            }
+            _state.CreateDirectory();
         }
 
         public void CreateFile()
         {
-            InputWindow inputWindow = new InputWindow("Please enter the file name");
-            if (inputWindow.ShowDialog() == true)
-            {
-                try
-                {
-                    string path = Path.Combine(ActualPath, inputWindow.InputName);
-                    _fileManager.CreateFile(path);
-                    _logger.Debug("Create new file "+path);
-                    FilterFiles();
-                }
-                catch
-                {
-                    _logger.Error("File wasn't created");
-                }
-            }
+            _state.CreateFile();
         }
 
-        private void SetBusyApp()
+        public void SetBusyApp()
         {
             IsAvaiable = false;
             _messanger.Send(new PulseMessage());
         }
 
-        private void Notify(string msg)
+        public void Notify(string msg)
         {
             CurrentOperation = msg;
         }
 
-        private void UnsetBusyApp()
+        public void UnsetBusyApp()
         {
             _messanger.Send(new WaitMessage());
             CurrentOperation = string.Empty;
@@ -377,25 +138,12 @@ namespace Comander.ViewModel
 
         private void RunAsAdmin()
         {
-            var info = new ProcessStartInfo
-            {
-                FileName = SelectedFile.FullName,
-                WorkingDirectory = ActualPath,
-                Verb = "runas"
-            };
-            Process.Start(info);
-            _logger.Debug("Run as administrator " + SelectedFile.FullName);
+            _state.RunAsAdmin(SelectedFile);
         }
 
         private void Run()
         {
-            var info = new ProcessStartInfo
-            {
-                FileName = SelectedFile.FullName,
-                WorkingDirectory = ActualPath,
-            };
-            Process.Start(info);
-            _logger.Debug("Run " + SelectedFile.FullName);
+            _state.Run(SelectedFile);
         }
 
         private void ShowShortcutsWindow()
@@ -445,13 +193,7 @@ namespace Comander.ViewModel
 
         private void RenameFile()
         {
-            var inputWindow = new InputWindow("Please enter the new file name", SelectedFile.Name);
-            if (inputWindow.ShowDialog() == true)
-            {
-                SelectedFile.Rename(inputWindow.InputName);
-                _logger.Debug(string.Format("Rename {0} to {1}",SelectedFile.Name,inputWindow.InputName));
-                FilterFiles();
-            }
+            _state.RenameFile(SelectedFile);
         }
 
         private void EvaluatePath(string value)
@@ -473,6 +215,27 @@ namespace Comander.ViewModel
             }
         }
 
+        public void ChangeState(IOState state)
+        {
+            _state = state;
+            _state.Invoke();
+        }
+
+        public void LogDebug(string message)
+        {
+            _logger.Debug(message);
+        }
+
+        public void LogError(Exception ex)
+        {
+            Application.Current.Dispatcher.Invoke(() => _logger.Error(ex));
+        }
+
+        public void LogInfo(string message)
+        {
+            Application.Current.Dispatcher.Invoke(
+                       () => _logger.Info(message));
+        }
         #endregion
 
         #region Property
@@ -610,10 +373,18 @@ namespace Comander.ViewModel
 
         private void ShowPluginWindow()
         {
-            var pluginWindow = new PluginWindow(_pluginManager, Files.Where(t => t.IsSelected()), _logger);
-            pluginWindow.Left = _currentPosition.X;
-            pluginWindow.Top = _currentPosition.Y;
-            pluginWindow.Show();
+           _state.ShowPluginWindow(() =>
+           {
+               var pluginWindow = new PluginWindow(_pluginManager, Files.Where(t => t.IsSelected()), _logger);
+               pluginWindow.Left = _currentPosition.X;
+               pluginWindow.Top = _currentPosition.Y;
+               pluginWindow.Show();
+           });
+        }
+
+        public void LogError(string message)
+        {
+            _logger.Error(message);
         }
     }
 }
