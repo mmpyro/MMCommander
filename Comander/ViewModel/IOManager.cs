@@ -74,23 +74,38 @@ namespace Comander.ViewModel
         {
             var dirs = await _fileManager.GetAllStructuresAsync(ActualPath);
             Files = new ObservableCollection<IMetadataFileStructure>(dirs.Cast<IMetadataFileStructure>());
-            SetFocus();
         }
 
         private void SetFocus()
         {
-            if(_focus == true)
+            if (_focus == true)
+            {
                 _messanger.Send(new SetFocusMessage
                 {
-                    GridName = _type.ToString()
+                    GridName = _type.ToString(),
+                    SelectedFile = GetFile()
                 });
+            }
+        }
+
+        private void SwitchFocus()
+        {
+            _focus = false;
+            SecondManager._focus = true;
+            SecondManager.SetFocus();
+        }
+
+        private IMetadataFileStructure GetFile()
+        {
+            if (SelectedFile != null)
+                return SelectedFile;
+            return Files.First();
         }
 
         public async void FilterFiles()
         {
             try
             {
-                SetFocus();
                 if (string.IsNullOrEmpty(Filter))
                     Refresh();
                 else
@@ -129,7 +144,6 @@ namespace Comander.ViewModel
 
         public void SetBusyApp()
         {
-            IsAvaiable = false;
             _messanger.Send(new PulseMessage());
         }
 
@@ -142,9 +156,9 @@ namespace Comander.ViewModel
         {
             _messanger.Send(new WaitMessage());
             CurrentOperation = string.Empty;
-            IsAvaiable = true;
             FilterFiles();
             _secondManager.FilterFiles();
+            SetFocus();
         }
 
         private void RunAsAdmin()
@@ -247,15 +261,6 @@ namespace Comander.ViewModel
             Application.Current.Dispatcher.Invoke(
                        () => _logger.Info(message));
         }
-  
-        private void ReceivedFocusCallback(object e)
-        {
-            var focusMessage = (FocusMessage)e;
-            if (focusMessage.ManagerType.Equals(_type.ToString()))
-                _focus = true;
-            else
-                _focus = false;
-        }
         #endregion
 
         #region Property
@@ -277,16 +282,6 @@ namespace Comander.ViewModel
             {
                 _selectedFiles = value;
                 OnPropertyChanged("SelectedFiles");
-            }
-        }
-
-        public bool IsAvaiable
-        {
-            get { return _isAvaiable; }
-            set
-            {
-                _isAvaiable = value;
-                OnPropertyChanged("IsAvaiable");
             }
         }
 
@@ -336,6 +331,7 @@ namespace Comander.ViewModel
             {
                 _files = value;
                 OnPropertyChanged("Files");
+                SetFocus();
             }
         }
 

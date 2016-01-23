@@ -23,7 +23,6 @@ namespace Comander.ViewModel
         private ObservableCollection<IMetadataFileStructure> _files;
         private ObservableCollection<DriveStruct> _drives;
         private string _actualPath;
-        private bool _focus;
         private readonly IFileSystemManager _fileManager;
         private readonly SyntaxParser _syntaxParser;
         private IMetadataFileStructure _selectedFile;
@@ -35,13 +34,13 @@ namespace Comander.ViewModel
         private readonly IShortcutManager _shortcutManager;
         private readonly IPluginManager _pluginManager;
         private IOManager _secondManager;
-        private bool _isAvaiable = true;
         private string _filter;
         private Point _currentPosition;
         private ObservableCollection<IMetadataFileStructure> _selectedFiles;
         private IMessanger _messanger;
         private IOState _state;
         private ManagerType _type;
+        private bool _focus;
 
         public IOManager(ManagerType type,string actualPath, IFileSystemManager fileManager, SyntaxParser syntaxParser, 
             IHistoryManager historyManager, IConfigReader configReader, 
@@ -91,10 +90,22 @@ namespace Comander.ViewModel
             RenameCommand = new ExecuteCommand(RenameFile, _logger);
             UnZipCommand = new ExecuteCommand(UnZipFiles, _logger);
             PluginCommand = new ExecuteCommand(ShowPluginWindow,_logger);
+            SwitchFocusCommand = new ExecuteCommand(SwitchFocus, _logger);
 
             _messanger = Messanger.Messanger.GetInstance();
             _messanger.Register(typeof(WindowPositionEventArgs), MouseMoveCallback);
-            _messanger.Register(typeof(FocusMessage), ReceivedFocusCallback);
+            _messanger.Register(typeof(FocusMessage), t =>
+            {
+                FocusMessage msg = (FocusMessage)t;
+                if(msg.ManagerName.Equals(_type.ToString(), StringComparison.OrdinalIgnoreCase))
+                {
+                    _focus = true;
+                }
+                else
+                {
+                    _focus = false;
+                }
+            });
 
             ObservableFromProperty<string>("Filter")
                 .DistinctUntilChanged()
@@ -133,6 +144,7 @@ namespace Comander.ViewModel
         public ICommand RenameCommand { get; set; }
         public ICommand UnZipCommand { get; set; }
         public ICommand PluginCommand { get; set; }
+        public ICommand SwitchFocusCommand { get; set; }
         #endregion
 
     }

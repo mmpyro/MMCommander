@@ -17,13 +17,6 @@ namespace Comander.Controls
 
         public string GridName { get; set; }
 
-        private void DataGrid1_GotFocus(object sender, System.Windows.RoutedEventArgs e)
-        {
-            _messanger.Send(new FocusMessage
-            {
-                ManagerType = GridName
-            });
-        }
 
         private void SetFocusCallback(object e)
         {
@@ -35,10 +28,19 @@ namespace Comander.Controls
                    if (DataGrid1.Items.Count > 0)
                    {
                        DataGrid1.Focus();
-                       DataGrid1.CurrentItem = DataGrid1.Items[0];
+                       int index = DataGrid1.SelectedIndex > 0 ? DataGrid1.SelectedIndex : 0;
+                       DataGrid1.CurrentCell = new DataGridCellInfo(DataGrid1.Items[index], DataGrid1.Columns[0]);
                    }
                });
             }
+        }
+
+        private void DataGrid1_GotFocus(object sender, RoutedEventArgs e)
+        {
+            _messanger.Send(new FocusMessage
+            {
+                ManagerName = GridName
+            });
         }
     }
 }

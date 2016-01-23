@@ -57,6 +57,9 @@
                 <KeyBinding Key="C" Modifiers="Shift" Command="{Binding ConsoleRunCommand}"/>
                 <KeyBinding Key="I" Modifiers="Control" Command="{Binding InfoCommand}"/>
                 <KeyBinding Key="R" Modifiers="Control" Command="{Binding RenameCommand}"/>
+                <KeyBinding Key="Esc" Command="{Binding ParentDirCommand}"/>
+                <KeyBinding Key="Home" Command="{Binding RootDirCommand}"/>
+                <KeyBinding Key="Tab" Command="{Binding SwitchFocusCommand}"/>
                 <KeyBinding Key="F3" Command="{Binding PluginCommand}"/>
                 <MouseBinding MouseAction="RightDoubleClick" Command="{Binding SelectCommand}" CommandParameter="{Binding ElementName=DataGrid1, Path=SelectedItems}"/>
                 <MouseBinding MouseAction="LeftDoubleClick" Command="{Binding EnterIntoDirCommand}"/>
