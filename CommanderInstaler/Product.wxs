@@ -46,139 +46,139 @@
           </Shortcut>
         </File>
       </Component>
-      <Component Id="cmp8BA5FA0B90CBEFB9F523B53CCA1B6B7C" Directory="INSTALLDIR" Guid="16C3CB13-A931-4A58-8F54-CFF81A4158AD">
-        <File Id="filD6B0D941E598005BC4A7C204AD3A1F9D" KeyPath="yes" Source="$(var.MMComander)\Comander.exe.config" />
+      <Component Id="c_Comander.exe.config" Directory="INSTALLDIR" Guid="16C3CB13-A931-4A58-8F54-CFF81A4158AD">
+        <File Id="Comander.exe.config" KeyPath="yes" Source="$(var.MMComander)\Comander.exe.config" />
       </Component>
-      <Component Id="cmp90686D74F1A1B7BKCD83D15A58AQ57A1" Directory="INSTALLDIR" Guid="340FB196-63F2-44B1-932E-24B6ACADA1BB">
-        <File Id="fil1B8B312F70FA9C97894175C569BC511A" KeyPath="yes" Source="$(var.MMComander)\CommanderPlugin.dll" />
+      <Component Id="c_CommanderPlugin.dll" Directory="INSTALLDIR" Guid="340FB196-63F2-44B1-932E-24B6ACADA1BB">
+        <File Id="CommanderPlugin.dll" KeyPath="yes" Source="$(var.MMComander)\CommanderPlugin.dll" />
       </Component>
-      <Component Id="cmp90686D74F1A1B7BECD83D15A58A657A1" Directory="INSTALLDIR" Guid="F138586A-03E0-4A70-85CC-206F101B6FAD">
-        <File Id="filE3A5B5A22BEB46EF2A3969298912A05C" KeyPath="yes" Source="$(var.MMComander)\Commands.xml" />
+      <Component Id="c_Commands.xml" Directory="INSTALLDIR" Guid="F138586A-03E0-4A70-85CC-206F101B6FAD">
+        <File Id="Commands.xml" KeyPath="yes" Source="$(var.MMComander)\Commands.xml" />
       </Component>
-      <Component Id="cmpF1A30EAEA60F489D422F472B4E619960" Directory="INSTALLDIR" Guid="984E6CEE-961C-4BC6-A780-30D7420F2256">
-        <File Id="fil7A23D6770684B2AE39599D88B03AB84E" KeyPath="yes" Source="$(var.MMComander)\Config.xml" />
+      <Component Id="c_Config.xml" Directory="INSTALLDIR" Guid="984E6CEE-961C-4BC6-A780-30D7420F2256">
+        <File Id="Config.xml" KeyPath="yes" Source="$(var.MMComander)\Config.xml" />
       </Component>
-      <Component Id="cmp4C027D91D8B50DEA754B095CF69F64FB" Directory="INSTALLDIR" Guid="A2EBE5D6-3131-4570-8926-43735511D490">
-        <File Id="fil8603FC199ED90625E201A8358AD1D1EA" KeyPath="yes" Source="$(var.MMComander)\IOLib.dll" />
+      <Component Id="c_IOLib.dll" Directory="INSTALLDIR" Guid="A2EBE5D6-3131-4570-8926-43735511D490">
+        <File Id="IOLib.dll" KeyPath="yes" Source="$(var.MMComander)\IOLib.dll" />
       </Component>
-      <Component Id="cmpC3CA5796E153BBA954FE98F0E93C9A8A" Directory="INSTALLDIR" Guid="834596AC-3291-4900-8427-D14430F3C173">
-        <File Id="filEAFA5D8A6EF1369768717FCB7CFB6CFE" KeyPath="yes" Source="$(var.MMComander)\IOLinq.dll" />
+      <Component Id="c_IOLinq.dll" Directory="INSTALLDIR" Guid="834596AC-3291-4900-8427-D14430F3C173">
+        <File Id="IOLinq.dll" KeyPath="yes" Source="$(var.MMComander)\IOLinq.dll" />
       </Component>
-      <Component Id="cmpFB7D0598F16B0FD5D6808500985872CE" Directory="INSTALLDIR" Guid="AEFD749D-3FAB-4047-8DF8-49D97D04C7ED">
-        <File Id="fil2E0EC6E3640E54DDD232826F946E289D" KeyPath="yes" Source="$(var.MMComander)\LogLib.dll" />
+      <Component Id="c_LogLib.dll" Directory="INSTALLDIR" Guid="AEFD749D-3FAB-4047-8DF8-49D97D04C7ED">
+        <File Id="LogLib.dll" KeyPath="yes" Source="$(var.MMComander)\LogLib.dll" />
       </Component>
-      <Component Id="cmp3456AED72B66E4419660DB6C9ABD231A" Directory="INSTALLDIR" Guid="618E73CD-7937-4494-9D0E-89F53EF80C5C">
-        <File Id="fil3174B2A7F12F9B39635ED0A24662FF66" KeyPath="yes" Source="$(var.MMComander)\RxFramework.dll" />
+      <Component Id="c_RxFramework.dll" Directory="INSTALLDIR" Guid="618E73CD-7937-4494-9D0E-89F53EF80C5C">
+        <File Id="RxFramework.dll" KeyPath="yes" Source="$(var.MMComander)\RxFramework.dll" />
       </Component>
-      <Component Id="cmp4244B0F9B0A303EA54F4C700EB91C846" Directory="INSTALLDIR" Guid="F0707530-EC6F-4EC8-A7BC-A085A2B3C123">
-        <File Id="fil399107999DF3FCC08227908458589C1F" KeyPath="yes" Source="$(var.MMComander)\SevenZipSharp.dll" />
+      <Component Id="c_SevenZipSharp.dll" Directory="INSTALLDIR" Guid="F0707530-EC6F-4EC8-A7BC-A085A2B3C123">
+        <File Id="SevenZipSharp.dll" KeyPath="yes" Source="$(var.MMComander)\SevenZipSharp.dll" />
       </Component>
-      <Component Id="cmp40F677128335BEDE79847C289E28354F" Directory="INSTALLDIR" Guid="01EEA2FA-38DA-478F-B244-740E8FD53911">
-        <File Id="fil84817FD8EB1C28026ED5D8285F673234" KeyPath="yes" Source="$(var.MMComander)\System.Reactive.Core.dll" />
+      <Component Id="c_System.Reactive.Core.dll" Directory="INSTALLDIR" Guid="01EEA2FA-38DA-478F-B244-740E8FD53911">
+        <File Id="System.Reactive.Core.dll" KeyPath="yes" Source="$(var.MMComander)\System.Reactive.Core.dll" />
       </Component>
-      <Component Id="cmpCCE75D7CC15A6DACB613641618AA7CC6" Directory="INSTALLDIR" Guid="4AC96885-EC70-4A6B-808C-3D9ED69E113A">
-        <File Id="fil6ACC7ACA97A11E248CEA348B3F50C10E" KeyPath="yes" Source="$(var.MMComander)\System.Reactive.Core.xml" />
+      <Component Id="c_System.Reactive.Core.xml" Directory="INSTALLDIR" Guid="4AC96885-EC70-4A6B-808C-3D9ED69E113A">
+        <File Id="System.Reactive.Core.xml" KeyPath="yes" Source="$(var.MMComander)\System.Reactive.Core.xml" />
       </Component>
-      <Component Id="cmp7A53BFC7B92F23942BCC7AAA3CBCA9A8" Directory="INSTALLDIR" Guid="1C5E0363-BEE6-4C1F-AE19-4132A6FB49DC">
-        <File Id="fil5851B3261BFEEC27F1A1F0E365E70FED" KeyPath="yes" Source="$(var.MMComander)\System.Reactive.Interfaces.dll" />
+      <Component Id="c_System.Reactive.Interfaces.dll" Directory="INSTALLDIR" Guid="1C5E0363-BEE6-4C1F-AE19-4132A6FB49DC">
+        <File Id="System.Reactive.Interfaces.dll" KeyPath="yes" Source="$(var.MMComander)\System.Reactive.Interfaces.dll" />
       </Component>
-      <Component Id="cmp9871D3EB307C067CD2073FCC4F8610DD" Directory="INSTALLDIR" Guid="F989F13C-3E73-4444-9921-55A6A339D9E6">
-        <File Id="fil2E48EA8BC59809D4993D2A4A13354241" KeyPath="yes" Source="$(var.MMComander)\System.Reactive.Interfaces.xml" />
+      <Component Id="c_System.Reactive.Interfaces.xml" Directory="INSTALLDIR" Guid="F989F13C-3E73-4444-9921-55A6A339D9E6">
+        <File Id="System.Reactive.Interfaces.xml" KeyPath="yes" Source="$(var.MMComander)\System.Reactive.Interfaces.xml" />
       </Component>
-      <Component Id="cmp49C96E501325996FC57F54AF7B28A317" Directory="INSTALLDIR" Guid="7F511BAF-E8A7-41B2-A864-6F588F1E0F2F">
-        <File Id="fil331680360B9ABCEB6090FEE7DDED0A26" KeyPath="yes" Source="$(var.MMComander)\System.Reactive.Linq.dll" />
+      <Component Id="c_System.Reactive.Linq.dll" Directory="INSTALLDIR" Guid="7F511BAF-E8A7-41B2-A864-6F588F1E0F2F">
+        <File Id="System.Reactive.Linq.dll" KeyPath="yes" Source="$(var.MMComander)\System.Reactive.Linq.dll" />
       </Component>
-      <Component Id="cmpE486E366F8E35E4EEFE7FBE45585D2A7" Directory="INSTALLDIR" Guid="84AF9AC3-BF29-44E4-AE60-F1DED91BD8DA">
-        <File Id="fil8D908F81C99328205D0DEED1F2C2A5FA" KeyPath="yes" Source="$(var.MMComander)\System.Reactive.Linq.xml" />
+      <Component Id="c_System.Reactive.Linq.xml" Directory="INSTALLDIR" Guid="84AF9AC3-BF29-44E4-AE60-F1DED91BD8DA">
+        <File Id="System.Reactive.Linq.xml" KeyPath="yes" Source="$(var.MMComander)\System.Reactive.Linq.xml" />
       </Component>
-      <Component Id="cmp612F6DE1117AAB5D471EE9ED11C8DCDE" Directory="INSTALLDIR" Guid="56FFD74C-6667-488B-A8BF-35DA36D15987">
-        <File Id="filBFF9C4AD1BE51E66408F07E11779E0C4" KeyPath="yes" Source="$(var.MMComander)\System.Reactive.PlatformServices.dll" />
+      <Component Id="c_System.Reactive.PlatformServices.dll" Directory="INSTALLDIR" Guid="56FFD74C-6667-488B-A8BF-35DA36D15987">
+        <File Id="System.Reactive.PlatformServices.dll" KeyPath="yes" Source="$(var.MMComander)\System.Reactive.PlatformServices.dll" />
       </Component>
-      <Component Id="cmp208D2EC8CEE51C05C2D85C820B7212BD" Directory="INSTALLDIR" Guid="EC91A5FF-BD0A-4D72-84BA-11127E81F31D">
-        <File Id="fil397AEA8A4CC9AFA00B233042293DEF47" KeyPath="yes" Source="$(var.MMComander)\System.Reactive.PlatformServices.xml" />
+      <Component Id="c_System.Reactive.PlatformServices.xml" Directory="INSTALLDIR" Guid="EC91A5FF-BD0A-4D72-84BA-11127E81F31D">
+        <File Id="System.Reactive.PlatformServices.xml" KeyPath="yes" Source="$(var.MMComander)\System.Reactive.PlatformServices.xml" />
       </Component>
-      <Component Id="cmp44FDFD890C7689B357DC6B76AF3600C5" Directory="INSTALLDIR" Guid="9108F06E-44E9-421E-84F9-D4274D399D9C">
-        <File Id="fil4331A5B7F3349DA892FB163615781F2E" KeyPath="yes" Source="$(var.MMComander)\System.Windows.Controls.Input.Toolkit.dll" />
+      <Component Id="c_System.Windows.Controls.Input.Toolkit.dll" Directory="INSTALLDIR" Guid="9108F06E-44E9-421E-84F9-D4274D399D9C">
+        <File Id="System.Windows.Controls.Input.Toolkit.dll" KeyPath="yes" Source="$(var.MMComander)\System.Windows.Controls.Input.Toolkit.dll" />
       </Component>
-      <Component Id="cmp2FAA5134DEC8BD153CC39727B34837F1" Directory="INSTALLDIR" Guid="632320B3-E534-4ADB-B842-3D88C7051608">
-        <File Id="fil85D79372F3EC73A3D29CEC31B1D58F8C" KeyPath="yes" Source="$(var.MMComander)\System.Windows.Controls.Layout.Toolkit.dll" />
+      <Component Id="c_System.Windows.Controls.Layout.Toolkit.dll" Directory="INSTALLDIR" Guid="632320B3-E534-4ADB-B842-3D88C7051608">
+        <File Id="System.Windows.Controls.Layout.Toolkit.dll" KeyPath="yes" Source="$(var.MMComander)\System.Windows.Controls.Layout.Toolkit.dll" />
       </Component>
-      <Component Id="cmp4CD906D88645E613FEDAEFFAE4B11AD4" Directory="INSTALLDIR" Guid="68D58ABA-466E-4CAD-8921-ABC821028C87">
-        <File Id="fil3A4E49086F7A59A6A7B837F4EF93B837" KeyPath="yes" Source="$(var.MMComander)\System.Windows.Interactivity.dll" />
+      <Component Id="c_System.Windows.Interactivity.dll" Directory="INSTALLDIR" Guid="68D58ABA-466E-4CAD-8921-ABC821028C87">
+        <File Id="System.Windows.Interactivity.dll" KeyPath="yes" Source="$(var.MMComander)\System.Windows.Interactivity.dll" />
       </Component>
-      <Component Id="cmp10FBA4A101D67007BBB0ED78F422018A" Directory="INSTALLDIR" Guid="DC322AC4-9F70-4B32-8634-455A0EB8A2D9">
-        <File Id="filBBC18FC933B46C328E6A37013678C113" KeyPath="yes" Source="$(var.MMComander)\WPFToolkit.dll" />
+      <Component Id="c_WPFToolkit.dll" Directory="INSTALLDIR" Guid="DC322AC4-9F70-4B32-8634-455A0EB8A2D9">
+        <File Id="WPFToolkit.dll" KeyPath="yes" Source="$(var.MMComander)\WPFToolkit.dll" />
       </Component>
-      <Component Id="cmpB513BC3172F3B1C3BC1FD467BDFB804D" Directory="INSTALLDIR" Guid="C091B944-84AB-4A5B-9A3D-6E45A8755266">
-        <File Id="filD0CFD704070016110E37DCD91D59716B" KeyPath="yes" Source="$(var.MMComander)\ZipAdapter.dll" />
+      <Component Id="c_ZipAdapter.dll" Directory="INSTALLDIR" Guid="C091B944-84AB-4A5B-9A3D-6E45A8755266">
+        <File Id="ZipAdapter.dll" KeyPath="yes" Source="$(var.MMComander)\ZipAdapter.dll" />
       </Component>
-      <Component Id="cmpB1A2EEC54CBD0253A5CFD60070E6475D" Directory="dir01DA9BBDF711EE0C9F632FA652C32CBE" Guid="9B8C8A38-CBB1-467D-A36E-79A5639AD8D7">
-        <File Id="fil1DADB365BB222CFAA44F7D880DA2DDF5" KeyPath="yes" Source="$(var.MMComander)\dll\7z(x86).dll" />
+      <Component Id="c_7z(x86).dll" Directory="dir01DA9BBDF711EE0C9F632FA652C32CBE" Guid="9B8C8A38-CBB1-467D-A36E-79A5639AD8D7">
+        <File Id="7z(x86).dll" KeyPath="yes" Source="$(var.MMComander)\dll\7z(x86).dll" />
       </Component>
-      <Component Id="cmpBF1F2EAE179762D87F41A90B1C45CAF9" Directory="dir01DA9BBDF711EE0C9F632FA652C32CBE" Guid="B80CE058-F1B0-473A-A8DE-6DF76EB65BAC">
-        <File Id="filB945CF309FD35D2372CF1A94872DC74F" KeyPath="yes" Source="$(var.MMComander)\dll\7z.dll" />
+      <Component Id="c_7z.dll" Directory="dir01DA9BBDF711EE0C9F632FA652C32CBE" Guid="B80CE058-F1B0-473A-A8DE-6DF76EB65BAC">
+        <File Id="7z.dll" KeyPath="yes" Source="$(var.MMComander)\dll\7z.dll" />
       </Component>
-      <Component Id="cmpFA323D1DD82B87A4085DD4EBA84685B8" Directory="dir4F3C530C044DF75FAE7A1AAFB2AC7320" Guid="6C9DB0DE-36EB-436E-A9A0-3A11030E39A4">
-        <File Id="fil718B946DF6B83B6CA54BEBAFC3C7411D" KeyPath="yes" Source="$(var.MMComander)\Icons\Accept-48.png" />
+      <Component Id="c_appbar.check.png" Directory="dir4F3C530C044DF75FAE7A1AAFB2AC7320" Guid="6C9DB0DE-36EB-436E-A9A0-3A11030E39A4">
+        <File Id="appbar.check.png" KeyPath="yes" Source="$(var.MMComander)\Icons\appbar.check.png" />
       </Component>
-      <Component Id="cmp18B85157A975BF3CC89D323E42E4C559" Directory="dir4F3C530C044DF75FAE7A1AAFB2AC7320" Guid="276C9A27-41A1-45A9-A05D-607D02F92F5C">
-        <File Id="fil88F47FE176D754560298785C2D7F7390" KeyPath="yes" Source="$(var.MMComander)\Icons\Alert-48.png" />
+      <Component Id="c_Alert-48.png" Directory="dir4F3C530C044DF75FAE7A1AAFB2AC7320" Guid="276C9A27-41A1-45A9-A05D-607D02F92F5C">
+        <File Id="Alert-48.png" KeyPath="yes" Source="$(var.MMComander)\Icons\Alert-48.png" />
       </Component>
-      <Component Id="cmpF632EA3506DC569149DEC8627359F9AE" Directory="dir4F3C530C044DF75FAE7A1AAFB2AC7320" Guid="6BDAC84B-9636-4A83-AB07-A56B81BDF029">
-        <File Id="fil68EA39A79A6A569A322BAB9E2061640C" KeyPath="yes" Source="$(var.MMComander)\Icons\back.png" />
+      <Component Id="c_back.png" Directory="dir4F3C530C044DF75FAE7A1AAFB2AC7320" Guid="6BDAC84B-9636-4A83-AB07-A56B81BDF029">
+        <File Id="back.png" KeyPath="yes" Source="$(var.MMComander)\Icons\back.png" />
       </Component>
-      <Component Id="cmpC1D5F374457E74BD9E621879E6431FD6" Directory="dir4F3C530C044DF75FAE7A1AAFB2AC7320" Guid="FBACBBA3-8B17-483A-AB12-3405DCCA2A10">
-        <File Id="fil5D02451813909522CB08EEEE6A82675D" KeyPath="yes" Source="$(var.MMComander)\Icons\Cancel-48.png" />
+      <Component Id="c_Cancel-48.png" Directory="dir4F3C530C044DF75FAE7A1AAFB2AC7320" Guid="FBACBBA3-8B17-483A-AB12-3405DCCA2A10">
+        <File Id="Cancel-48.png" KeyPath="yes" Source="$(var.MMComander)\Icons\Cancel-48.png" />
       </Component>
-      <Component Id="cmpEBC9CF0983088854E85E2A1B919B2FB1" Directory="dir4F3C530C044DF75FAE7A1AAFB2AC7320" Guid="164D9272-E5B0-4485-9E10-807344CAD92E">
-        <File Id="filDAA0B5DCB14C20AFD0B0EE3C2645F87F" KeyPath="yes" Source="$(var.MMComander)\Icons\Cancel.png" />
+      <Component Id="c_Cancel.png" Directory="dir4F3C530C044DF75FAE7A1AAFB2AC7320" Guid="164D9272-E5B0-4485-9E10-807344CAD92E">
+        <File Id="Cancel.png" KeyPath="yes" Source="$(var.MMComander)\Icons\Cancel.png" />
       </Component>
-      <Component Id="cmp730B2ED4D413957234115F76EA9B0280" Directory="dir4F3C530C044DF75FAE7A1AAFB2AC7320" Guid="10F8D9B8-7E7C-451C-8318-10F8F97CA18B">
-        <File Id="fil30C33DB7CA39B9692210AAF293340EF0" KeyPath="yes" Source="$(var.MMComander)\Icons\createdir.png" />
+      <Component Id="c_createdir.png" Directory="dir4F3C530C044DF75FAE7A1AAFB2AC7320" Guid="10F8D9B8-7E7C-451C-8318-10F8F97CA18B">
+        <File Id="createdir.png" KeyPath="yes" Source="$(var.MMComander)\Icons\createdir.png" />
       </Component>
-      <Component Id="cmp0904DDC4CC874E2D5A9006B7A323297F" Directory="dir4F3C530C044DF75FAE7A1AAFB2AC7320" Guid="9168DB65-5AE9-41D6-889C-DC33D980AB69">
-        <File Id="fil4D76CE9E75F6470E45ADC9E4F70537E6" KeyPath="yes" Source="$(var.MMComander)\Icons\createfile.png" />
+      <Component Id="c_createfile.png" Directory="dir4F3C530C044DF75FAE7A1AAFB2AC7320" Guid="9168DB65-5AE9-41D6-889C-DC33D980AB69">
+        <File Id="createfile.png" KeyPath="yes" Source="$(var.MMComander)\Icons\createfile.png" />
       </Component>
-      <Component Id="cmpF087D7B857E5FE528F3A81BFF716AE66" Directory="dir4F3C530C044DF75FAE7A1AAFB2AC7320" Guid="1B2D6BB7-A2F8-4B31-995C-8DFEEF111ECA">
-        <File Id="filD44CD0059AD06C663C748DB5838F084E" KeyPath="yes" Source="$(var.MMComander)\Icons\delete.png" />
+      <Component Id="c_delete.png" Directory="dir4F3C530C044DF75FAE7A1AAFB2AC7320" Guid="1B2D6BB7-A2F8-4B31-995C-8DFEEF111ECA">
+        <File Id="delete.png" KeyPath="yes" Source="$(var.MMComander)\Icons\delete.png" />
       </Component>
-      <Component Id="cmp67AD9A6DCBA5BCEBBB1FBAC9E91D461B" Directory="dir4F3C530C044DF75FAE7A1AAFB2AC7320" Guid="85E8BDB3-F8FC-48A0-9157-4137A4C76FBF">
-        <File Id="filD758CD4284D1ADA228BE9E8348F343AE" KeyPath="yes" Source="$(var.MMComander)\Icons\dir.png" />
+      <Component Id="c_dir.png" Directory="dir4F3C530C044DF75FAE7A1AAFB2AC7320" Guid="85E8BDB3-F8FC-48A0-9157-4137A4C76FBF">
+        <File Id="dir.png" KeyPath="yes" Source="$(var.MMComander)\Icons\dir.png" />
       </Component>
-      <Component Id="cmp08033E6FBF9455C79D7886078D45404C" Directory="dir4F3C530C044DF75FAE7A1AAFB2AC7320" Guid="E5AE59DA-797B-480E-BD69-23AB0E887F0D">
-        <File Id="fil09423CBD97AE03F2A330C4304CBD572B" KeyPath="yes" Source="$(var.MMComander)\Icons\error.png" />
+      <Component Id="c_error.png" Directory="dir4F3C530C044DF75FAE7A1AAFB2AC7320" Guid="E5AE59DA-797B-480E-BD69-23AB0E887F0D">
+        <File Id="error.png" KeyPath="yes" Source="$(var.MMComander)\Icons\error.png" />
       </Component>
-      <Component Id="cmp9656520E611ED723A3E8E8979C42912F" Directory="dir4F3C530C044DF75FAE7A1AAFB2AC7320" Guid="16F4B2E3-F490-4E1E-B584-F8AD7D532F64">
-        <File Id="filEBA669B592B3CF59BD4ED0E0145F5BE3" KeyPath="yes" Source="$(var.MMComander)\Icons\icon.png" />
+      <Component Id="c_icon.png" Directory="dir4F3C530C044DF75FAE7A1AAFB2AC7320" Guid="16F4B2E3-F490-4E1E-B584-F8AD7D532F64">
+        <File Id="icon.png" KeyPath="yes" Source="$(var.MMComander)\Icons\icon.png" />
       </Component>
-      <Component Id="cmpAD95B5F7C861C70A2CB08785C4384A22" Directory="dir4F3C530C044DF75FAE7A1AAFB2AC7320" Guid="EA036D31-7B18-4E2B-AAE2-9040001214F2">
-        <File Id="fil3CD1926C6E29EB4A63C0C2C95A24D888" KeyPath="yes" Source="$(var.MMComander)\Icons\info.png" />
+      <Component Id="c_info.png" Directory="dir4F3C530C044DF75FAE7A1AAFB2AC7320" Guid="EA036D31-7B18-4E2B-AAE2-9040001214F2">
+        <File Id="info.png" KeyPath="yes" Source="$(var.MMComander)\Icons\info.png" />
       </Component>
-      <Component Id="cmpBD0502CB6C255499DBB184A31F7A2437" Directory="dir4F3C530C044DF75FAE7A1AAFB2AC7320" Guid="B97930CE-6264-4038-A6E4-DDFF81E976B2">
-        <File Id="fil62A5B44D417D9EE71A2692A5422FAA55" KeyPath="yes" Source="$(var.MMComander)\Icons\info_black.png" />
+      <Component Id="c_info_black.png" Directory="dir4F3C530C044DF75FAE7A1AAFB2AC7320" Guid="B97930CE-6264-4038-A6E4-DDFF81E976B2">
+        <File Id="info_black.png" KeyPath="yes" Source="$(var.MMComander)\Icons\info_black.png" />
       </Component>
-      <Component Id="cmpF9BD8ED557026E3F3E74A1D20C0D9D32" Directory="dir4F3C530C044DF75FAE7A1AAFB2AC7320" Guid="0A13B7D4-7F8A-4CE5-90D5-A91A75EFD04D">
-        <File Id="filA31D8948CD15159429FFFCCF0C834D4F" KeyPath="yes" Source="$(var.MMComander)\Icons\main.ico" />
+      <Component Id="c_main.ico" Directory="dir4F3C530C044DF75FAE7A1AAFB2AC7320" Guid="0A13B7D4-7F8A-4CE5-90D5-A91A75EFD04D">
+        <File Id="main.ico" KeyPath="yes" Source="$(var.MMComander)\Icons\main.ico" />
       </Component>
-      <Component Id="cmp7B89A5817FB6193A5D108000067F7D56" Directory="dir4F3C530C044DF75FAE7A1AAFB2AC7320" Guid="7B62E2AE-7C5B-46CA-9F6F-039609806AFE">
-        <File Id="filB27026CE73C3C29819DBAA2C33682868" KeyPath="yes" Source="$(var.MMComander)\Icons\move.png" />
+      <Component Id="c_move.png" Directory="dir4F3C530C044DF75FAE7A1AAFB2AC7320" Guid="7B62E2AE-7C5B-46CA-9F6F-039609806AFE">
+        <File Id="move.png" KeyPath="yes" Source="$(var.MMComander)\Icons\move.png" />
       </Component>
-      <Component Id="cmpA245A39250A8C13B3DA94EF30DF78120" Directory="dir4F3C530C044DF75FAE7A1AAFB2AC7320" Guid="1165A4D9-2563-4C4C-A766-7A26B6AA2DB1">
-        <File Id="fil75DA3F88CC6944BDBF3B1581C2938818" KeyPath="yes" Source="$(var.MMComander)\Icons\move2.png" />
+      <Component Id="c_move2.png" Directory="dir4F3C530C044DF75FAE7A1AAFB2AC7320" Guid="1165A4D9-2563-4C4C-A766-7A26B6AA2DB1">
+        <File Id="move2.png" KeyPath="yes" Source="$(var.MMComander)\Icons\move2.png" />
       </Component>
-      <Component Id="cmp649867E578F13908567976947FCD57BD" Directory="dir4F3C530C044DF75FAE7A1AAFB2AC7320" Guid="148F5582-86B3-4600-A652-D6B17BA1FB9A">
-        <File Id="filBF34E34814E66B5C63114EF62EA0F59F" KeyPath="yes" Source="$(var.MMComander)\Icons\refresh.png" />
+      <Component Id="c_refresh.png" Directory="dir4F3C530C044DF75FAE7A1AAFB2AC7320" Guid="148F5582-86B3-4600-A652-D6B17BA1FB9A">
+        <File Id="refresh.png" KeyPath="yes" Source="$(var.MMComander)\Icons\refresh.png" />
       </Component>
-      <Component Id="cmp6D5438EC4D87736F81E2B92B82162DE6" Directory="dir4F3C530C044DF75FAE7A1AAFB2AC7320" Guid="98704BEC-BBF0-4EBB-82A9-E7C82BAFF674">
-        <File Id="filCBAB7FEB4F5F953CF592EFAD8FEE1AC6" KeyPath="yes" Source="$(var.MMComander)\Icons\rootdir.png" />
+      <Component Id="c_rootdir.png" Directory="dir4F3C530C044DF75FAE7A1AAFB2AC7320" Guid="98704BEC-BBF0-4EBB-82A9-E7C82BAFF674">
+        <File Id="rootdir.png" KeyPath="yes" Source="$(var.MMComander)\Icons\rootdir.png" />
       </Component>
-      <Component Id="cmpED84CDC40A60C21727B36F3CA2DC3730" Directory="dir4F3C530C044DF75FAE7A1AAFB2AC7320" Guid="C1606C62-570D-4E12-B1A5-32A8AD10210B">
-        <File Id="filEA82178CF1836A6198C365C4BC879ED1" KeyPath="yes" Source="$(var.MMComander)\Icons\search.png" />
+      <Component Id="c_search.png" Directory="dir4F3C530C044DF75FAE7A1AAFB2AC7320" Guid="C1606C62-570D-4E12-B1A5-32A8AD10210B">
+        <File Id="search.png" KeyPath="yes" Source="$(var.MMComander)\Icons\search.png" />
       </Component>
-      <Component Id="cmpC7083BC739D77AE2E8126ABA661B3BE7" Directory="dir4F3C530C044DF75FAE7A1AAFB2AC7320" Guid="5EA529B7-752F-4EF5-98EE-9AFAD67603D8">
-        <File Id="fil01429AB54327AE4EF3BDCAC31134F042" KeyPath="yes" Source="$(var.MMComander)\Icons\warning.png" />
+      <Component Id="c_warning.png" Directory="dir4F3C530C044DF75FAE7A1AAFB2AC7320" Guid="5EA529B7-752F-4EF5-98EE-9AFAD67603D8">
+        <File Id="warning.png" KeyPath="yes" Source="$(var.MMComander)\Icons\warning.png" />
       </Component>
-      <Component Id="KeyMap" Directory="Manuals" Guid="731AAC34-4B0D-48D3-AF06-F3F450C85AE0">
+      <Component Id="c_KeyMap" Directory="Manuals" Guid="731AAC34-4B0D-48D3-AF06-F3F450C85AE0">
         <File Id="KeyMapDocument" KeyPath="yes" Source="$(var.MMComander)\Manuals\keymap.html"/>
       </Component>
       <Component Id="CMP_WriteToRegistry" Directory="INSTALLDIR" Guid="371D0F9B-8226-4FF2-B9DB-F6A4169A903E">

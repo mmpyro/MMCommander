@@ -95,7 +95,6 @@
     <Compile Include="CommanderIO\MetaData.cs" />
     <Compile Include="CommanderIO\MetaDataFileFactory.cs" />
     <Compile Include="CommanderIO\MetadataFileStructure.cs" />
-    <Compile Include="Controls\ImageButton.cs" />
     <Compile Include="Controls\IOGrid.xaml.cs">
       <DependentUpon>IOGrid.xaml</DependentUpon>
     </Compile>
@@ -378,6 +377,12 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <Resource Include="Icons\appbar.check.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Icons\Alert-48.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
     <Content Include="Plugins\CommanderSimplePlugin.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
@@ -441,12 +446,6 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Icons\Accept-48.png">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Icons\Alert-48.png">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
     <Content Include="Icons\Cancel-48.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>

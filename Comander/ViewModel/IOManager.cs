@@ -253,7 +253,14 @@ namespace Comander.ViewModel
 
         public void LogError(Exception ex)
         {
-            Application.Current.Dispatcher.Invoke(() => _logger.Error(ex));
+            if(ex is NullReferenceException)
+            {
+                Application.Current.Dispatcher.Invoke(() => _logger.Error("Any file was selected"));
+            }
+            else
+            {
+                Application.Current.Dispatcher.Invoke(() => _logger.Error(ex));
+            }
         }
 
         public void LogInfo(string message)

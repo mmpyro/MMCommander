@@ -17,29 +17,21 @@
     <Window.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="../Themes/MetroDark/MetroDark.MSControls.Core.Implicit.xaml" />
+                <ResourceDictionary Source="../Themes/MetroDark/MetroDark.MSControls.Toolkit.Implicit.xaml" />
+                <ResourceDictionary Source="../Themes/Custom/CoWindowDictionary.xaml"/>
                 <ResourceDictionary x:Name="brushes" Source="../Themes/Custom/CustomBrushes.xaml"/>
             </ResourceDictionary.MergedDictionaries>
-            <Style x:Key="ButtonStyle" TargetType="{x:Type type:ImageButton}">
-                    <Setter Property="Background" Value="Black"/>
-                    <Setter Property="Template">
-                        <Setter.Value>
-                            <ControlTemplate TargetType="{x:Type type:ImageButton}" >
-                                <Image Source="{TemplateBinding ImageSource}" Width="32" Height="32"/>
-                            </ControlTemplate>
-                        </Setter.Value>
-                    </Setter>
-                </Style>
                 <Style TargetType="TextBox" x:Key="TextBoxStyle">
                     <Setter Property="Background" Value="Black"/>
                     <Setter Property="Foreground" Value="White"/>
                     <Setter Property="FontWeight" Value="Bold"/>
                 </Style>
-                <Style x:Key="BorderStyle" TargetType="Border">
-                    <Setter Property="BorderBrush" Value="{DynamicResource MainBorderBrush}"/>
-                    <Setter Property="CornerRadius" Value="5"/>
-                    <Setter Property="BorderThickness" Value="2"/>
-                </Style>
-            
+            <Style x:Key="BorderStyle" TargetType="Border">
+                <Setter Property="BorderBrush" Value="{DynamicResource MainBorderBrush}"/>
+                <Setter Property="CornerRadius" Value="5"/>
+                <Setter Property="BorderThickness" Value="2"/>
+            </Style>
         </ResourceDictionary>
     </Window.Resources>
     <Grid Width="250" MouseLeftButtonDown="Move_OnMouseLeftButtonDown">
@@ -49,7 +41,7 @@
             <RowDefinition Height="1*"/>
         </Grid.RowDefinitions>
         <TextBlock Foreground="White" TextAlignment="Center"  FontWeight="Bold" Text="Pleas enter a valid directory name."  FontStyle="Italic" Name="InfoTextBlock" Height="25" Grid.Row="0"/>
-        <TextBox Name="InputTextBox" BorderBrush="{StaticResource MainBorderBrush}" Background="Black" Foreground="White" BorderThickness="2" Height="25" Grid.Row="1" />
+        <TextBox TabIndex="1" Name="InputTextBox" BorderBrush="{StaticResource MainBorderBrush}" Background="Black" Foreground="White" BorderThickness="2" Height="25" Grid.Row="1" />
         <Grid Grid.Row="2">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
@@ -57,12 +49,16 @@
             </Grid.ColumnDefinitions>
             <DockPanel Width="40" Height="40" Grid.Column="1">
                 <Border Style="{StaticResource BorderStyle}">
-                    <type:ImageButton x:Name="CancelButton" Click="CancelButton_OnClick"  Style="{StaticResource ButtonStyle}" ImageSource="../Icons/Cancel.png" Width="32" Height="32"/>
+                    <Button TabIndex="3" x:Name="CancelButton" Click="CancelButton_OnClick"  Style="{StaticResource ButtonStyle}" Width="32" Height="32">
+                        <Image Margin="-8" Source="../Icons/Cancel.png"/>
+                    </Button>
                 </Border>
             </DockPanel>
             <DockPanel Width="40" Height="40"  Grid.Column="0">
                 <Border Style="{StaticResource BorderStyle}">
-                    <type:ImageButton x:Name="AcceptButton" Click="AcceptButton_OnClick"  Style="{StaticResource ButtonStyle}" ImageSource="../Icons/Accept-48.png" Width="32" Height="32"/>
+                    <Button TabIndex="2" x:Name="AcceptButton" Click="AcceptButton_OnClick"  Style="{StaticResource ButtonStyle}" Width="32" Height="32">
+                        <Image Margin="-8" Source="../Icons/appbar.check.png"/>
+                    </Button>
                 </Border>
             </DockPanel>
         </Grid>

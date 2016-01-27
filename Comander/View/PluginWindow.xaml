@@ -25,7 +25,7 @@
             </BeginStoryboard>
         </EventTrigger>
     </Window.Triggers>
-    <Grid>
+    <Grid FocusManager.FocusedElement="{Binding ElementName=PluginListView}">
         <i:Interaction.Triggers>
             <i:EventTrigger EventName="MouseDown">
                 <i:InvokeCommandAction Command="{Binding DragCommand}"/>
@@ -43,11 +43,10 @@
         <Grid.RowDefinitions>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
-        <ListView FontWeight="Bold" Name="PluginListView" ItemsSource="{Binding PluginNames}" Grid.Row="0">
+        <ListView TabIndex="1"  FontWeight="Bold" Name="PluginListView" ItemsSource="{Binding PluginNames}" Grid.Row="0">
             <ListView.InputBindings>
-                <KeyBinding Key="E" Command="{Binding PluginInvokeCommand}" CommandParameter="{Binding ElementName=PluginListView, Path=SelectedItem}"/>
-                <MouseBinding MouseAction="LeftDoubleClick" Command="{Binding PluginInvokeCommand}"
-                                 CommandParameter="{Binding ElementName=PluginListView, Path=SelectedItem}"/>
+                <KeyBinding Key="Enter" Command="{Binding PluginInvokeCommand}" CommandParameter="{Binding ElementName=PluginListView, Path=SelectedItem}"/>
+                <KeyBinding Key="Esc" Command="{Binding CloseCommand}"/>
             </ListView.InputBindings>
         </ListView>
     </Grid>

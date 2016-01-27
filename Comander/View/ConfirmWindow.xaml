@@ -17,18 +17,11 @@
     <Window.Resources>
         <ResourceDictionary>
         <ResourceDictionary.MergedDictionaries>
+            <ResourceDictionary Source="../Themes/MetroDark/MetroDark.MSControls.Core.Implicit.xaml" />
+            <ResourceDictionary Source="../Themes/MetroDark/MetroDark.MSControls.Toolkit.Implicit.xaml" />
+            <ResourceDictionary Source="../Themes/Custom/CoWindowDictionary.xaml"/>
             <ResourceDictionary x:Name="brushes" Source="../Themes/Custom/CustomBrushes.xaml"/>
         </ResourceDictionary.MergedDictionaries>
-        <Style x:Key="ButtonStyle" TargetType="{x:Type type:ImageButton}">
-            <Setter Property="Background" Value="Black"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="{x:Type type:ImageButton}" >
-                        <Image Source="{TemplateBinding ImageSource}" Width="32" Height="32"/>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
         <Style x:Key="BorderStyle" TargetType="Border">
             <Setter Property="BorderBrush" Value="{DynamicResource MainBorderBrush}"/>
             <Setter Property="CornerRadius" Value="5"/>
@@ -43,7 +36,7 @@
                 <ColumnDefinition Width="3*"/>
             </Grid.ColumnDefinitions>
             <DockPanel Background="Transparent" Width="40" Height="40" Grid.Column="0"  Margin="0,30,0,40" >
-                <Image Name="Image" Height="32" Width="32" />
+                <Image Margin="-10" Name="Image" Height="40" Width="40" />
             </DockPanel>
             <TextBlock Foreground="White" TextAlignment="Center" Name="InfoTextBlock" FontWeight="Bold" Height="50" Grid.Column="1" Margin="0,20,0,0"  />
         </Grid>
@@ -52,14 +45,18 @@
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
-            <DockPanel Margin="60,0,0,10" Width="40" Height="40" Grid.Column="0">
+            <DockPanel FocusManager.FocusedElement="{Binding ElementName=AcceptButton}" Margin="60,0,0,10" Width="40" Height="40" Grid.Column="0">
                 <Border Style="{StaticResource BorderStyle}">
-                    <type:ImageButton x:Name="AcceptButton" Click="AcceptButton_OnClick" Style="{StaticResource ButtonStyle}"  ImageSource="../Icons/Accept-48.png" Width="32" Height="32"   />
+                    <Button TabIndex="1" x:Name="AcceptButton" Click="AcceptButton_OnClick" Style="{StaticResource ButtonStyle}"  Height="32" Width="32">
+                        <Image Margin="-8" Source="../Icons/appbar.check.png"/>
+                    </Button>
                 </Border>
             </DockPanel>
             <DockPanel Width="40" Height="40" Grid.Column="1" Margin="0,0,60,10">
                 <Border Style="{StaticResource BorderStyle}">
-                    <type:ImageButton x:Name="CancelButton" Click="CancelButton_OnClick" Style="{StaticResource ButtonStyle}"  ImageSource="../Icons/Cancel.png" Width="32" Height="32"  />
+                    <Button TabIndex="2" x:Name="CancelButton" Click="CancelButton_OnClick" Style="{StaticResource ButtonStyle}" Width="32" Height="32">
+                        <Image Margin="-8" Source="../Icons/Cancel.png"/>
+                    </Button>
                 </Border>
             </DockPanel>
         </Grid>
