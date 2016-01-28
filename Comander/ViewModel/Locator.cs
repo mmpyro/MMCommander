@@ -15,7 +15,6 @@ namespace Comander.ViewModel
     public class Locator
     {
         private static readonly MainVM _mainVm;
-        private static readonly GenericCommandManager _genericCommandManager;
         private static readonly SearchVm _searchVm;
         private static readonly SettingsVm _settingsVm;
         private static readonly ILogger _logger;
@@ -23,7 +22,6 @@ namespace Comander.ViewModel
         static Locator()
         {
             _logger = new ComplexLogger(new GUILogger(), new FileLogger());
-            _genericCommandManager = new GenericCommandManager(_logger);
             _searchVm = new SearchVm();
             _settingsVm = new SettingsVm();
             Notifier = null;
@@ -36,11 +34,11 @@ namespace Comander.ViewModel
             var fileFactory = new MetaDataFileFactory();
             var fileSystemManager = new FileSystemManager(new FileManager( fileFactory), new DriveManager(), new DirectoryManager( fileFactory), new FileNameComparer());
             var syntaxParser = new SyntaxParser(fileFactory);
-            var io1 = new IOManager(ManagerType.Io1, configReader["IO1"], fileSystemManager,syntaxParser,historyManager1, configReader, pluginManager, _logger, pathResolver);
-            var io2 = new IOManager(ManagerType.Io2, configReader["IO2"], fileSystemManager,syntaxParser,historyManager2, configReader, pluginManager, _logger, pathResolver);
+            var io1 = new IOManager(ManagerType.Io1, configReader.Io1, fileSystemManager,syntaxParser,historyManager1, configReader, pluginManager, _logger, pathResolver);
+            var io2 = new IOManager(ManagerType.Io2, configReader.Io2, fileSystemManager,syntaxParser,historyManager2, configReader, pluginManager, _logger, pathResolver);
             io1.SecondManager = io2;
             io2.SecondManager = io1;
-            _mainVm = new MainVM(io1, io2, configReader , _logger, new AssemblyVersionResolver());
+            _mainVm = new MainVM(io1, io2, configReader , _logger, new GenericCommandManager(io1, io2,_logger), new AssemblyVersionResolver());
             App.Current.Dispatcher.UnhandledException += AppDispatcherUnhandledException;
         }
 
@@ -48,11 +46,6 @@ namespace Comander.ViewModel
         public  MainVM Main
         {
             get { return _mainVm; }
-        }
-
-        public static GenericCommandManager GenericCommandManager
-        {
-            get { return _genericCommandManager; }
         }
 
         public static IFileNotifier Notifier { get; set; }

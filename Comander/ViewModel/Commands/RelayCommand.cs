@@ -5,7 +5,7 @@ namespace Comander.ViewModel.Commands
 {
     public class RelayCommand : ICommand
     {
-          private readonly Action<object> _execute;
+        private readonly Action<object> _execute;
         private readonly Action<Exception> _logAction;
         private readonly Predicate<object> _canExecute;
 

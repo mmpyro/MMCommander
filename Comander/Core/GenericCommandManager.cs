@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Xml.Linq;
+using Comander.ViewModel;
 using Comander.ViewModel.Commands;
 using LogLib;
 
@@ -9,23 +10,24 @@ namespace Comander.Core
 {
     public interface IGenericCommandManager
     {
-        GenericCommandInvoker GetCommandByKey(string key);
-        GenericCommandInvoker GetCommandByName(string name);
+        IEnumerable<GenericCommand> GetCommands();
     }
 
     public class GenericCommandManager : IGenericCommandManager
     {
         private readonly ILogger _logger;
         private const string InitFilePath = "Commands.xml";
-        private readonly Dictionary<string, GenericCommandInvoker> _dict;
+        private readonly IEnumerable<GenericCommand> _list;
 
-        public GenericCommandManager(ILogger logger)
+
+        public GenericCommandManager(IOManager io1, IOManager io2, ILogger logger)
         {
             _logger = logger;
+            GenericCommandInvoker invoker = new GenericCommandInvoker(io1, io2, _logger);
             try
             {
-                _dict = (from item in XDocument.Load(InitFilePath).Descendants("Command")
-                    select new GenericCommandInvoker( item.Attribute("name").Value, item.Attribute("key").Value, item.Element("Parameter").Value)).ToDictionary(t => t.Key);
+                _list = (from item in XDocument.Load(InitFilePath).Descendants("Command")
+                         select new GenericCommand(item.Attribute("name").Value, item.Element("Parameter").Value, invoker));
             }
             catch (Exception e)
             {
@@ -33,15 +35,9 @@ namespace Comander.Core
             }
         }
 
-        public GenericCommandInvoker GetCommandByKey(string key)
+        public IEnumerable<GenericCommand> GetCommands()
         {
-            return _dict[key];
+            return _list;
         }
-
-        public GenericCommandInvoker GetCommandByName(string name)
-        {
-            return _dict.Single(t => t.Value.Name.Equals(name, StringComparison.CurrentCultureIgnoreCase)).Value;
-        }
-
     }
 }

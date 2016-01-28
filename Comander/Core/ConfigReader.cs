@@ -8,16 +8,19 @@ namespace Comander.Core
 {
     public interface IConfigReader
     {
-        string this[string key] { get; set; }
+        ConfigurationProgram this[string key] { get; set; }
+        IEnumerable<ConfigurationProgram> GetPrograms();
         IShortcutManager ShortcutManager { get; }
         void SavePaths(string source, string target);
+        string Io2 { get; }
+        string Io1 { get; }
     }
 
     public class ConfigReader : IConfigReader
     {
         private readonly string shortCutsPath = Path.Combine(Directory.GetCurrentDirectory(), "Config.xml");
         private readonly RegistryKey registryKey = Registry.CurrentUser.OpenSubKey("Software", true);
-        private readonly IDictionary<string,string> _config = new Dictionary<string, string>();
+        private IDictionary<string, ConfigurationProgram> _config;
         private readonly IShortcutManager _shortcutManager;
         private Configuration _configuration;
 
@@ -33,11 +36,7 @@ namespace Comander.Core
 
         private void ReadApplications()
         {
-            var tmp = (from item in _configuration.AppSection select item).ToDictionary(t => t.Name, t => t.Value);
-            foreach (var item in tmp)
-            {
-                _config.Add(item);
-            }
+            _config = (from item in _configuration.AppSection select item).ToDictionary(t => t.Name);
         }
 
         private void ReadConfig()
@@ -54,8 +53,8 @@ namespace Comander.Core
             var key = registryKey.CreateSubKey("MMCommander");
             string io1Key = (string) (key.GetValue("Source") ?? @"C:\");
             string io2Key = (string) (key.GetValue("Target") ?? @"C:\");
-            _config.Add("IO1", io1Key);
-            _config.Add("IO2", io2Key);
+            Io1 = io1Key;
+            Io2 = io2Key;
         }
 
         private void ReadShortCuts()
@@ -75,7 +74,7 @@ namespace Comander.Core
             textWriter.Close();
         }
 
-        public string this[string key]
+        public ConfigurationProgram this[string key]
         {
             get { return _config[key]; }
             set { _config[key] = value; }
@@ -85,6 +84,9 @@ namespace Comander.Core
         {
             get { return _shortcutManager; }
         }
+
+        public string Io2 { get; protected set; }
+        public string Io1 { get; protected set; }
 
         public void SavePaths(string source, string target)
         {
@@ -98,6 +100,11 @@ namespace Comander.Core
             key.SetValue("Source", source);
             key.SetValue("Target", target);
         }
+
+        public IEnumerable<ConfigurationProgram> GetPrograms()
+        {
+            return _config.Select(t => t.Value);
+        }
     }
 
 
@@ -106,24 +113,22 @@ namespace Comander.Core
     [XmlRoot(Namespace = "", IsNullable = false)]
     public partial class Configuration
     {
-        /// <remarks/>
         [XmlArrayItem("Program", IsNullable = false)]
         public ConfigurationProgram[] AppSection { get; set; }
 
-        /// <remarks/>
         [XmlArrayItem("ShortCut", IsNullable = false)]
         public string[] ShortCuts { get; set; }
     }
 
-    /// <remarks/>
     [XmlType(AnonymousType = true)]
     public partial class ConfigurationProgram
     {
-        /// <remarks/>
         [XmlAttribute("name")]
         public string Name { get; set; }
 
-        /// <remarks/>
+        [XmlAttribute("workingDirectory")]
+        public string WorkingDir { get; set; }
+
         [XmlText()]
         public string Value { get; set; }
     }

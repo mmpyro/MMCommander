@@ -25,16 +25,14 @@
             <MenuItem Header="Options" >
                 <MenuItem Header="Switch" Command="{Binding SwitchCommand}"/>
                 <MenuItem Header="Reload drives"  Command="{Binding RefreshCommand}" />
+                <MenuItem Header="Config"/>
                 <MenuItem Header="Open logs" Command="{Binding ReadLogsCommand}"/>
                 <MenuItem Header="Clen logs" Command="{Binding ClearLogCommand}"/>
             </MenuItem>
-            <MenuItem Header="Run" >
-                <MenuItem Header="Notepad" Command="{Binding RunNotepadCommand}" />
-                <MenuItem Header="Cmd" Command="{Binding RunCmdCommand}" />
-            </MenuItem>
+            <MenuItem Header="Run" ItemsSource="{Binding Programs}" />
+            <MenuItem ItemsSource="{Binding Exts}" Header="Ext"/>
             <MenuItem Header="Tools" >
                 <MenuItem Header="Compare Dir" Command="{Binding CompareDirCommand}" />
-                <MenuItem Header="Compare Files"  Command="{Binding GenericCommand}" CommandParameter="Name:Compare Files"/>
                 <MenuItem Header="Split"  Command="{Binding SplitFileCommand}"/>
                 <MenuItem Header="Join"  Command="{Binding JoinFileCommand}"/>
                 <MenuItem Header="Search" Command="{Binding SearchCommand}"/>

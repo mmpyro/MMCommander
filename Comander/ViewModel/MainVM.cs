@@ -17,6 +17,10 @@ using LogLib;
 using Search;
 using Messanger;
 using Comander.Messages;
+using System.Collections.Generic;
+using System.Windows.Controls;
+using System.Runtime.CompilerServices;
+using System.Linq;
 
 namespace Comander.ViewModel
 {
@@ -31,8 +35,10 @@ namespace Comander.ViewModel
         private readonly ILogger _logger;
         private int _current = 0;
         private string _logCount;
+        private IEnumerable<MenuItem> _exts;
+        private IEnumerable<MenuItem> _programs;
 
-        public MainVM(IOManager io1, IOManager io2, IConfigReader configReader, ILogger logger, IAssemblyVersionResolver assemblyVersionResolver)
+        public MainVM(IOManager io1, IOManager io2, IConfigReader configReader, ILogger logger, IGenericCommandManager genericCommandManager ,IAssemblyVersionResolver assemblyVersionResolver)
         {
             _configReader = configReader;
             _logger = logger;
@@ -46,28 +52,39 @@ namespace Comander.ViewModel
             TreeCommand = new ExecuteCommand(ShowTreeWindow, _logger);
             SplitFileCommand = new ExecuteCommand(SplitFile, _logger);
             JoinFileCommand = new ExecuteCommand(JoinFile, _logger);
-            RunNotepadCommand = new ExecuteCommand(() => Process.Start(_configReader["notepad"]), _logger);
+            //RunNotepadCommand = new ExecuteCommand(() => Process.Start(_configReader["notepad"]), _logger);
             ReadLogsCommand = new ExecuteCommand(() => Process.Start("explorer.exe", Path.Combine(Path.GetTempPath(), @"mmcommander")), _logger);
-            RunCmdCommand = new ExecuteCommand(() =>
-            {
-                var processInfo = new ProcessStartInfo(_configReader["cmd"]);
-                processInfo.WorkingDirectory = @"C:";
-                Process.Start(processInfo);
-            }, _logger);
+            //RunCmdCommand = new ExecuteCommand(() =>
+            //{
+            //    var processInfo = new ProcessStartInfo(_configReader["cmd"]);
+            //    processInfo.WorkingDirectory = @"C:";
+            //    Process.Start(processInfo);
+            //}, _logger);
 
             ClearLogCommand = new ExecuteCommand(ClearLog);
             NextLogCommand = new ExecuteCommand(NextLog);
             PreviusLogCommand = new ExecuteCommand(BackLog);
             CompareDirCommand = new ExecuteCommand(CompareDirectories);
-            GenericCommand = new GenericCommand(Io1, Io2, _logger);
             AboutCommand = new ExecuteCommand(() => (new AboutWindow(string.Format("Product version: {0}\nCreated by Michał Marszałek.",
                 _assemblyVersionResolver.GetProductVersion(GetType())))).ShowDialog());
-            KeyMapCommand = new ExecuteCommand(() =>  Process.Start(_configReader["web"], 
+            KeyMapCommand = new ExecuteCommand(() =>  Process.Start(_configReader["web"].Value, 
                 Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"Manuals\keymap.html")), _logger);
 
             SearchCommand = new ExecuteCommand(Search,_logger);
             IMessanger messanger = Messanger.Messanger.GetInstance();
             messanger.Register(typeof(WindowCloseEventArgs),OnClose);
+
+            Exts = genericCommandManager.GetCommands().Select(t => new MenuItem
+            {
+                Header = t.Name,
+                Command = t
+            });
+
+            Programs = _configReader.GetPrograms().Select(t => new MenuItem
+            {
+                Header = t.Name,
+                Command = new RunCommand(t)
+            });
         }
 
         private void Search()
@@ -196,8 +213,6 @@ namespace Comander.ViewModel
 
 
         #region Commands
-        public ICommand RunNotepadCommand { get; set; }
-        public ICommand RunCmdCommand { get; set; }
         public ICommand SwitchCommand { get; set; }
         public ICommand RefreshCommand { get; set; }
         public ICommand TreeCommand { get; set; }
@@ -207,7 +222,6 @@ namespace Comander.ViewModel
         public ICommand NextLogCommand { get; set; }
         public ICommand PreviusLogCommand { get; set; }
         public ICommand CompareDirCommand { get; set; }
-        public ICommand GenericCommand { get; set; }
         public ICommand AboutCommand { get; set; }
         public ICommand KeyMapCommand { get; set; }
         public ICommand SearchCommand { get; set; }
@@ -268,13 +282,38 @@ namespace Comander.ViewModel
             }
         }
 
+        public IEnumerable<MenuItem> Exts
+        {
+            get
+            {
+                return _exts;
+            }
+            set
+            {
+                _exts = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public IEnumerable<MenuItem> Programs
+        {
+            get
+            {
+                return _programs;
+            }
+            set
+            {
+                _programs = value;
+                OnPropertyChanged();
+            }
+        }
         #endregion
 
         #region INotifyPropertyChanged
         public event PropertyChangedEventHandler PropertyChanged;
 
         [NotifyPropertyChangedInvocator]
-        protected virtual void OnPropertyChanged(string propertyName)
+        protected virtual void OnPropertyChanged([CallerMemberName]string propertyName = "")
         {
             PropertyChangedEventHandler handler = PropertyChanged;
             if (handler != null) handler(this, new PropertyChangedEventArgs(propertyName));

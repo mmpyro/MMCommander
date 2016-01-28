@@ -1,7 +1,8 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
+<!-- Command name has to be unique-->
 <!--s - source d - destiny-->
 <Commands>
-  <Command name="Compare Files" key="E0F17A4B-0980-4973-8E1E-6FDD9BC383D4">
+  <Command name="Compare Files">
     <Parameter>F:\instalki\KDiff\KDiff3\kdiff3.exe -args {s} {d}</Parameter>
   </Command>
 </Commands>

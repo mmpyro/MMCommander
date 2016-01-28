@@ -68,7 +68,7 @@ namespace Comander.ViewModel
             EnterIntoDirCommand = new ExecuteCommand(EnterIntoDir, _logger);
             RunFileCommand = new ExecuteCommand(Run, _logger);
             RunAsAdminCommand = new ExecuteCommand(RunAsAdmin, _logger);
-            NotepadCommand = new ExecuteCommand(() => Process.Start(_configReader["notepad"], SelectedFile.FullName), _logger);
+            NotepadCommand = new ExecuteCommand(() => Process.Start(_configReader["notepad"].Value, SelectedFile.FullName), _logger);
             AddShortCutsCommand = new ExecuteCommand(() => _shortcutManager.Add(ActualPath), _logger);
             
             RefreshDriveCommand = new ExecuteCommand(() =>

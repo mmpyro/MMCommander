@@ -235,7 +235,7 @@ namespace Comander.Core
         {
             try
             {
-                UnZipWindow window = new UnZipWindow(_ioManager.Files.Single(t => t.IsSelected()));
+                UnZipWindow window = new UnZipWindow(_ioManager.SelectedFile);
                 window.ShowDialog();
                 if (window.ZipParameters != null)
                 {

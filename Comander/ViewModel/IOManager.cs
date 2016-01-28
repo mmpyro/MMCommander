@@ -194,7 +194,7 @@ namespace Comander.ViewModel
 
         private void RunConsole()
         {
-            var processInfo = new ProcessStartInfo(_configReader["cmd"]);
+            var processInfo = new ProcessStartInfo(_configReader["cmd"].Value);
             processInfo.WorkingDirectory = ActualPath;
             Process.Start(processInfo);
         }

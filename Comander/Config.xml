@@ -4,6 +4,7 @@
     <Program name="notepad">notepad++.exe</Program>
     <Program name="cmd">cmd.exe</Program>
     <Program name="web">chrome.exe</Program>
+    <!--<Program name="cmd" workingDirectory="D:\">cmd.exe</Program>-->
   </AppSection>
   <ShortCuts>
     <ShortCut>D:\test</ShortCut>
