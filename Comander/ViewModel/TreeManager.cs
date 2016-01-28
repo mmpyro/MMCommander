@@ -1,6 +1,4 @@
-﻿
-
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
@@ -9,35 +7,51 @@ using Comander.Annotations;
 
 namespace Comander.ViewModel
 {
-    public class Folder
+    public class File
     {
         public string Name
         {
             get
             {
-                if (!String.IsNullOrEmpty(Path))
+                if (!string.IsNullOrEmpty(Path))
                 {
-                    return System.IO.Path.GetFileName(Path);
+                    return GetFileName(Path);
                 }
                 return null;
             }
         }
-        public string Path
-        { get; set; }
-        public List<Folder> Folders
-        { get; set; }
-        public Folder()
+        public string Path{ get; set; }
+        public bool  IsDir { get; set; }
+        public List<File> Files { get; set; }
+
+        public File()
         {
-            Folders = new List<Folder>();
+            Files = new List<File>();
         }
-        public static Folder CreateFolderTree(string rootFolder)
+
+        private static string GetFileName(string fullName)
         {
-            Folder fld = new Folder { Path = rootFolder };
-            foreach (var item in Directory.GetDirectories(rootFolder))
+            return System.IO.Path.GetFileName(fullName);
+        }
+
+        public static File CreateFolderTree(string rootFolder)
+        {
+            File fld = new File { Path = rootFolder, IsDir = true };
+            foreach (var file in Directory.GetFiles(rootFolder))
+            {
+                var fi = new FileInfo(file);
+                fld.Files.Add(new File
+                {
+                    Path = fi.Name,
+                    IsDir = false
+                });
+            }
+
+            foreach (var dir in Directory.GetDirectories(rootFolder))
             {
                 try
                 {
-                    fld.Folders.Add(CreateFolderTree(item));
+                    fld.Files.Add(CreateFolderTree(dir));
                 }
                 catch
                 {
@@ -49,20 +63,21 @@ namespace Comander.ViewModel
 
     public class TreeManager : INotifyPropertyChanged
     {
-        private List<Folder> _folders;
+        private List<File> _files;
 
-        public TreeManager()
+
+        public TreeManager(string path)
         {
-            Folders = new List<Folder>();
-            Folders.Add( Folder.CreateFolderTree(@"E:\"));
+            Folders = new List<File>();
+            Folders.Add(File.CreateFolderTree(path));
         }
 
-        public List<Folder> Folders
+        public List<File> Folders
         {
-            get { return _folders; }
+            get { return _files; }
             set
             {
-                _folders = value;
+                _files = value;
                 OnPropertyChanged("Folders");
             }
         }
@@ -71,7 +86,7 @@ namespace Comander.ViewModel
         public event PropertyChangedEventHandler PropertyChanged;
 
         [NotifyPropertyChangedInvocator]
-        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
+        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = "")
         {
             PropertyChangedEventHandler handler = PropertyChanged;
             if (handler != null) handler(this, new PropertyChangedEventArgs(propertyName));

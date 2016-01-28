@@ -57,6 +57,7 @@
                 <KeyBinding Key="C" Modifiers="Shift" Command="{Binding ConsoleRunCommand}"/>
                 <KeyBinding Key="I" Modifiers="Control" Command="{Binding InfoCommand}"/>
                 <KeyBinding Key="R" Modifiers="Control" Command="{Binding RenameCommand}"/>
+                <KeyBinding Key="T" Command="{Binding TreeWindowCommand}"/>
                 <KeyBinding Key="Esc" Command="{Binding ParentDirCommand}"/>
                 <KeyBinding Key="Home" Command="{Binding RootDirCommand}"/>
                 <KeyBinding Key="Tab" Command="{Binding SwitchFocusCommand}"/>

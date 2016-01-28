@@ -268,6 +268,13 @@ namespace Comander.ViewModel
             Application.Current.Dispatcher.Invoke(
                        () => _logger.Info(message));
         }
+
+        public void ShowTreeWindow()
+        {
+            string path = SelectedFile.IsDirectory ? SelectedFile.FullName : ActualPath;
+            TreeWindow window = new TreeWindow(path);
+            window.Show();
+        }
         #endregion
 
         #region Property

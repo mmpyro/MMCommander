@@ -49,18 +49,9 @@ namespace Comander.ViewModel
 
             SwitchCommand = new ExecuteCommand(SwitchCommanders, _logger);
             RefreshCommand = new ExecuteCommand(RefreshCommanders, _logger);
-            TreeCommand = new ExecuteCommand(ShowTreeWindow, _logger);
             SplitFileCommand = new ExecuteCommand(SplitFile, _logger);
             JoinFileCommand = new ExecuteCommand(JoinFile, _logger);
-            //RunNotepadCommand = new ExecuteCommand(() => Process.Start(_configReader["notepad"]), _logger);
             ReadLogsCommand = new ExecuteCommand(() => Process.Start("explorer.exe", Path.Combine(Path.GetTempPath(), @"mmcommander")), _logger);
-            //RunCmdCommand = new ExecuteCommand(() =>
-            //{
-            //    var processInfo = new ProcessStartInfo(_configReader["cmd"]);
-            //    processInfo.WorkingDirectory = @"C:";
-            //    Process.Start(processInfo);
-            //}, _logger);
-
             ClearLogCommand = new ExecuteCommand(ClearLog);
             NextLogCommand = new ExecuteCommand(NextLog);
             PreviusLogCommand = new ExecuteCommand(BackLog);
@@ -136,12 +127,6 @@ namespace Comander.ViewModel
             _io2.LoadDrivers();
         }
 
-        private void ShowTreeWindow()
-        {
-            TreeWindow window = new TreeWindow();
-            window.Show();
-        }
-
         private void SplitFile()
         {
             SplitWindow splitWindow = new SplitWindow(_logger);
@@ -215,7 +200,6 @@ namespace Comander.ViewModel
         #region Commands
         public ICommand SwitchCommand { get; set; }
         public ICommand RefreshCommand { get; set; }
-        public ICommand TreeCommand { get; set; }
         public ICommand ClearLogCommand { get; set; }
         public ICommand SplitFileCommand { get; set; }
         public ICommand JoinFileCommand { get; set; }

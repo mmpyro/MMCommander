@@ -1,4 +1,5 @@
-﻿using System.Windows;
+﻿using Comander.ViewModel;
+using System.Windows;
 
 
 namespace Comander.View
@@ -6,9 +7,10 @@ namespace Comander.View
 
     public partial class TreeWindow : Window
     {
-        public TreeWindow()
+        public TreeWindow(string path)
         {
             InitializeComponent();
+            stackPanel.DataContext = new TreeManager(path);
         }
     }
 }

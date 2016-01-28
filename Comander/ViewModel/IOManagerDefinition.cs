@@ -91,6 +91,7 @@ namespace Comander.ViewModel
             UnZipCommand = new ExecuteCommand(UnZipFiles, _logger);
             PluginCommand = new ExecuteCommand(ShowPluginWindow,_logger);
             SwitchFocusCommand = new ExecuteCommand(SwitchFocus, _logger);
+            TreeWindowCommand = new ExecuteCommand(ShowTreeWindow, _logger);
 
             _messanger = Messanger.Messanger.GetInstance();
             _messanger.Register(typeof(WindowPositionEventArgs), MouseMoveCallback);
@@ -145,6 +146,7 @@ namespace Comander.ViewModel
         public ICommand UnZipCommand { get; set; }
         public ICommand PluginCommand { get; set; }
         public ICommand SwitchFocusCommand { get; set; }
+        public ICommand TreeWindowCommand { get; set; }
         #endregion
 
     }

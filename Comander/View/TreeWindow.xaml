@@ -5,17 +5,27 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:Comander.ViewModel"
              mc:Ignorable="d" 
-             Height="320" Width="250" ResizeMode="NoResize" Title="TreeView">
-    <Window.Resources>
-        <local:TreeManager x:Key="TManager"/>
-    </Window.Resources>
-    <StackPanel Background="Gray" DataContext="{StaticResource TManager}">
-        <TreeView   ItemsSource="{Binding Folders}" Height="300">
+             Height="320" Width="250" WindowStartupLocation="CenterScreen" Title="TreeView">
+    <Grid Name="stackPanel">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <TreeView Background="#FF181818"  ItemsSource="{Binding Folders}">
             <TreeView.ItemTemplate>
-                <HierarchicalDataTemplate ItemsSource="{Binding Path=Folders}">
-                    <TextBlock Text="{Binding Path=Name, Mode=OneWay}"/>
+                <HierarchicalDataTemplate ItemsSource="{Binding Path=Files}">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="30"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="30"/>
+                        </Grid.RowDefinitions>
+                        <Image Grid.Column="0"  Source="../Icons/appbar.folder.png"/>
+                        <TextBlock VerticalAlignment="Center" Grid.Column="1" Foreground="White" Text="{Binding Path=Name, Mode=OneWay}"/>
+                    </Grid>
                 </HierarchicalDataTemplate>
             </TreeView.ItemTemplate>  
         </TreeView>
-    </StackPanel>
+    </Grid>
 </Window>
