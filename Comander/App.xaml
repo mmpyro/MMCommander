@@ -14,6 +14,7 @@
         <converters:VisibilityConverter x:Key="VisibilityConverter"/>
         <converters:EnableConverter x:Key="EnableConverter"/>
         <converters:InverseBoolConverter x:Key="InverseBoolConverter"/>
+        <converters:TreeViewConverter x:Key="TreeViewConverter"/>
         <vm:Locator x:Key="Locator"/>
         <ControlTemplate x:Key="imageButtonTemplate" TargetType="Button">
             <Border Padding="{TemplateBinding Padding}" BorderBrush="Aqua" Background="{TemplateBinding Background}" CornerRadius="5" BorderThickness="2" HorizontalAlignment="Center">

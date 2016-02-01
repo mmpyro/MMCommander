@@ -111,6 +111,7 @@
     <Compile Include="Converters\LogIconConverter.cs" />
     <Compile Include="Converters\LogMessageConverter.cs" />
     <Compile Include="Converters\SelectedConverter.cs" />
+    <Compile Include="Converters\TreeViewConverter.cs" />
     <Compile Include="Converters\VisibilityConverter.cs" />
     <Compile Include="Core\IOBusyState.cs" />
     <Compile Include="Core\IOState.cs" />
@@ -378,13 +379,16 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Icons\treefiles.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="Icons\appbar.check.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="Icons\Alert-48.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="Icons\appbar.folder.png">
+    <Content Include="Icons\treefolder.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="Plugins\CommanderSimplePlugin.dll">

@@ -21,7 +21,7 @@
                         <Grid.RowDefinitions>
                             <RowDefinition Height="30"/>
                         </Grid.RowDefinitions>
-                        <Image Grid.Column="0"  Source="../Icons/appbar.folder.png"/>
+                        <Image Grid.Column="0"  Source="{Binding Converter={StaticResource TreeViewConverter}}"/>
                         <TextBlock VerticalAlignment="Center" Grid.Column="1" Foreground="White" Text="{Binding Path=Name, Mode=OneWay}"/>
                     </Grid>
                 </HierarchicalDataTemplate>
