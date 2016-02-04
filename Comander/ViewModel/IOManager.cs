@@ -99,7 +99,9 @@ namespace Comander.ViewModel
         {
             if (SelectedFile != null)
                 return SelectedFile;
-            return Files.First();
+            else if(Files.Any())
+                return Files.First();
+            return null;
         }
 
         public async void FilterFiles()
@@ -272,7 +274,7 @@ namespace Comander.ViewModel
         public void ShowTreeWindow()
         {
             string path = SelectedFile.IsDirectory ? SelectedFile.FullName : ActualPath;
-            TreeWindow window = new TreeWindow(path);
+            TreeWindow window = new TreeWindow(path, this);
             window.Show();
         }
         #endregion
