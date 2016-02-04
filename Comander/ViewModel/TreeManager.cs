@@ -4,6 +4,8 @@ using System.ComponentModel;
 using System.IO;
 using System.Runtime.CompilerServices;
 using Comander.Annotations;
+using System.Windows.Input;
+using Comander.ViewModel.Commands;
 
 namespace Comander.ViewModel
 {
@@ -42,7 +44,7 @@ namespace Comander.ViewModel
                 var fi = new FileInfo(file);
                 fld.Files.Add(new File
                 {
-                    Path = fi.Name,
+                    Path = fi.FullName,
                     IsDir = false
                 });
             }
@@ -64,12 +66,24 @@ namespace Comander.ViewModel
     public class TreeManager : INotifyPropertyChanged
     {
         private List<File> _files;
+        private readonly IOManager _manager;
 
-
-        public TreeManager(string path)
+        public TreeManager(string path, IOManager manager)
         {
             Folders = new List<File>();
             Folders.Add(File.CreateFolderTree(path));
+            _manager = manager;
+        }
+
+        public void SetItemChange(File file)
+        {
+            if (file.IsDir)
+                _manager.ActualPath = file.Path;
+            else
+            {
+                string dirPath = file.Path.Substring(0, file.Path.Length - file.Name.Length);
+                _manager.ActualPath = dirPath;
+            }
         }
 
         public List<File> Folders

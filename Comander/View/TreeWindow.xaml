@@ -10,7 +10,7 @@
         <Grid.RowDefinitions>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
-        <TreeView Background="#FF181818"  ItemsSource="{Binding Folders}">
+        <TreeView MouseDoubleClick="TreeView_MouseDoubleClick" SelectedItemChanged="TreeView_SelectedItemChanged" Background="#FF181818" ItemsSource="{Binding Folders}">
             <TreeView.ItemTemplate>
                 <HierarchicalDataTemplate ItemsSource="{Binding Path=Files}">
                     <Grid>
