@@ -17,8 +17,9 @@ namespace Comander.ViewModel.Commands
         {
             _config = config;
         }
-
+#pragma warning disable
         public event EventHandler CanExecuteChanged;
+#pragma warning restore
 
         public bool CanExecute(object parameter)
         {

@@ -40,7 +40,8 @@ namespace Comander.ViewModel.Commands
                     _logAction(e);
             }
         }
-
+#pragma warning disable
         public event EventHandler CanExecuteChanged;
+#pragma warning restore
     }
 }

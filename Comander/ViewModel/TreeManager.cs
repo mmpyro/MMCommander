@@ -81,8 +81,7 @@ namespace Comander.ViewModel
                 _manager.ActualPath = file.Path;
             else
             {
-                string dirPath = file.Path.Substring(0, file.Path.Length - file.Name.Length);
-                _manager.ActualPath = dirPath;
+                _manager.ActualPath = Path.GetDirectoryName(file.Path);
             }
         }
 

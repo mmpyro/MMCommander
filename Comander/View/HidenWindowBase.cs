@@ -22,7 +22,7 @@ namespace Comander.View
             ts.Cancel();
         }
 
-        public void MouseEnter()
+        public new void MouseEnter()
         {
             if (_task.Status == TaskStatus.Running)
             {
@@ -31,7 +31,7 @@ namespace Comander.View
             }
         }
 
-        public void MouseLeave()
+        public new void MouseLeave()
         {
             Debug.WriteLine("Leave");
             _task = new Task(() =>

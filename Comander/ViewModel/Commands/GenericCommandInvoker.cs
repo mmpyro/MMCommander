@@ -51,7 +51,9 @@ namespace Comander.ViewModel.Commands
             _invoker.Execute(Parameter);
         }
 
+        #pragma warning disable
         public event EventHandler CanExecuteChanged;
+        #pragma warning restore
     }
 
 }

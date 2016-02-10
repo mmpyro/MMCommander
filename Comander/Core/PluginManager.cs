@@ -56,7 +56,7 @@ namespace Comander.Core
                     ac.Parts.ToArray();
                     catalog.Catalogs.Add(ac);
                 }
-                catch (ReflectionTypeLoadException e)
+                catch (ReflectionTypeLoadException)
                 {
                 }
             }

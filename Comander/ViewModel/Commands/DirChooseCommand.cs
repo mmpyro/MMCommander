@@ -28,6 +28,8 @@ namespace Comander.ViewModel.Commands
             return true;
         }
 
+#pragma warning disable
         public event EventHandler CanExecuteChanged;
+#pragma warning restore
     }
 }
