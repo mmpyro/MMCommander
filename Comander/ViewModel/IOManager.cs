@@ -19,17 +19,17 @@ namespace Comander.ViewModel
         #region Methods
         private void ZipFiles()
         {
-            _state.ZipFiles();
+            _proxy.ZipFiles();
         }
 
         private void UnZipFiles()
         {
-            _state.UnZipFiles();
+            _proxy.UnZipFiles();
         }
 
         private void DeleteFile()
         {
-           _state.DeleteFile(_files.Where(t => t.IsSelected()));
+           _proxy.DeleteFile(_files.Where(t => t.IsSelected()));
         }
 
         public void LoadDrivers()
@@ -68,7 +68,7 @@ namespace Comander.ViewModel
 
         private void MoveFile()
         {
-            _state.MoveFile(_files.Where(t => t.IsSelected()), SeccondManagerCurrentDir);
+            _proxy.MoveFile(_files.Where(t => t.IsSelected()), SeccondManagerCurrentDir);
         }
 
         private async void Refresh()
@@ -126,17 +126,17 @@ namespace Comander.ViewModel
 
         private void CopyFile()
         {
-           _state.CopyFile(_files.Where(t => t.IsSelected()), SeccondManagerCurrentDir);
+            _proxy.CopyFile(_files.Where(t => t.IsSelected()), SeccondManagerCurrentDir);
         }
 
         public void CreateDirectory()
         {
-            _state.CreateDirectory();
+            _proxy.CreateDirectory();
         }
 
         public void CreateFile()
         {
-            _state.CreateFile();
+            _proxy.CreateFile();
         }
 
         public void SetBusyApp()
@@ -160,12 +160,12 @@ namespace Comander.ViewModel
 
         private void RunAsAdmin()
         {
-            _state.RunAsAdmin(SelectedFile);
+            _proxy.RunAsAdmin(SelectedFile);
         }
 
         private void Run()
         {
-            _state.Run(SelectedFile);
+            _proxy.Run(SelectedFile);
         }
 
         private void ShowShortcutsWindow()
@@ -215,7 +215,7 @@ namespace Comander.ViewModel
 
         private void RenameFile()
         {
-            _state.RenameFile(SelectedFile);
+            _proxy.RenameFile(SelectedFile);
         }
 
         private void EvaluatePath(string value)
@@ -235,12 +235,6 @@ namespace Comander.ViewModel
                 _actualPath = value;
                 _historyManager.Add(value);
             }
-        }
-
-        public void ChangeState(IOState state)
-        {
-            _state = state;
-            _state.Invoke();
         }
 
         public void LogDebug(string message)
@@ -286,7 +280,7 @@ namespace Comander.ViewModel
 
         public void TakeFilesFromClipboard()
         {
-            _state.PasteFromClipboard(CurrentDir);
+            _proxy.PasteFromClipboard(CurrentDir);
         }
         #endregion
 
@@ -298,7 +292,6 @@ namespace Comander.ViewModel
                 return (IMetadataFileStructure)_fileManager.GetDirFromPath(ActualPath);
             }
         }
-
 
         public IMetadataFileStructure SeccondManagerCurrentDir
         {
@@ -395,6 +388,18 @@ namespace Comander.ViewModel
             }
         }
 
+        public IProxyIO State
+        {
+            get
+            {
+                return _proxy;
+            }
+            set
+            {
+                _proxy = value;
+            }
+        }
+
         public ObservableCollection<DriveStruct> Drives
         {
             get { return _drives; }
@@ -422,7 +427,7 @@ namespace Comander.ViewModel
 
         private void ShowPluginWindow()
         {
-           _state.ShowPluginWindow(() =>
+           _proxy.ShowPluginWindow(() =>
            {
                var pluginWindow = new PluginWindow(_pluginManager, Files.Where(t => t.IsSelected()), _logger);
                pluginWindow.Left = _currentPosition.X;

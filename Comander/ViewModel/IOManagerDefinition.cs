@@ -37,15 +37,16 @@ namespace Comander.ViewModel
         private string _filter;
         private Point _currentPosition;
         private IMessanger _messanger;
-        private IOState _state;
+        private IProxyIO _proxy;
         private ManagerType _type;
         private bool _focus;
 
         public IOManager(ManagerType type,string actualPath, IFileSystemManager fileManager, SyntaxParser syntaxParser, 
             IHistoryManager historyManager, IConfigReader configReader, 
-            IPluginManager pluginManager, ILogger logger, IPathResolver pathResolver)
+            IPluginManager pluginManager, ILogger logger, IPathResolver pathResolver, IProxyIO proxy)
         {
-            _state = new IOUnBusyState(this, fileManager);
+            _proxy = proxy;
+            _proxy.Manager = this;
             _type = type;
             _actualPath = actualPath;
             _fileManager = fileManager;

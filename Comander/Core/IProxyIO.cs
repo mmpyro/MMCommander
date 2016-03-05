@@ -1,11 +1,11 @@
 ﻿using Comander.CommanderIO;
-using IOLib;
+using Comander.ViewModel;
 using System;
 using System.Collections.Generic;
 
 namespace Comander.Core
 {
-    public interface IOState
+    public interface IProxyIO
     {
         void CopyFile(IEnumerable<IMetadataFileStructure> files, IMetadataFileStructure destinationDir);
         void MoveFile(IEnumerable<IMetadataFileStructure> files, IMetadataFileStructure destinationDir);
@@ -19,7 +19,7 @@ namespace Comander.Core
         void RunAsAdmin(IMetadataFileStructure selectedFile);
         void RenameFile(IMetadataFileStructure selectedFile);
         void ShowPluginWindow(Action displayPluginWindow);
-        void Invoke();
+        IOManager Manager { set; }
     }
 
 }

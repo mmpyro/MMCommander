@@ -34,8 +34,9 @@ namespace Comander.ViewModel
             var fileFactory = new MetaDataFileFactory();
             var fileSystemManager = new FileSystemManager(new FileManager( fileFactory), new DriveManager(), new DirectoryManager( fileFactory), new FileNameComparer());
             var syntaxParser = new SyntaxParser(fileFactory);
-            var io1 = new IOManager(ManagerType.Io1, configReader.Io1, fileSystemManager,syntaxParser,historyManager1, configReader, pluginManager, _logger, pathResolver);
-            var io2 = new IOManager(ManagerType.Io2, configReader.Io2, fileSystemManager,syntaxParser,historyManager2, configReader, pluginManager, _logger, pathResolver);
+            var monitor = new StateMonitor();
+            var io1 = new IOManager(ManagerType.Io1, configReader.Io1, fileSystemManager,syntaxParser,historyManager1, configReader, pluginManager, _logger, pathResolver, new ProxyIO(fileSystemManager, monitor));
+            var io2 = new IOManager(ManagerType.Io2, configReader.Io2, fileSystemManager,syntaxParser,historyManager2, configReader, pluginManager, _logger, pathResolver, new ProxyIO(fileSystemManager, monitor));
             io1.SecondManager = io2;
             io2.SecondManager = io1;
             _mainVm = new MainVM(io1, io2, configReader , _logger, new GenericCommandManager(io1, io2,_logger), new AssemblyVersionResolver());
