@@ -10,6 +10,7 @@ using RxFramework;
 using Search;
 using Comander.Core;
 using Comander.Messages;
+using System.Collections.Specialized;
 
 namespace Comander.ViewModel
 {
@@ -67,7 +68,7 @@ namespace Comander.ViewModel
 
         private void MoveFile()
         {
-            _state.MoveFile(_files.Where(t => t.IsSelected()), _fileManager.GetDirFromPath(_secondManager.ActualPath));
+            _state.MoveFile(_files.Where(t => t.IsSelected()), SeccondManagerCurrentDir);
         }
 
         private async void Refresh()
@@ -125,13 +126,7 @@ namespace Comander.ViewModel
 
         private void CopyFile()
         {
-           var dir = _fileManager.GetDirFromPath(_secondManager.ActualPath);
-           _state.CopyFile(_files.Where(t => t.IsSelected()), dir);
-        }
-
-        public IAbstractFileStructure GetCurrentDirectory()
-        {
-            return _fileManager.GetDirFromPath(_actualPath);
+           _state.CopyFile(_files.Where(t => t.IsSelected()), SeccondManagerCurrentDir);
         }
 
         public void CreateDirectory()
@@ -277,9 +272,41 @@ namespace Comander.ViewModel
             TreeWindow window = new TreeWindow(path, this);
             window.Show();
         }
+
+        public void PutSelectedFilesIntoClipboard()
+        {
+            StringCollection clipboardCollection = new StringCollection();
+            foreach (var item in Files.Where(t => t.IsSelected()))
+            {
+                clipboardCollection.Add(item.FullName);
+            }
+            Clipboard.Clear();
+            Clipboard.SetFileDropList(clipboardCollection);
+        }
+
+        public void TakeFilesFromClipboard()
+        {
+            _state.PasteFromClipboard(CurrentDir);
+        }
         #endregion
 
         #region Property
+        public IMetadataFileStructure CurrentDir
+        {
+            get
+            {
+                return (IMetadataFileStructure)_fileManager.GetDirFromPath(ActualPath);
+            }
+        }
+
+
+        public IMetadataFileStructure SeccondManagerCurrentDir
+        {
+            get
+            {
+                return (IMetadataFileStructure)_fileManager.GetDirFromPath(_secondManager.ActualPath);
+            }
+        }
 
         public string Filter
         {
@@ -288,16 +315,6 @@ namespace Comander.ViewModel
             {
                 _filter = value;
                 OnPropertyChanged("Filter");
-            }
-        }
-
-        public ObservableCollection<IMetadataFileStructure> SelectedFiles
-        {
-            get { return _selectedFiles; }
-            set
-            {
-                _selectedFiles = value;
-                OnPropertyChanged("SelectedFiles");
             }
         }
 

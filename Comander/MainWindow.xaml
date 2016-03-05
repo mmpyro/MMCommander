@@ -40,6 +40,7 @@
             <MenuItem Header="Help">
                 <MenuItem Header="Manual"/>
                 <MenuItem Header="Keymap" Command="{Binding KeyMapCommand}"/>
+                <MenuItem Header="Syntax" Command="{Binding SyntaxCommand}"/>
                 <MenuItem Header="About" Command="{Binding AboutCommand}"/>
             </MenuItem>
         </Menu>

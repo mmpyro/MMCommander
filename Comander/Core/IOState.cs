@@ -7,8 +7,9 @@ namespace Comander.Core
 {
     public interface IOState
     {
-        void CopyFile(IEnumerable<IMetadataFileStructure> files, IAbstractFileStructure destinationDir);
-        void MoveFile(IEnumerable<IMetadataFileStructure> files, IAbstractFileStructure destinationDir);
+        void CopyFile(IEnumerable<IMetadataFileStructure> files, IMetadataFileStructure destinationDir);
+        void MoveFile(IEnumerable<IMetadataFileStructure> files, IMetadataFileStructure destinationDir);
+        void PasteFromClipboard(IMetadataFileStructure destinationDir);
         void ZipFiles();
         void UnZipFiles();
         void DeleteFile(IEnumerable<IMetadataFileStructure> files);

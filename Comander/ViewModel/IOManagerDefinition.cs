@@ -36,7 +36,6 @@ namespace Comander.ViewModel
         private IOManager _secondManager;
         private string _filter;
         private Point _currentPosition;
-        private ObservableCollection<IMetadataFileStructure> _selectedFiles;
         private IMessanger _messanger;
         private IOState _state;
         private ManagerType _type;
@@ -92,6 +91,8 @@ namespace Comander.ViewModel
             PluginCommand = new ExecuteCommand(ShowPluginWindow,_logger);
             SwitchFocusCommand = new ExecuteCommand(SwitchFocus, _logger);
             TreeWindowCommand = new ExecuteCommand(ShowTreeWindow, _logger);
+            CopyToClipboardCommand = new ExecuteCommand(PutSelectedFilesIntoClipboard, _logger);
+            PasteToClipboardCommand = new ExecuteCommand(TakeFilesFromClipboard, _logger);
 
             _messanger = Messanger.Messanger.GetInstance();
             _messanger.Register(typeof(WindowPositionEventArgs), MouseMoveCallback);
@@ -147,6 +148,8 @@ namespace Comander.ViewModel
         public ICommand PluginCommand { get; set; }
         public ICommand SwitchFocusCommand { get; set; }
         public ICommand TreeWindowCommand { get; set; }
+        public ICommand CopyToClipboardCommand { get; set; }
+        public ICommand PasteToClipboardCommand { get; set; }
         #endregion
 
     }

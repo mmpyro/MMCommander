@@ -61,6 +61,7 @@
                 <ColumnDefinition Width="50"/>
                 <ColumnDefinition Width="50"/>
                 <ColumnDefinition Width="50"/>
+                <ColumnDefinition Width="50"/>
             </Grid.ColumnDefinitions>
             <Button Height="40" ToolTip="Delete file|directory" Command="{Binding DeleteFileCommand}" Grid.Column="0">
                 <Image  Source="../Icons/delete.png" />
@@ -76,6 +77,9 @@
             </Button>
             <Button Height="40" ToolTip="Create file" Command="{Binding CreateFileCommand}" Grid.Column="4">
                 <Image  Source="../Icons/createfile.png" />
+            </Button>
+            <Button Height="40" ToolTip="Copy from Clipboard" Command="{Binding }" Grid.Column="5">
+                <Image  Source="../Icons/clipboard.png" />
             </Button>
         </Grid>
         <Border>

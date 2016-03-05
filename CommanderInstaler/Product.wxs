@@ -199,6 +199,9 @@
       <Component Id="cKeyMap" Directory="Manuals" Guid="731AAC34-4B0D-48D3-AF06-F3F450C85AE0">
         <File Id="KeyMapDocument" KeyPath="yes" Source="$(var.MMComander)\Manuals\keymap.html"/>
       </Component>
+      <Component Id="csyntax" Directory="Manuals" Guid="B9F3E444-B671-4C29-900B-8131C15E9A27">
+        <File Id="syntax" KeyPath="yes" Source="$(var.MMComander)\Manuals\syntax.html"/>
+      </Component>
       <Component Id="CMP_WriteToRegistry" Directory="INSTALLDIR" Guid="371D0F9B-8226-4FF2-B9DB-F6A4169A903E">
         <RegistryKey Root="HKCU" Key="Software\MMCommander" ForceDeleteOnUninstall="yes">
           <RegistryValue Name="Source" Action="write" Value="C:" Type="string" KeyPath="yes" />

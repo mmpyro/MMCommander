@@ -46,6 +46,8 @@ namespace Comander.ViewModel
             _logger.NotifyEvent += AddLogInfo;
             _io1 = io1;
             _io2 = io2;
+            Uri keymapUri = new Uri(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"Manuals\keymap.html"));
+            Uri syntaxUri = new Uri(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"Manuals\syntax.html"));
 
             SwitchCommand = new ExecuteCommand(SwitchCommanders, _logger);
             RefreshCommand = new ExecuteCommand(RefreshCommanders, _logger);
@@ -58,8 +60,8 @@ namespace Comander.ViewModel
             CompareDirCommand = new ExecuteCommand(CompareDirectories);
             AboutCommand = new ExecuteCommand(() => (new AboutWindow(string.Format("Product version: {0}\nCreated by Michał Marszałek.",
                 _assemblyVersionResolver.GetProductVersion(GetType())))).ShowDialog());
-            KeyMapCommand = new ExecuteCommand(() =>  Process.Start(_configReader["web"].Value, 
-                Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"Manuals\keymap.html")), _logger);
+            KeyMapCommand = new ExecuteCommand(() =>  Process.Start(_configReader["web"].Value, keymapUri.AbsolutePath), _logger);
+            SyntaxCommand = new ExecuteCommand(() => Process.Start(_configReader["web"].Value, syntaxUri.AbsolutePath), _logger);
 
             SearchCommand = new ExecuteCommand(Search,_logger);
             IMessanger messanger = Messanger.Messanger.GetInstance();
@@ -210,6 +212,7 @@ namespace Comander.ViewModel
         public ICommand KeyMapCommand { get; set; }
         public ICommand SearchCommand { get; set; }
         public ICommand ReadLogsCommand { get; set; }
+        public ICommand SyntaxCommand { get; set; }
         #endregion
 
         #region Property

@@ -15,7 +15,7 @@ namespace Comander.Core
             this._iOManager = _iOManager;
         }
 
-        public void CopyFile(IEnumerable<IMetadataFileStructure> files, IAbstractFileStructure destinationDir)
+        public void CopyFile(IEnumerable<IMetadataFileStructure> files, IMetadataFileStructure destinationDir)
         {
         }
 
@@ -36,8 +36,13 @@ namespace Comander.Core
             _iOManager.SetBusyApp();
         }
 
-        public void MoveFile(IEnumerable<IMetadataFileStructure> files, IAbstractFileStructure destinationDir)
+        public void MoveFile(IEnumerable<IMetadataFileStructure> files, IMetadataFileStructure destinationDir)
         {
+        }
+
+        public void PasteFromClipboard(IMetadataFileStructure destinationDir)
+        {
+            
         }
 
         public void RenameFile(IMetadataFileStructure selectedFile)

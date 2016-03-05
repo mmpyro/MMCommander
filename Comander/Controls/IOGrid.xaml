@@ -62,6 +62,8 @@
                 <KeyBinding Key="Home" Command="{Binding RootDirCommand}"/>
                 <KeyBinding Key="Tab" Command="{Binding SwitchFocusCommand}"/>
                 <KeyBinding Key="F3" Command="{Binding PluginCommand}"/>
+                <KeyBinding Key="C" Modifiers="Ctrl" Command="{Binding CopyToClipboardCommand}"/>
+                <KeyBinding Key="V" Modifiers="Ctrl" Command="{Binding PasteToClipboardCommand}"/>
                 <MouseBinding MouseAction="RightDoubleClick" Command="{Binding SelectCommand}" CommandParameter="{Binding ElementName=DataGrid1, Path=SelectedItems}"/>
                 <MouseBinding MouseAction="LeftDoubleClick" Command="{Binding EnterIntoDirCommand}"/>
             </DataGrid.InputBindings>

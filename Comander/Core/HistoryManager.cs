@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 
 namespace Comander.Core
@@ -16,7 +18,7 @@ namespace Comander.Core
 
         public void Add(string value)
         {
-            if (!_history.Contains(value))
+            if ( IsVaidPath(value) && !_history.Contains(value))
             {
                 if (_history.Count < MaxHistorySize)
                     _history.Add(value);
@@ -25,6 +27,11 @@ namespace Comander.Core
                     _history = new List<string>(_history.Skip(1)){value};
                 }
             }
+        }
+
+        private bool IsVaidPath(string value)
+        {
+            return Directory.Exists(value);
         }
 
         public IEnumerable<string> GetHistory()

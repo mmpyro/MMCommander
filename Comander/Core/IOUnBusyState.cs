@@ -4,10 +4,12 @@ using Comander.ViewModel;
 using IOLib;
 using System;
 using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Windows;
 using ZipLib;
 
 
@@ -24,7 +26,7 @@ namespace Comander.Core
             _fileManager = fileManager;
         }
 
-        public void CopyFile(IEnumerable<IMetadataFileStructure> files, IAbstractFileStructure destinationDir)
+        public void CopyFile(IEnumerable<IMetadataFileStructure> files, IMetadataFileStructure destinationDir)
         {
             Task.Run(() =>
             {
@@ -134,7 +136,7 @@ namespace Comander.Core
             _ioManager.UnsetBusyApp();
         }
 
-        public void MoveFile(IEnumerable<IMetadataFileStructure> files, IAbstractFileStructure destinationDir)
+        public void MoveFile(IEnumerable<IMetadataFileStructure> files, IMetadataFileStructure destinationDir)
         {
             Task.Run(() =>
             {
@@ -341,6 +343,18 @@ namespace Comander.Core
         private void Busy()
         {
             _ioManager.ChangeState(new IOBusyState(_ioManager));
+        }
+
+        public void PasteFromClipboard(IMetadataFileStructure destinationDir)
+        {
+            StringCollection paths = Clipboard.GetFileDropList();
+            MetaDataFileFactory fileFactory = new MetaDataFileFactory();
+            List<IMetadataFileStructure> files = new List<IMetadataFileStructure>();
+            foreach (var path in paths)
+            {
+                files.Add((IMetadataFileStructure)fileFactory.CreateFileMsg(path));
+            }
+            CopyFile(files, destinationDir);
         }
     }
 }
