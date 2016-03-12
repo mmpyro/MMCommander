@@ -22,7 +22,8 @@
         <TextBox IsReadOnly="True" Text="{Binding CurrentOperation}" Grid.Row="1"/>
         <DataGrid FocusManager.GotFocus="DataGrid1_GotFocus" Grid.Row="0" Style="{StaticResource DataGridCustomStyle}" RowHeaderWidth="0"  Name="DataGrid1" AutoGenerateColumns="False" VerticalScrollBarVisibility="Visible" 
                       GridLinesVisibility="None" SelectedItem="{Binding SelectedFile}"  ItemsSource="{Binding Files}"
-                       RowStyle="{StaticResource DataGridRowStyleCustom}"  ColumnHeaderStyle="{StaticResource DataGridColumnHeaderStyleCustom}">              
+                       RowStyle="{StaticResource DataGridRowStyleCustom}"  ColumnHeaderStyle="{StaticResource DataGridColumnHeaderStyleCustom}"
+                   >              
             <DataGrid.Columns>
                 <DataGridTemplateColumn CanUserResize="False" CanUserReorder="False" >
                     <DataGridTemplateColumn.CellTemplate>
@@ -32,7 +33,7 @@
                     </DataGridTemplateColumn.CellTemplate>
                 </DataGridTemplateColumn>
                 <DataGridTextColumn IsReadOnly="True"  Header="Name" Binding="{Binding Name}" Width="2.5*" />
-                <DataGridTextColumn IsReadOnly="True"  Header="Ext"  Binding="{Binding Ext}" Width="*"/>
+                <DataGridTextColumn IsReadOnly="True"  Header="Ext" Binding="{Binding Ext}" Width="*"/>
                 <DataGridTextColumn IsReadOnly="True"  Header="Creation Date" Binding="{Binding CreationTime}" Width="2*"  />
                 <DataGridTextColumn IsReadOnly="True"  Header="Type" CellStyle="{StaticResource DataGridCellCustomStyle}" Binding="{Binding IsDirectory, Converter={StaticResource FileTypeConverter}}" Width="0.5*"/>
                 <DataGridTextColumn IsReadOnly="True"  Header="Size [KB]" Binding="{Binding Size, Converter={StaticResource SizeConverter}}"  Width="*"/>

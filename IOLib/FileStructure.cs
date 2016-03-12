@@ -164,7 +164,7 @@ namespace IOLib
 
         public override string ToString()
         {
-            return Name;
+            return FullName;
         }
 
         protected bool IsFileExistInDestinationDir(IAbstractFileStructure destinationDirectory)

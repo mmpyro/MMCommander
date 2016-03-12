@@ -22,7 +22,7 @@ namespace Comander.ViewModel
         static Locator()
         {
             _logger = new ComplexLogger(new GUILogger(), new FileLogger());
-            _searchVm = new SearchVm();
+            _searchVm = new SearchVm(_logger);
             _settingsVm = new SettingsVm();
             Notifier = null;
             IPluginManager pluginManager = CreatePluginManager();

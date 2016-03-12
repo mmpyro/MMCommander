@@ -12,7 +12,7 @@ using Comander.Annotations;
 using Comander.ViewModel;
 using Comander.ViewModel.Commands;
 using IOLib;
-
+using LogLib;
 
 namespace Search.ViewModel
 {
@@ -26,10 +26,11 @@ namespace Search.ViewModel
         private Thread _task;
         private string _status = "";
         private object _searchOptions;
+        private readonly ILogger _logger;
 
-
-        public SearchVm()
+        public SearchVm(ILogger logger)
         {
+            _logger = logger;
             try
             {
                 Files = new ObservableCollection<IAbstractFileStructure>();
@@ -70,30 +71,38 @@ namespace Search.ViewModel
 
         private void Log(Exception ex)
         {
-            Status = "[Error]: " + ex.Message;            
+            Status = "[Error]: " + ex.Message;
+            _logger.Error(ex);
         }
 
         private void Search()
         {
-            _searchParameters = (SearchParameters)Application.Current.Properties["parameter"];
-            _searchOptions = Application.Current.Properties["options"];
-            ClearCollection();
-            var directoryManager = new DirectoryManager(new FileFactory());
-            directoryManager.OnFindFile += AddFileToList;
-            if (_searchOptions is RegexOptions)
+            try
             {
-                var options = (RegexOptions) _searchOptions;
-                directoryManager.SearchFiles(_searchParameters, options);
-                OnComplete();
+                _searchParameters = (SearchParameters)Application.Current.Properties["parameter"];
+                _searchOptions = Application.Current.Properties["options"];
+                ClearCollection();
+                var directoryManager = new DirectoryManager(new FileFactory());
+                directoryManager.OnFindFile += AddFileToList;
+                if (_searchOptions is RegexOptions)
+                {
+                    var options = (RegexOptions)_searchOptions;
+                    directoryManager.SearchFiles(_searchParameters, options);
+                    OnComplete();
+                }
+                else if (_searchOptions is MatchOptions)
+                {
+                    var options = (MatchOptions)_searchOptions;
+                    directoryManager.SearchFiles(_searchParameters, options);
+                    OnComplete();
+                }
+                else
+                    throw new ArgumentException("Invalid parameters");
             }
-            else if(_searchOptions is MatchOptions)
+            catch (Exception ex)
             {
-                var options = (MatchOptions) _searchOptions;
-                directoryManager.SearchFiles(_searchParameters, options);
-                OnComplete();
+                _logger.Error(ex);
             }
-            else
-                throw new ArgumentException("Invalid parameters");
         }
 
         private void OnComplete()

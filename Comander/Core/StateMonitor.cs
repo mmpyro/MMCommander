@@ -13,23 +13,29 @@
 
         public bool Enter()
         {
-            lock (obj)
+            if (_isBusy == false)
             {
-                if (_isBusy == false)
+                lock (obj)
                 {
-                    _isBusy = true;
-                    return true;
+                    if (_isBusy == false)
+                    {
+                        _isBusy = true;
+                        return true;
+                    }
                 }
-                return false;
             }
+            return false;
         }
 
         public void Exit()
         {
-            lock (obj)
+            if (_isBusy)
             {
-                if (_isBusy)
-                    _isBusy = false;
+                lock (obj)
+                {
+                    if (_isBusy)
+                        _isBusy = false;
+                }
             }
         }
     }

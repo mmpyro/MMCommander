@@ -136,6 +136,9 @@
       <Component Id="cAlert48.png" Directory="dir4F3C530C044DF75FAE7A1AAFB2AC7320" Guid="276C9A27-41A1-45A9-A05D-607D02F92F5C">
         <File Id="Alert48.png" KeyPath="yes" Source="$(var.MMComander)\Icons\Alert-48.png" />
       </Component>
+      <Component Id="cclipboard.png" Directory="dir4F3C530C044DF75FAE7A1AAFB2AC7320" Guid="EEF31BE5-5797-4F5B-A1FA-2AA632ED5181">
+        <File Id="clipboard.png" KeyPath="yes" Source="$(var.MMComander)\Icons\clipboard.png" />
+      </Component>
       <Component Id="cback.png" Directory="dir4F3C530C044DF75FAE7A1AAFB2AC7320" Guid="6BDAC84B-9636-4A83-AB07-A56B81BDF029">
         <File Id="back.png" KeyPath="yes" Source="$(var.MMComander)\Icons\back.png" />
       </Component>
