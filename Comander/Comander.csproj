@@ -16,7 +16,7 @@
     <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <PlatformTarget>x86</PlatformTarget>
+    <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
@@ -38,9 +38,8 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="RxFramework, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\ReactiveFramework\ReactiveFramework\RxTest\bin\Debug\RxFramework.dll</HintPath>
+    <Reference Include="RxFramework">
+      <HintPath>E:\OldProjects\Codes\ReactiveFramework\ReactiveFramework\RxFramework\bin\Release\RxFramework.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.Composition" />
@@ -95,6 +94,7 @@
     <Compile Include="CommanderIO\MetaData.cs" />
     <Compile Include="CommanderIO\MetaDataFileFactory.cs" />
     <Compile Include="CommanderIO\MetadataFileStructure.cs" />
+    <Compile Include="CommanderIO\ParentDirMetaDataStructure.cs" />
     <Compile Include="Controls\IOGrid.xaml.cs">
       <DependentUpon>IOGrid.xaml</DependentUpon>
     </Compile>

@@ -8,7 +8,7 @@ namespace IOLibTest
     [TestFixture]
     public class MoveDirectoryTest
     {
-        private const string DirectoryPath = @"D:\test";
+        private readonly string DirectoryPath = Path.Combine(Path.GetTempPath(), "test_dir");
 
         [SetUp]
         public void Before()

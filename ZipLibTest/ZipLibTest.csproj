@@ -55,7 +55,6 @@
     <Compile Include="ZipDirectoryTest.cs" />
     <Compile Include="ZipEncryptedFileExtractionTest.cs" />
     <Compile Include="ZipFileEncryptedExtractionTest.cs" />
-    <Compile Include="ZipFileExtractionTest.cs" />
     <Compile Include="ZipFileTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

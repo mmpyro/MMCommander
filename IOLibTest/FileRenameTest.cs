@@ -8,7 +8,7 @@ namespace IOLibTest
     [TestFixture]
     public class FileRenameTest
     {
-        private const string DestinationPath = @"D:\test";
+        private readonly string DestinationPath = Path.Combine(Path.GetTempPath(), "test_dir");
         private const string OldName = "file.txt";
         private const string NewName = "myFile.dat";
 

@@ -3,18 +3,19 @@ using System.Diagnostics;
 using IOLib;
 using IOLibTest.helpers;
 using NUnit.Framework;
+using System.IO;
 
 namespace IOLibTest
 {
     [TestFixture]
     public class FileDeleteTest
     {
-        private const string Path = @"D:\test\file.dat";
+        private readonly string filePath = Path.Combine(Path.GetTempPath(), "file.dat");
 
         [SetUp]
         public void Before()
         {
-            FileHelper.CreateIfNotExist(Path);
+            FileHelper.CreateIfNotExist(filePath);
         }
 
         [Test]
@@ -22,18 +23,18 @@ namespace IOLibTest
         {
             //Given
             IFileFactory fileFactory = new FileFactory();
-            var file = fileFactory.CreateFileMsg(Path);
+            var file = fileFactory.CreateFileMsg(filePath);
             //When
             file.Delete();
             //Then
             Debug.WriteLine(file.FullName);
-            Assert.IsFalse(FileHelper.Exist(Path));
+            Assert.IsFalse(FileHelper.Exist(filePath));
         }
 
         [TearDown]
         public void After()
         {
-            FileHelper.DeleteIfExist(Path);
+            FileHelper.DeleteIfExist(filePath);
         }
     }
 }

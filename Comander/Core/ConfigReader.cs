@@ -31,7 +31,6 @@ namespace Comander.Core
             ReadRegisterPaths();
             ReadShortCuts();
             ReadApplications();
-
         }
 
         private void ReadApplications()

@@ -67,7 +67,7 @@ namespace Search.ViewModel
 
         private object CreateSearchParameters()
         {
-            return new SearchParameters(new DirStructure(RootPath, new FileFactory()), Fraze, Recursive);
+            return new SearchParameters(RootPath, Fraze, Recursive);
         }
 
         private void SetDirectory()

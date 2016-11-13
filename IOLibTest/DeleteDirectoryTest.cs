@@ -8,7 +8,7 @@ namespace IOLibTest
     [TestFixture]
     public class DeleteDirectoryTest
     {
-        private const string DirectoryPath = @"D:\test\dir";
+        private readonly string DirectoryPath = Path.Combine(Path.GetTempPath(), "test_dir");
 
         [SetUp]
         public void Before()

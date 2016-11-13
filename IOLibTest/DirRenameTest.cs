@@ -8,8 +8,8 @@ namespace IOLibTest
     [TestFixture]
     public class DirRenameTest
     {
-        private const string OldDirectory = @"D:\test\dir";
-        private const string NewDirectory = @"D:\test\myDir";
+        private readonly string OldDirectory = Path.Combine(Path.GetTempPath(), "test_dir");
+        private readonly string NewDirectory = Path.Combine(Path.GetTempPath(), "myDir");
 
         [SetUp]
         public void Before()

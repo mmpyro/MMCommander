@@ -20,7 +20,7 @@ namespace IOLibTest
             var manager = new DirectoryManager(fileFactory);
             manager.OnFindFile += (t) => { foundedFiles++; };
             //When
-            manager.SearchFiles( new SearchParameters(new DirStructure(@"D:\\", fileFactory), "data.xml"));
+            manager.SearchFiles( new SearchParameters(@"D:\\", "data.xml"));
             //Then
             Assert.That(foundedFiles, Is.EqualTo(1));
         }
@@ -34,7 +34,7 @@ namespace IOLibTest
             var manager = new DirectoryManager(fileFactory);
             manager.OnFindFile += (t) => { foundedFiles++; };
             //When
-            manager.SearchFiles( new SearchParameters(new DirStructure(@"D:\\", fileFactory), "my"), MatchOptions.Contains);
+            manager.SearchFiles( new SearchParameters(@"D:\\", "my"), MatchOptions.Contains);
             //Then
             Assert.That(foundedFiles, Is.EqualTo(8));
         }
@@ -48,7 +48,7 @@ namespace IOLibTest
             var manager = new DirectoryManager(fileFactory);
             manager.OnFindFile += (t) => { foundedFiles++; };
             //When
-            await manager.SearchFilesAsync(new SearchParameters(new DirStructure(@"D:\\", fileFactory), "my"), MatchOptions.Contains);
+            await manager.SearchFilesAsync(new SearchParameters(@"D:\\","my"), MatchOptions.Contains);
             //Then
             Assert.That(foundedFiles, Is.EqualTo(8));
         }
@@ -62,11 +62,10 @@ namespace IOLibTest
             var manager = new DirectoryManager(fileFactory);
             manager.OnFindFile += (t) => { foundedFiles++; };
             //When
-            await manager.SearchFilesAsync( new SearchParameters(new DirStructure(@"D:\\", fileFactory), @"[a-z]{2}[A-Z]{1}.*[2]{1}.*"),RegexOptions.None);
+            await manager.SearchFilesAsync( new SearchParameters(@"D:\\", @"[a-z]{2}[A-Z]{1}.*[2]{1}.*"),RegexOptions.None);
             //Then
             Assert.That(foundedFiles, Is.EqualTo(1));
         }
-
 
         [Test]
         public void FileSearchRegexRecursive_Test()
@@ -78,7 +77,7 @@ namespace IOLibTest
             manager.OnFindFile += (t) => { foundedFiles++; };
             //When
             manager.SearchFiles(new SearchParameters(
-                new DirStructure(@"D:\Projects\TestCup", fileFactory), @".*.xml", true), RegexOptions.IgnoreCase);
+                @"D:\Projects\TestCup", @".*.xml", true), RegexOptions.IgnoreCase);
             //Then
             Assert.That(foundedFiles, Is.EqualTo(8));
         }
@@ -93,9 +92,10 @@ namespace IOLibTest
             manager.OnFindFile += (t) => { foundedFiles++; };
             //When
             await manager.SearchFilesAsync(new SearchParameters(
-                new DirStructure(@"D:\Projects\TestCup", fileFactory), @".*.xml", true), RegexOptions.IgnoreCase);
+                @"D:\Projects\TestCup", @".*.xml", true), RegexOptions.IgnoreCase);
             //Then
             Assert.That(foundedFiles, Is.EqualTo(8));
         }
+
     }
 }

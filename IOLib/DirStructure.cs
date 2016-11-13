@@ -6,7 +6,7 @@ namespace IOLib
     public abstract class DirAbstractStructure : IAbstractFileStructure
     {
         protected DirectoryInfo _fileInfo;
-        public string Name
+        public virtual string Name
         {
             get { return _fileInfo.Name; }
         }

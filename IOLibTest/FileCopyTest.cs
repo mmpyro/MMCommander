@@ -8,7 +8,7 @@ namespace IOLibTest
     [TestFixture]
     public class FileCopyTest
     {
-        private const string DestinationPath = @"D:\test";
+        private readonly string DestinationPath = Path.Combine(Path.GetTempPath(), "test_dir");
 
         [SetUp]
         public void Before()

@@ -99,9 +99,17 @@ namespace Search.ViewModel
                 else
                     throw new ArgumentException("Invalid parameters");
             }
+            catch(System.IO.PathTooLongException)
+            {
+
+            }
             catch (Exception ex)
             {
                 _logger.Error(ex);
+            }
+            finally
+            {
+                OnComplete();
             }
         }
 

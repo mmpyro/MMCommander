@@ -9,10 +9,10 @@ namespace ZipLibTest
     [TestFixture]
     public class ZipDirectoryExtractionTest
     {
-        private const string DestinationPath = @"D:\test";
-        private const string RootDirectoryPath = @"D:\test\dir";
-        private const string SubDirectoryPath = @"D:\test\dir\sub";
-        private const string RepositoryPath = @"D:\test\dir\zippedDir";
+        private readonly string DestinationPath = Path.Combine(Path.GetTempPath(), "test_dir");
+        private readonly string RootDirectoryPath = Path.Combine(Path.GetTempPath(), "test_dir\\dir");
+        private readonly string SubDirectoryPath = Path.Combine(Path.GetTempPath(), "test_dir\\dir\\sub");
+        private readonly string RepositoryPath = Path.Combine(Path.GetTempPath(), "test_dir\\dir\\zippedDir");
         private readonly ZipAdapter _zipAdapter = new ZipAdapter();
 
         [SetUp]
@@ -26,15 +26,17 @@ namespace ZipLibTest
             FileHelper.DeleteDirIfExist(RootDirectoryPath);
         }
 
-        [TestCase(@"D:\test\sub")]
-        public void ExtractDir_Test(string extractedPath)
+        [Test]
+        public void ExtractDir_Test()
         {
+            //Given
+            string extractedDirPath = Path.Combine(Path.GetTempPath(), "test_dir\\sub");
             //When
             _zipAdapter.UnCompressFile(new ZipParameters(DestinationPath + @"\file.7z", ""), DestinationPath);
             //Then
-            Assert.IsTrue(Directory.Exists(extractedPath));
+            Assert.IsTrue(Directory.Exists(extractedDirPath));
             Assert.IsTrue(File.Exists(Path.Combine(DestinationPath, "file1")));
-            Assert.IsTrue(File.Exists(Path.Combine(extractedPath, "file2")));
+            Assert.IsTrue(File.Exists(Path.Combine(extractedDirPath, "file2")));
         }
 
         [TearDown]

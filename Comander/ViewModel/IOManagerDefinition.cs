@@ -110,7 +110,7 @@ namespace Comander.ViewModel
                 }
             });
 
-            ObservableFromProperty<string>("Filter")
+            ObservableFromProperty(this, t => t.Filter)
                 .DistinctUntilChanged()
                 .Throttle(TimeSpan.FromSeconds(1))
                 .InvokeCommand(new ReactiveCommand<string>(t => FilterFiles(), _ => true));

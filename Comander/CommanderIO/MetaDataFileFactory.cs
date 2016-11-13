@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using IOLib;
 
@@ -28,6 +29,11 @@ namespace Comander.CommanderIO
         public IAbstractFileStructure CreateFileMsg(DirectoryInfo directoryInfo)
         {
             return new DirMetaDataStructure(directoryInfo, this);
+        }
+
+        public IAbstractFileStructure CreateParentDirectoryMsg(DirectoryInfo directoryInfo)
+        {
+            return new ParentDirMetaDataStructure(directoryInfo);
         }
 
         public IAbstractFileStructure GetDirectoryFromPath(string path)

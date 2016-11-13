@@ -1,13 +1,14 @@
 ﻿using IOLib;
 using IOLibTest.helpers;
 using NUnit.Framework;
+using System.IO;
 
 namespace IOLibTest
 {
     [TestFixture]
     public class DirectoryCreateTest
     {
-        private const string DirectoryPath = @"D:\test\dir";
+        private readonly string DirectoryPath = Path.Combine(Path.GetTempPath(), "test_dir");
 
         [SetUp]
         public void Before()

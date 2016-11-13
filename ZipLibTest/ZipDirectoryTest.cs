@@ -9,9 +9,9 @@ namespace ZipLibTest
     [TestFixture]
     public class ZipDirectoryTest
     {
-        private const string RootDirectoryPath = @"D:\test\dir";
-        private const string SubDirectoryPath = @"D:\test\dir\sub";
-        private const string RepositoryPath = @"D:\test\dir\zippedDir";
+        private readonly string RootDirectoryPath = Path.Combine(Path.GetTempPath(), "test_dir\\dir");
+        private readonly string SubDirectoryPath = Path.Combine(Path.GetTempPath(), "test_dir\\dir\\sub");
+        private readonly string RepositoryPath = Path.Combine(Path.GetTempPath(), "test_dir\\dir\\zippedDir");
 
         [SetUp]
         public void Before()

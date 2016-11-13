@@ -59,6 +59,7 @@
     <Compile Include="IFileManager.cs" />
     <Compile Include="FileSystemManager.cs" />
     <Compile Include="MatchOptions.cs" />
+    <Compile Include="ParentDirStructure.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SearchParameters.cs" />
   </ItemGroup>

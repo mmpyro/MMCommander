@@ -53,7 +53,10 @@ namespace IOLib
             try
             {
                 var res = Directory.GetDirectories(path).Select(AbstractFileStructure => _fileFactory.CreateFileMsg(new DirectoryInfo(AbstractFileStructure)));
-                return new List<IAbstractFileStructure>(res);
+                var list = new List<IAbstractFileStructure>();
+                CreateParentDirIfNotNull(list,path);
+                list.AddRange(res);
+                return list;
             }
             catch
             {
@@ -64,43 +67,51 @@ namespace IOLib
         public void SearchFiles(SearchParameters searchParameters, MatchOptions matchOption = MatchOptions.WholeWord)
         {
             string name = searchParameters.SearchFrase.ToLower();
-            string fullName = searchParameters.StartDirectory.FullName;
-            var files = GetFilesFromPath(fullName);
+            string fullName = searchParameters.StartDirectoryPath;
+            var files = Directory.GetFiles(fullName);
             foreach (var file in files)
             {
-                if (matchOption == MatchOptions.WholeWord && file.Name.ToLower().Equals(name))
-                    OnFindedFileNotification(file);
-                else if (file.Name.ToLower().Contains(name))
-                    OnFindedFileNotification(file);
+                if (matchOption == MatchOptions.WholeWord && file.ToLower().Equals(name))
+                    OnFindedFileNotification(_fileFactory.CreateFileMsg(Path.Combine(fullName, file)));
+                else if (file.ToLower().Contains(name))
+                    OnFindedFileNotification(_fileFactory.CreateFileMsg(Path.Combine(fullName, file)));
             }
 
-            if(searchParameters.Recursive)
-                GetDirectoriesFromPath(fullName).ForEach(t =>
-                    SearchFiles(new SearchParameters(t, searchParameters.SearchFrase, searchParameters.Recursive), matchOption));
+            if (searchParameters.Recursive)
+            {
+                foreach (var dir in Directory.GetDirectories(fullName))
+                {
+                    SearchFiles(new SearchParameters(dir, searchParameters.SearchFrase, searchParameters.Recursive), matchOption);
+                }
+            }
         }
 
         public void SearchFiles(SearchParameters searchParameters, RegexOptions comparasion)
         {
-            string fullName = searchParameters.StartDirectory.FullName;
-            var files = GetFilesFromPath(fullName);
+            string fullName = searchParameters.StartDirectoryPath;
+            var files = Directory.GetFiles(fullName);
             foreach (var file in files)
             {
-                if(Regex.IsMatch(file.Name, searchParameters.SearchFrase, comparasion))
-                    OnFindedFileNotification(file);
+                if (Regex.IsMatch(file, searchParameters.SearchFrase, comparasion))
+                    OnFindedFileNotification(_fileFactory.CreateFileMsg(Path.Combine(fullName, file)));
             }
-            if(searchParameters.Recursive)
-                GetDirectoriesFromPath(fullName)
-                    .ForEach(t => SearchFiles(new SearchParameters(t, searchParameters.SearchFrase, searchParameters.Recursive), comparasion));
+            if (searchParameters.Recursive)
+            {
+                foreach (var dir in Directory.GetDirectories(fullName))
+                {
+                    SearchFiles(new SearchParameters(dir, searchParameters.SearchFrase, searchParameters.Recursive), comparasion);
+                }
+            }
         }
 
         public Task<List<IAbstractFileStructure>> GetFilesFromPathAsync(string path)
         {
-            return Task<List<IAbstractFileStructure>>.Run(() => GetFilesFromPath(path));
+            return Task.Run(() => GetFilesFromPath(path));
         }
 
         public Task<List<IAbstractFileStructure>> GetDirectoriesFromPathAsync(string path)
         {
-            return Task<List<IAbstractFileStructure>>.Run(() => GetDirectoriesFromPath(path));
+            return Task.Run(() => GetDirectoriesFromPath(path));
         }
 
         public Task SearchFilesAsync(SearchParameters searchParameters, MatchOptions matchOption = MatchOptions.WholeWord)
@@ -127,6 +138,13 @@ namespace IOLib
         {
             if (OnFindFile != null)
                 OnFindFile(file);
+        }
+
+        private void CreateParentDirIfNotNull(List<IAbstractFileStructure> list, string path)
+        {
+            var parent = Directory.GetParent(path);
+            if (parent != null)
+                list.Add(_fileFactory.CreateParentDirectoryMsg(parent));
         }
     }
 }

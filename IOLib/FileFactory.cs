@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 
 namespace IOLib
@@ -9,6 +10,7 @@ namespace IOLib
         IAbstractFileStructure CreateFileMsg(string fullPath);
         IAbstractFileStructure CreateFileMsg(FileInfo fileInfo);
         IAbstractFileStructure CreateFileMsg(DirectoryInfo directoryInfo);
+        IAbstractFileStructure CreateParentDirectoryMsg(DirectoryInfo directoryInfo);
         IAbstractFileStructure GetDirectoryFromPath(string path);
     }
 
@@ -36,6 +38,11 @@ namespace IOLib
         public IAbstractFileStructure CreateFileMsg(DirectoryInfo directoryInfo)
         {
             return new DirStructure(directoryInfo, this);
+        }
+
+        public IAbstractFileStructure CreateParentDirectoryMsg(DirectoryInfo directoryInfo)
+        {
+            return new ParentDirStructure(directoryInfo);
         }
 
         public  IAbstractFileStructure GetDirectoryFromPath(string path)

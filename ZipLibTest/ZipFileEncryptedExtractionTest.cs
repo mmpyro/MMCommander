@@ -9,8 +9,8 @@ namespace ZipLibTest
     [TestFixture]
     public class ZipFileEncryptedExtractionTest
     {
-        private const string DestinationPath = @"D:\test";
-        private const string FilePath = @"D:\test\file.txt";
+        private readonly string DestinationPath = Path.Combine(Path.GetTempPath(), "test_dir");
+        private readonly string FilePath = Path.Combine(Path.GetTempPath(), "test_dir\\file");
         private readonly ZipAdapter _zipAdapter = new ZipAdapter();
 
         [SetUp]
@@ -22,7 +22,7 @@ namespace ZipLibTest
         }
 
         [Test]
-        public void TEST()
+        public void ExtractFile_Test()
         {
             //When
             _zipAdapter.UnCompressFile(new ZipParameters(DestinationPath + @"\file.zip", ""), DestinationPath);
