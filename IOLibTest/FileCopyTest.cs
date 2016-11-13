@@ -35,7 +35,7 @@ namespace IOLibTest
         [TearDown]
         public void After()
         {
-            FileHelper.ClenCopyFileTest(DestinationPath);
+            FileHelper.CleanCopyFileTest(DestinationPath);
         }
     }
 }

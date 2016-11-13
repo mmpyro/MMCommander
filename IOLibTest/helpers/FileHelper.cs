@@ -68,7 +68,7 @@ namespace IOLibTest.helpers
             CreateIfNotExist(Path.Combine(directoryPath,_dir1,_fileName));
         }
 
-        public static void ClenCopyFileTest(string directoryPath)
+        public static void CleanCopyFileTest(string directoryPath)
         {
             DeleteDirIfExist(Path.Combine(directoryPath, _dir1));
             DeleteDirIfExist(Path.Combine(directoryPath, _dir2));

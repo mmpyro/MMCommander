@@ -1,15 +1,24 @@
-﻿using System;
-using System.Diagnostics;
-using System.Text.RegularExpressions;
+﻿using System.Text.RegularExpressions;
 using IOLib;
-using Moq;
 using NUnit.Framework;
+using System.IO;
+using IOLibTest.helpers;
 
 namespace IOLibTest
 {
     [TestFixture]
     public class FileSearchTest
     {
+        private readonly string DirectoryPath = Path.Combine(Path.GetTempPath(), "test_dir");
+
+        [SetUp]
+        public void Before()
+        {
+            FileHelper.CreateDirIfNotExist(DirectoryPath);
+            FileHelper.CreateIfNotExist(Path.Combine(DirectoryPath, "data.js"));
+            for(int i =0;i<5;i++)
+                FileHelper.CreateIfNotExist(Path.Combine(DirectoryPath, string.Format("myZ{0}.js",i)));
+        }
 
         [Test]
         public void FileSearchByName_Test()
@@ -20,7 +29,7 @@ namespace IOLibTest
             var manager = new DirectoryManager(fileFactory);
             manager.OnFindFile += (t) => { foundedFiles++; };
             //When
-            manager.SearchFiles( new SearchParameters(@"D:\\", "data.xml"));
+            manager.SearchFiles( new SearchParameters(DirectoryPath, "data.js"));
             //Then
             Assert.That(foundedFiles, Is.EqualTo(1));
         }
@@ -34,9 +43,9 @@ namespace IOLibTest
             var manager = new DirectoryManager(fileFactory);
             manager.OnFindFile += (t) => { foundedFiles++; };
             //When
-            manager.SearchFiles( new SearchParameters(@"D:\\", "my"), MatchOptions.Contains);
+            manager.SearchFiles( new SearchParameters(DirectoryPath, "my"), MatchOptions.Contains);
             //Then
-            Assert.That(foundedFiles, Is.EqualTo(8));
+            Assert.That(foundedFiles, Is.EqualTo(5));
         }
 
         [Test]
@@ -48,9 +57,9 @@ namespace IOLibTest
             var manager = new DirectoryManager(fileFactory);
             manager.OnFindFile += (t) => { foundedFiles++; };
             //When
-            await manager.SearchFilesAsync(new SearchParameters(@"D:\\","my"), MatchOptions.Contains);
+            await manager.SearchFilesAsync(new SearchParameters(DirectoryPath,"my"), MatchOptions.Contains);
             //Then
-            Assert.That(foundedFiles, Is.EqualTo(8));
+            Assert.That(foundedFiles, Is.EqualTo(5));
         }
 
         [Test]
@@ -62,9 +71,9 @@ namespace IOLibTest
             var manager = new DirectoryManager(fileFactory);
             manager.OnFindFile += (t) => { foundedFiles++; };
             //When
-            await manager.SearchFilesAsync( new SearchParameters(@"D:\\", @"[a-z]{2}[A-Z]{1}.*[2]{1}.*"),RegexOptions.None);
+            await manager.SearchFilesAsync( new SearchParameters(DirectoryPath, @"[a-z]{2}[A-Z]{1}[0-9]?.*"),RegexOptions.None);
             //Then
-            Assert.That(foundedFiles, Is.EqualTo(1));
+            Assert.That(foundedFiles, Is.EqualTo(6));
         }
 
         [Test]
@@ -77,9 +86,9 @@ namespace IOLibTest
             manager.OnFindFile += (t) => { foundedFiles++; };
             //When
             manager.SearchFiles(new SearchParameters(
-                @"D:\Projects\TestCup", @".*.xml", true), RegexOptions.IgnoreCase);
+                DirectoryPath, @".*.js", true), RegexOptions.IgnoreCase);
             //Then
-            Assert.That(foundedFiles, Is.EqualTo(8));
+            Assert.That(foundedFiles, Is.EqualTo(6));
         }
 
         [Test]
@@ -92,9 +101,9 @@ namespace IOLibTest
             manager.OnFindFile += (t) => { foundedFiles++; };
             //When
             await manager.SearchFilesAsync(new SearchParameters(
-                @"D:\Projects\TestCup", @".*.xml", true), RegexOptions.IgnoreCase);
+                DirectoryPath, @".*.js", true), RegexOptions.IgnoreCase);
             //Then
-            Assert.That(foundedFiles, Is.EqualTo(8));
+            Assert.That(foundedFiles, Is.EqualTo(6));
         }
 
     }

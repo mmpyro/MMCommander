@@ -13,6 +13,7 @@ namespace IOLibTest
         [SetUp]
         public void Before()
         {
+            FileHelper.CreateDirIfNotExist(DirectoryPath);
             FileHelper.CreateDirIfNotExist(Path.Combine(DirectoryPath, "dir1"));
             FileHelper.CreateDirIfNotExist(Path.Combine(DirectoryPath, "dir2"));
             FileHelper.CreateIfNotExist(Path.Combine(Path.Combine(DirectoryPath, "dir1"), "file.txt"));
