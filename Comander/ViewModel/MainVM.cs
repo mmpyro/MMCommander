@@ -62,6 +62,7 @@ namespace Comander.ViewModel
                 _assemblyVersionResolver.GetProductVersion(GetType())))).ShowDialog());
             KeyMapCommand = new ExecuteCommand(() =>  Process.Start(_configReader["web"].Value, keymapUri.AbsolutePath), _logger);
             SyntaxCommand = new ExecuteCommand(() => Process.Start(_configReader["web"].Value, syntaxUri.AbsolutePath), _logger);
+            DuplicateCommand = new ExecuteCommand(DuplicateCommanders);
 
             SearchCommand = new ExecuteCommand(Search,_logger);
             IMessanger messanger = Messanger.Messanger.GetInstance();
@@ -121,6 +122,11 @@ namespace Comander.ViewModel
             string bufforPath = _io1.ActualPath;
             _io1.ActualPath = _io2.ActualPath;
             _io2.ActualPath = bufforPath;
+        }
+
+        private void DuplicateCommanders()
+        {
+            _io2.ActualPath = _io1.ActualPath;
         }
 
         private void RefreshCommanders()
@@ -213,6 +219,7 @@ namespace Comander.ViewModel
         public ICommand SearchCommand { get; set; }
         public ICommand ReadLogsCommand { get; set; }
         public ICommand SyntaxCommand { get; set; }
+        public ICommand DuplicateCommand { get; set; }
         #endregion
 
         #region Property

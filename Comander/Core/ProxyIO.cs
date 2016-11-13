@@ -87,6 +87,10 @@ namespace Comander.Core
                         _monitor.Exit();
                     }
                 }
+                else
+                {
+                    _monitor.Exit();
+                }
             }
         }
 
@@ -114,6 +118,10 @@ namespace Comander.Core
                         Avaiable();
                         _monitor.Exit();
                     }
+                }
+                else
+                {
+                    _monitor.Exit();
                 }
             }
         }

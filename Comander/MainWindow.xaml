@@ -24,6 +24,7 @@
         <Menu Grid.Row="0">
             <MenuItem Header="Options" >
                 <MenuItem Header="Switch" Command="{Binding SwitchCommand}"/>
+                <MenuItem Header="Source = Traget" Command="{Binding DuplicateCommand}"/>
                 <MenuItem Header="Reload drives"  Command="{Binding RefreshCommand}" />
                 <MenuItem Header="Config">
                      <MenuItem Header="Programs"/>
