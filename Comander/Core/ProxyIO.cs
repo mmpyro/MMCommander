@@ -154,9 +154,12 @@ namespace Comander.Core
                         finally
                         {
                             Avaiable();
-                            _monitor.Exit();
                         }
-                    });
+                    }).ContinueWith(t => _monitor.Exit(), TaskContinuationOptions.OnlyOnRanToCompletion); ;
+                }
+                else
+                {
+                    _monitor.Exit();
                 }
             }
         }
