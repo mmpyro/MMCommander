@@ -6,7 +6,9 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using CommanderPlugin;
-using IOLib;
+using LogLib;
+using System.Threading.Tasks;
+using Comander.Messages;
 
 namespace Comander.Core
 {
@@ -17,7 +19,11 @@ namespace Comander.Core
 
         void LoadPlugins(string path);
         IEnumerable<string> GetMethods();
-        void InvokeMethod(string name, IEnumerable<IAbstractFileStructure> files);
+
+        /// <param name="name">Method name</param>
+        /// <param name="dir">Directory full name</param>
+        /// <param name="files">Files full name</param>
+        Task InvokeMethod(string name, string dir, IEnumerable<string> files);
     }
 
     public class NullPluginManager : IPluginManager
@@ -33,16 +39,23 @@ namespace Comander.Core
             return new List<string>();
         }
 
-        public void InvokeMethod(string name, IEnumerable<IAbstractFileStructure> files)
+        public Task InvokeMethod(string name, string dir, IEnumerable<string> files)
         {
-
+            return Task.Run(() => { });
         }
     }
 
     public class PluginManager : IPluginManager
     {
+        private readonly ILogger _logger;
+
         [ImportMany(typeof(ICommanderPlugin))]
         public IEnumerable<Lazy<ICommanderPlugin, IOperationName>> Plugins { get; set; }
+
+        public PluginManager(ILogger logger)
+        {
+            _logger = logger;
+        }
 
         public void LoadPlugins(string path)
         {
@@ -72,11 +85,25 @@ namespace Comander.Core
             return new List<string>();
         }
 
-        public void InvokeMethod(string name, IEnumerable<IAbstractFileStructure> files)
+        public async Task InvokeMethod(string name, string dir, IEnumerable<string> files)
         {
             var plugin = Plugins.Single(t => t.Metadata.Name.Equals(name));
-            plugin.Value.Invoke(files);
+            var response = await plugin.Value.InvokeAsync(dir,files);
+            ReportExecutionStatus(name, response);
         }
 
+        private void ReportExecutionStatus(string taskName, Response response)
+        {
+            if(response.Status == OperationStatus.Success)
+            {
+                _logger.Info(string.Format("Task: {0} completed succesfuly.",taskName));
+            }
+            else
+            {
+                _logger.Error(response.ErrorMessage);
+            }
+            var messanger = Messanger.Messanger.GetInstance();
+            messanger.Send(new RefreshMessage());
+        }
     }
 }

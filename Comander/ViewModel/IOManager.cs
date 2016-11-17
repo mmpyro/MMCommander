@@ -429,7 +429,7 @@ namespace Comander.ViewModel
         {
            _proxy.ShowPluginWindow(() =>
            {
-               var pluginWindow = new PluginWindow(_pluginManager, Files.Where(t => t.IsSelected()), _logger);
+               var pluginWindow = new PluginWindow(_pluginManager, ActualPath, Files.Where(t => t.IsSelected()).Select(t => t.FullName), _logger);
                pluginWindow.Left = _currentPosition.X;
                pluginWindow.Top = _currentPosition.Y;
                pluginWindow.Show();

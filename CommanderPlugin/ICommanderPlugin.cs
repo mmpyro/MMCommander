@@ -1,10 +1,13 @@
 ﻿using System.Collections.Generic;
-using IOLib;
+using System.Threading.Tasks;
 
 namespace CommanderPlugin
 {
     public interface ICommanderPlugin
     {
-        void Invoke(IEnumerable<IAbstractFileStructure> files);
+
+        /// <param name="dir">Actual directory full name</param>
+        /// <param name="files">Selected files full name</param>
+        Task<Response> InvokeAsync(string dir, IEnumerable<string> files);
     }
 }

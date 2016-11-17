@@ -14,9 +14,9 @@ namespace Comander.ViewModel
     {
         private ObservableCollection<string> _pluginNames; 
 
-        public PluginVM(HidenWindowBase window, IPluginManager pluginManager, IEnumerable<IAbstractFileStructure> files, ILogger logger) : base(window)
+        public PluginVM(HidenWindowBase window, IPluginManager pluginManager, string dir, IEnumerable<string> files, ILogger logger) : base(window)
         {
-            PluginInvokeCommand = new PluginCommand(pluginManager, files, logger);
+            PluginInvokeCommand = new PluginCommand(pluginManager, dir, files, logger);
             PluginNames = new ObservableCollection<string>(pluginManager.GetMethods());
         }
 

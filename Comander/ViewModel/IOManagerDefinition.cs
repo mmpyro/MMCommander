@@ -109,7 +109,7 @@ namespace Comander.ViewModel
                     _focus = false;
                 }
             });
-
+            _messanger.Register(typeof(RefreshMessage), _ => Refresh());
             ObservableFromProperty(this, t => t.Filter)
                 .DistinctUntilChanged()
                 .Throttle(TimeSpan.FromSeconds(1))

@@ -10,11 +10,11 @@ namespace Comander.View
 
     public partial class PluginWindow : HidenWindowBase
     {
-        public PluginWindow(IPluginManager pluginManager, IEnumerable<IAbstractFileStructure> files, ILogger logger)
+        public PluginWindow(IPluginManager pluginManager, string dir, IEnumerable<string> files, ILogger logger)
         {
             InitializeComponent();
             InitTask();
-            DataContext = new PluginVM(this, pluginManager, files, logger);
+            DataContext = new PluginVM(this, pluginManager, dir, files, logger);
         }
     }
 }

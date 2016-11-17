@@ -65,7 +65,7 @@ namespace Comander.ViewModel
         {
             try
             {
-                var plugin = new PluginManager();
+                var plugin = new PluginManager(_logger);
                 string path = Path.Combine(Directory.GetCurrentDirectory(), "Plugins");
                 plugin.LoadPlugins(path);
                 return plugin;

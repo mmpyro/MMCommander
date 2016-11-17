@@ -41,13 +41,9 @@
   <ItemGroup>
     <Compile Include="ICommanderPlugin.cs" />
     <Compile Include="IOperationName.cs" />
+    <Compile Include="OperationStatus.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\IOLib\IOLib.csproj">
-      <Project>{ecc6bead-cf29-4fca-a652-a06c639f92f5}</Project>
-      <Name>IOLib</Name>
-    </ProjectReference>
+    <Compile Include="Response.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

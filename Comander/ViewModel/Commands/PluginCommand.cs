@@ -11,14 +11,16 @@ namespace Comander.ViewModel.Commands
     public class PluginCommand : ICommand
     {
         private readonly IPluginManager _pluginManager;
-        private readonly IEnumerable<IAbstractFileStructure> _files;
+        private readonly IEnumerable<string> _files;
         private readonly ILogger _logger;
+        private readonly string _dir;
 
-        public PluginCommand(IPluginManager pluginManager, IEnumerable<IAbstractFileStructure> files, ILogger logger )
+        public PluginCommand(IPluginManager pluginManager, string dir, IEnumerable<string> files, ILogger logger )
         {
             _pluginManager = pluginManager;
             _files = files;
             _logger = logger;
+            _dir = dir;
         }
 
         public bool CanExecute(object parameter)
@@ -47,7 +49,7 @@ namespace Comander.ViewModel.Commands
         {
             try
             {
-                _pluginManager.InvokeMethod(parameter.ToString(), _files);
+                _pluginManager.InvokeMethod(parameter.ToString(), _dir,_files);
             }
             catch (Exception e)
             {

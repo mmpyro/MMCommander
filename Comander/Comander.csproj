@@ -121,6 +121,7 @@
     <Compile Include="Core\StateMonitor.cs" />
     <Compile Include="Messages\FocusMessage.cs" />
     <Compile Include="Messages\PulseMessage.cs" />
+    <Compile Include="Messages\RefreshMessage.cs" />
     <Compile Include="Messages\WindowCloseEventArgs.cs" />
     <Compile Include="Messages\WindowPositionEventArgs.cs" />
     <Compile Include="Core\AssemblyVersionResolver.cs" />
