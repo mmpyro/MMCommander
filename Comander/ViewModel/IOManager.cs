@@ -49,6 +49,15 @@ namespace Comander.ViewModel
             RefreshFilesCollection();
         }
 
+        private void SelectByType()
+        {
+            if (SelectedFile != null && !string.IsNullOrEmpty(SelectedFile.Ext))
+            {
+                Files.Where(t => t.Ext == SelectedFile.Ext).ToList().ForEach(t => t.PermanentSelect());
+                RefreshFilesCollection();
+            }
+        }
+
         private void CountSelectedFiles()
         {
             CurrentOperation = "Selected elements: " + Files.Count(t => t.IsSelected());

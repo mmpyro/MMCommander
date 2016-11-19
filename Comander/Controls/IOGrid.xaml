@@ -50,7 +50,7 @@
                 <KeyBinding Key="N" Command="{Binding NotepadCommand}"/>
                 <KeyBinding Key="S" Command="{Binding SelectCommand}" CommandParameter="{Binding ElementName=DataGrid1, Path=SelectedItems}"/>
                 <KeyBinding Key="R" Command="{Binding ReverseSelectionCommand}"/>
-                <KeyBinding Key="A" Modifiers="Control" Command="{Binding SelectAllCommand}"/>
+                <KeyBinding Key="A" Command="{Binding SelectAllCommand}"/>
                 <KeyBinding Key="Delete" Command="{Binding DeleteFileCommand}"/>
                 <KeyBinding Key="D" Modifiers="Control" Command="{Binding AddShortCutsCommand}"/>
                 <KeyBinding Key="Z" Modifiers="Control" Command="{Binding ZipCommand}"/>
@@ -58,13 +58,14 @@
                 <KeyBinding Key="C" Modifiers="Shift" Command="{Binding ConsoleRunCommand}"/>
                 <KeyBinding Key="I" Modifiers="Control" Command="{Binding InfoCommand}"/>
                 <KeyBinding Key="R" Modifiers="Control" Command="{Binding RenameCommand}"/>
-                <KeyBinding Key="T" Command="{Binding TreeWindowCommand}"/>
+                <KeyBinding Key="T" Modifiers="Ctrl" Command="{Binding TreeWindowCommand}"/>
                 <KeyBinding Key="Esc" Command="{Binding ParentDirCommand}"/>
                 <KeyBinding Key="Home" Command="{Binding RootDirCommand}"/>
                 <KeyBinding Key="Tab" Command="{Binding SwitchFocusCommand}"/>
                 <KeyBinding Key="F3" Command="{Binding PluginCommand}"/>
                 <KeyBinding Key="C" Modifiers="Ctrl" Command="{Binding CopyToClipboardCommand}"/>
                 <KeyBinding Key="V" Modifiers="Ctrl" Command="{Binding PasteToClipboardCommand}"/>
+                <KeyBinding Key="T" Command="{Binding SelectTypeCommand}"/>
                 <MouseBinding MouseAction="RightDoubleClick" Command="{Binding SelectCommand}" CommandParameter="{Binding ElementName=DataGrid1, Path=SelectedItems}"/>
                 <MouseBinding MouseAction="LeftDoubleClick" Command="{Binding EnterIntoDirCommand}"/>
             </DataGrid.InputBindings>

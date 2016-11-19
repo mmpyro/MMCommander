@@ -81,6 +81,7 @@ namespace Comander.ViewModel
             ReverseSelectionCommand = new ExecuteCommand(ReversFileSelection, _logger);
             SelectCommand = new SelectFilesCommand(RefreshFilesCollection);
             SelectAllCommand = new ExecuteCommand(SelectAllFiles, _logger);
+            SelectTypeCommand = new ExecuteCommand(SelectByType, _logger);
             CopyCommand = new ExecuteCommand(CopyFile, _logger);
             MoveCommand = new ExecuteCommand(MoveFile, _logger);
             ShowSortcutsCommand = new ExecuteCommand(ShowShortcutsWindow, _logger);
@@ -134,6 +135,7 @@ namespace Comander.ViewModel
         public ICommand SelectCommand { get; set; }
         public ICommand ReverseSelectionCommand { get; set; }
         public ICommand SelectAllCommand { get; set; }
+        public ICommand SelectTypeCommand { get; set; }
         public ICommand RefreshDriveCommand { get; set; }
         public ICommand SplitFileCommand { get; set; }
         public ICommand RefreshCommand { get; set; }
