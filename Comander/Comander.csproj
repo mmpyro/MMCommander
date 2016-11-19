@@ -38,9 +38,6 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="RxFramework">
-      <HintPath>E:\OldProjects\Codes\ReactiveFramework\ReactiveFramework\RxFramework\bin\Release\RxFramework.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.Composition" />
     <Reference Include="System.Data" />
@@ -373,6 +370,10 @@
     <ProjectReference Include="..\Messanger\Messanger.csproj">
       <Project>{6531e779-f08f-461d-88d7-5f58d485b36c}</Project>
       <Name>Messanger</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\RxFramework\RxFramework.csproj">
+      <Project>{cc5523e6-64ed-4f8c-8c0b-fec777792f75}</Project>
+      <Name>RxFramework</Name>
     </ProjectReference>
     <ProjectReference Include="..\ZipAdapter\ZipLib.csproj">
       <Project>{541603a2-2fe0-41c5-ae52-a780d8207c7f}</Project>
