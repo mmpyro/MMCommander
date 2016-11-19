@@ -3,6 +3,7 @@ using IOLib;
 using NUnit.Framework;
 using System.IO;
 using IOLibTest.helpers;
+using System;
 
 namespace IOLibTest
 {
@@ -50,7 +51,7 @@ namespace IOLibTest
 
         [Test]
         public async void FileSearchContains_AsyncTest()
-        {
+        {   
             //Given
             int foundedFiles = 0;
             var fileFactory = new FileFactory();
@@ -65,6 +66,7 @@ namespace IOLibTest
         [Test]
         public async void FileSearchRegex_AsyncTest()
         {
+            Console.WriteLine(DirectoryPath);
             //Given
             int foundedFiles = 0;
             var fileFactory = new FileFactory();
@@ -73,7 +75,7 @@ namespace IOLibTest
             //When
             await manager.SearchFilesAsync( new SearchParameters(DirectoryPath, @"[a-z]{2}[A-Z]{1}[0-9]?.*"),RegexOptions.None);
             //Then
-            Assert.That(foundedFiles, Is.EqualTo(6));
+            Assert.That(foundedFiles, Is.EqualTo(5));
         }
 
         [Test]

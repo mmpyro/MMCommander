@@ -3,6 +3,8 @@ using IOLib;
 using IOLibTest.helpers;
 using NUnit.Framework;
 using ZipLib;
+using System.Threading;
+using System;
 
 namespace ZipLibTest
 {
