@@ -14,7 +14,8 @@ namespace Comander.CommanderIO
 
         public IAbstractFileStructure CreateFileMsg(string fullPath)
         {
-            if (string.IsNullOrEmpty(Path.GetExtension(fullPath)))
+            FileAttributes attr = File.GetAttributes(fullPath);
+            if ((attr & FileAttributes.Directory) == FileAttributes.Directory)
             {
                 return CreateFileMsg(new DirectoryInfo(fullPath));
             }

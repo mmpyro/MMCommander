@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 
 namespace IOLib
 {
@@ -93,6 +95,7 @@ namespace IOLib
 
         public override void Delete()
         {
+            ClearAttributes(FullName);
             Directory.Delete(FullName, true);
         }
 
@@ -107,6 +110,7 @@ namespace IOLib
         {
             string destinationPath = Path.Combine(destinationDirectory.FullName, Name);
             Directory.CreateDirectory(destinationPath);
+            ClearAttributes(FullName);
             foreach (var file in Directory.GetFiles(FullName))
             {
                 var fileInfo = new FileInfo(file);
@@ -123,6 +127,7 @@ namespace IOLib
         {
             string destinationPath = Path.Combine(destinationDirectory.FullName, Name);
             Directory.CreateDirectory(destinationPath);
+            ClearAttributes(FullName);
             foreach (var file in Directory.GetFiles(FullName))
             {
                 var fileInfo = new FileInfo(file);
@@ -141,6 +146,19 @@ namespace IOLib
             string newNamePath = Path.Combine(localization, newName);
             Directory.Move(FullName, newNamePath);
             Init(newNamePath);
+        }
+
+        private static void ClearAttributes(string path)
+        {
+            var stack = new Stack<string>();
+            stack.Push(path);
+            while (stack.Count > 0)
+            {
+                var dir = new DirectoryInfo(stack.Pop());
+                File.SetAttributes(dir.FullName, FileAttributes.Normal);
+                dir.GetFiles().ToList().ForEach(f => File.SetAttributes(f.FullName, FileAttributes.Normal));
+                dir.GetDirectories().ToList().ForEach(d => stack.Push(d.FullName));
+            }
         }
     }
     
