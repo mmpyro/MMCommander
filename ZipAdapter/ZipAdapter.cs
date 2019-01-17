@@ -51,8 +51,6 @@ namespace ZipLib
         public void CompressDirWithEncryption(ZipParameters zipParameters, string dir)
         {
             var cmp = InitCompressor(zipParameters);
-            cmp.ZipEncryptionMethod = ZipEncryptionMethod.Aes256;
-            cmp.EncryptHeaders = true;
             cmp.CompressDirectory(dir, zipParameters.ArchiveName, zipParameters.Password);
         }
 

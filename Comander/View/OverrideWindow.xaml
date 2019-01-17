@@ -1,0 +1,59 @@
+﻿<Window x:Class="Comander.View.OverrideWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:type="clr-namespace:Comander.Controls"
+        Title="ConfirmWindow" Name="MainWindow" BorderBrush="{DynamicResource MainBorderBrush}" BorderThickness="2" Background="Black" AllowsTransparency="True" WindowStyle="None" Height="200" Width="400" ResizeMode="CanMinimize" WindowStartupLocation="CenterScreen" >
+    <Window.Triggers>
+        <EventTrigger RoutedEvent="Window.Loaded">
+            <BeginStoryboard>
+                <Storyboard>
+                    <DoubleAnimation Storyboard.TargetName="MainWindow"
+                                         Storyboard.TargetProperty="Height" From="1" To="200" BeginTime="0:0:0" Duration="0:0:1">
+                    </DoubleAnimation>
+                </Storyboard>
+            </BeginStoryboard>
+        </EventTrigger>
+    </Window.Triggers>
+    <Window.Resources>
+        <ResourceDictionary>
+        <ResourceDictionary.MergedDictionaries>
+            <ResourceDictionary Source="../Themes/MetroDark/MetroDark.MSControls.Core.Implicit.xaml" />
+            <ResourceDictionary Source="../Themes/MetroDark/MetroDark.MSControls.Toolkit.Implicit.xaml" />
+            <ResourceDictionary Source="../Themes/Custom/CoWindowDictionary.xaml"/>
+            <ResourceDictionary x:Name="brushes" Source="../Themes/Custom/CustomBrushes.xaml"/>
+        </ResourceDictionary.MergedDictionaries>
+        <Style x:Key="BorderStyle" TargetType="Border">
+            <Setter Property="BorderBrush" Value="{DynamicResource MainBorderBrush}"/>
+            <Setter Property="CornerRadius" Value="5"/>
+            <Setter Property="BorderThickness" Value="2"/>
+        </Style>
+        </ResourceDictionary>
+    </Window.Resources>
+    <StackPanel Orientation="Vertical" MouseLeftButtonDown="Move_OnMouseLeftButtonDown">
+        <Grid >
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="3*"/>
+            </Grid.ColumnDefinitions>
+            <DockPanel Background="Transparent" Width="40" Height="40" Grid.Column="0"  Margin="0,30,0,40" >
+                <Image Margin="-10" Name="Image" Height="40" Width="40" />
+            </DockPanel>
+            <TextBlock Foreground="White" TextAlignment="Center" Name="InfoTextBlock" FontWeight="Bold" Height="50" Grid.Column="1" Margin="0,20,0,0"  />
+        </Grid>
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            <Button Grid.Row="0" Grid.Column="0" Content="Override all files" Click="OverrideAllButtonClick"/>
+            <Button Grid.Row="0" Grid.Column="1" Content="Don't override conflicted" Click="DotNotOverrideButtonClick"/>
+            <Button Grid.Row="1" Grid.Column="0" Content="Override single file" Click="AcceptButton_OnClick"/>
+            <Button Grid.Row="1" Grid.Column="1" Content="Cancel" Click="CancelButton_OnClick"/>
+        </Grid>
+
+    </StackPanel>
+</Window>

@@ -43,17 +43,17 @@ namespace LogLib
 
         public void Info(string message, Exception ex)
         {
-            PerformInfoMessage(message+" | "+ex);
+            PerformInfoMessage(message);
         }
 
         public void Warn(string message, Exception ex)
         {
-            PerformWarnMessage(message+" | "+ex);
+            PerformWarnMessage(message);
         }
 
         public void Error(string message, Exception ex)
         {
-            PerformErrorMessage(message+" | "+ex);
+            PerformErrorMessage(message);
         }
 
         public event Notify NotifyEvent;

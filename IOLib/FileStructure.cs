@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 
@@ -66,7 +67,7 @@ namespace IOLib
 
         public abstract void Delete();
         public abstract void Move(IAbstractFileStructure destinationDirectory);
-        public abstract void Copy(IAbstractFileStructure destinationDirectory, Func<string, bool> allowOverride);
+        public abstract void Copy(IAbstractFileStructure destinationDirectory, Func<string,string, bool> allowOverride);
         public abstract void OverrideCopy(IAbstractFileStructure destinationDirectory);
         public abstract void Rename(string newName);
     }
@@ -100,23 +101,30 @@ namespace IOLib
             }
         }
 
-        public override void Copy(IAbstractFileStructure destinationDirectory, Func<string, bool> allowOverride)
+        public override void Copy(IAbstractFileStructure destinationDirectory, Func<string,string, bool> allowOverride)
         {
             if (destinationDirectory.IsDirectory)
             {
                 string destinationPath = Path.Combine(destinationDirectory.FullName, Name);
-                if (IsFileExistInDestinationDir(destinationDirectory))
+                try
                 {
-                    if (allowOverride(Name))
+                    if (IsFileExistInDestinationDir(destinationDirectory))
                     {
-                        File.Copy(FullName, destinationPath, true);
+                        if (allowOverride(Name, destinationPath))
+                        {
+                            File.Copy(FullName, destinationPath, true);
+                            File.SetAttributes(destinationPath, FileAttributes.Normal);
+                        }
+                    }
+                    else
+                    {
+                        File.Copy(FullName, destinationPath);
                         File.SetAttributes(destinationPath, FileAttributes.Normal);
                     }
                 }
-                else
+                catch (IOException ex)
                 {
-                    File.Copy(FullName, destinationPath);
-                    File.SetAttributes(destinationPath, FileAttributes.Normal);
+                    CopyFileInUse(destinationDirectory, ex);
                 }
             }
             else
@@ -125,17 +133,25 @@ namespace IOLib
             }
         }
 
+
         public override void OverrideCopy(IAbstractFileStructure destinationDirectory)
         {
-            if (destinationDirectory.IsDirectory)
+            try
             {
-                string destinationPath = Path.Combine(destinationDirectory.FullName, Name);
-                File.Copy(FullName, destinationPath, true);
-                File.SetAttributes(destinationPath, FileAttributes.Normal);
+                if (destinationDirectory.IsDirectory)
+                {
+                    string destinationPath = Path.Combine(destinationDirectory.FullName, Name);
+                    File.Copy(FullName, destinationPath, true);
+                    File.SetAttributes(destinationPath, FileAttributes.Normal);
+                }
+                else
+                {
+                    throw new ArgumentException("Invalid arguments");
+                }
             }
-            else
+            catch(IOException ex)
             {
-                throw new ArgumentException("Invalid arguments");
+                CopyFileInUse(destinationDirectory, ex);
             }
         }
 
@@ -176,6 +192,20 @@ namespace IOLib
             return false;
         }
 
-
+        private void CopyFileInUse(IAbstractFileStructure destinationDirectory, IOException e)
+        {
+            if (e.Message.Contains("in use"))
+            {
+                var process = new Process();
+                process.StartInfo.UseShellExecute = false;
+                process.StartInfo.RedirectStandardOutput = true;
+                process.StartInfo.CreateNoWindow = true;
+                process.StartInfo.FileName = "cmd.exe";
+                process.StartInfo.Arguments = "/C copy \"" + FullName + "\" \"" + destinationDirectory.FullName + "\"";
+                process.Start();
+                process.WaitForExit();
+                process.Close();
+            }
+        }
     }
 }

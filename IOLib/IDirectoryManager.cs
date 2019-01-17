@@ -13,12 +13,10 @@ namespace IOLib
     {
         List<IAbstractFileStructure> GetFilesFromPath(string path);
         List<IAbstractFileStructure> GetDirectoriesFromPath(string path);
-        void SearchFiles(SearchParameters searchParameters, MatchOptions matchOption = MatchOptions.WholeWord);
-        void SearchFiles(SearchParameters searchParameters, RegexOptions comparsion);
+        void SearchFiles(SearchParameters searchParameters);
         Task<List<IAbstractFileStructure>> GetFilesFromPathAsync(string path);
         Task<List<IAbstractFileStructure>> GetDirectoriesFromPathAsync(string path);
-        Task SearchFilesAsync(SearchParameters searchParameters, MatchOptions matchOption = MatchOptions.WholeWord);
-        Task SearchFilesAsync(SearchParameters searchParameters, RegexOptions comparsion);
+        Task SearchFilesAsync(SearchParameters searchParameters);
         void CreateDirectory(string path);
         IAbstractFileStructure GetDirFromPath(string actualPath);
         event FindFileDelegate OnFindFile;
@@ -64,42 +62,30 @@ namespace IOLib
             }
         }
 
-        public void SearchFiles(SearchParameters searchParameters, MatchOptions matchOption = MatchOptions.WholeWord)
-        {
-            string name = searchParameters.SearchFrase.ToLower();
-            string fullName = searchParameters.StartDirectoryPath;
-            var files = Directory.GetFiles(fullName);
-            foreach (var file in files)
-            {
-                if (matchOption == MatchOptions.WholeWord && file.ToLower().Equals(name))
-                    OnFindedFileNotification(_fileFactory.CreateFileMsg(Path.Combine(fullName, file)));
-                else if (file.ToLower().Contains(name))
-                    OnFindedFileNotification(_fileFactory.CreateFileMsg(Path.Combine(fullName, file)));
-            }
-
-            if (searchParameters.Recursive)
-            {
-                foreach (var dir in Directory.GetDirectories(fullName))
-                {
-                    SearchFiles(new SearchParameters(dir, searchParameters.SearchFrase, searchParameters.Recursive), matchOption);
-                }
-            }
-        }
-
-        public void SearchFiles(SearchParameters searchParameters, RegexOptions comparasion)
+        public void SearchFiles(SearchParameters searchParameters)
         {
             string fullName = searchParameters.StartDirectoryPath;
             var files = Directory.GetFiles(fullName);
+            var isFileExtension = new Regex(@"\*\.*");
+            if(searchParameters.MatchOptions == MatchOptions.WholeWord)
+            {
+                searchParameters.SearchPhrase = string.Format(@"\b{0}\b", searchParameters.SearchPhrase);
+            }
+            else if (isFileExtension.IsMatch(searchParameters.SearchPhrase))
+            {
+                string extension = searchParameters.SearchPhrase.Split('.')[1];
+                searchParameters.SearchPhrase = string.Format(@".*\.{0}$",extension);
+            }
             foreach (var file in files)
             {
-                if (Regex.IsMatch(file, searchParameters.SearchFrase, comparasion))
+                if (Regex.IsMatch(file, searchParameters.SearchPhrase, searchParameters.RegexOptions))
                     OnFindedFileNotification(_fileFactory.CreateFileMsg(Path.Combine(fullName, file)));
             }
             if (searchParameters.Recursive)
             {
                 foreach (var dir in Directory.GetDirectories(fullName))
                 {
-                    SearchFiles(new SearchParameters(dir, searchParameters.SearchFrase, searchParameters.Recursive), comparasion);
+                    SearchFiles(new SearchParameters(dir, searchParameters.SearchPhrase, searchParameters.Recursive));
                 }
             }
         }
@@ -114,14 +100,9 @@ namespace IOLib
             return Task.Run(() => GetDirectoriesFromPath(path));
         }
 
-        public Task SearchFilesAsync(SearchParameters searchParameters, MatchOptions matchOption = MatchOptions.WholeWord)
+        public Task SearchFilesAsync(SearchParameters searchParameters)
         {
-            return Task.Run(() => SearchFiles(searchParameters, matchOption));
-        }
-
-        public Task SearchFilesAsync(SearchParameters searchParameters, RegexOptions comparsion)
-        {
-            return Task.Run(() => SearchFiles(searchParameters, comparsion));
+            return Task.Run(() => SearchFiles(searchParameters));
         }
 
         public void CreateDirectory(string path)

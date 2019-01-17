@@ -13,6 +13,7 @@ using RxFramework;
 using Messanger;
 using System.Windows;
 using Comander.Messages;
+using Comander.Dtos;
 
 namespace Comander.ViewModel
 {
@@ -40,6 +41,10 @@ namespace Comander.ViewModel
         private IProxyIO _proxy;
         private ManagerType _type;
         private bool _focus;
+        private CopyStatusDto copyStatusDto = new CopyStatusDto
+        {
+            OverrideAll = false
+        };
 
         public IOManager(ManagerType type,string actualPath, IFileSystemManager fileManager, SyntaxParser syntaxParser, 
             IHistoryManager historyManager, IConfigReader configReader, 
@@ -77,7 +82,7 @@ namespace Comander.ViewModel
                 _secondManager.LoadDrivers();
             }, _logger);
 
-            RefreshCommand = new ExecuteCommand(Refresh, _logger);
+            RefreshCommand = new ExecuteCommand(FilterFiles, _logger);
             ReverseSelectionCommand = new ExecuteCommand(ReversFileSelection, _logger);
             SelectCommand = new SelectFilesCommand(RefreshFilesCollection);
             SelectAllCommand = new ExecuteCommand(SelectAllFiles, _logger);

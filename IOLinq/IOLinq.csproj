@@ -81,6 +81,7 @@
     <Compile Include="Parsers\ExtEqualsParser.cs" />
     <Compile Include="Parsers\ExtInParser.cs" />
     <Compile Include="Parsers\ExtNotInParser.cs" />
+    <Compile Include="Parsers\IsTypeParser.cs" />
     <Compile Include="Parsers\NameEqualsParser.cs" />
     <Compile Include="Parsers\NameLikeParser.cs" />
     <Compile Include="Parsers\NotExtEqualsParser.cs" />

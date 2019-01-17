@@ -1,3 +1,4 @@
+using System;
 using System.Text.RegularExpressions;
 using IOLib;
 
@@ -39,6 +40,11 @@ namespace IOLinq
         public static bool IsLikeNameParser(string input)
         {
             return Regex.IsMatch(input, @".*[\s]{1}like[\s]{1}.*");
+        }
+
+        public static bool IsTypeParser(string value)
+        {
+            return Regex.IsMatch(value, @"type\s*is\s*.*");
         }
 
         public abstract Unit Perform(string input, IAbstractFileStructure[] abstractFiles);

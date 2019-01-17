@@ -60,8 +60,8 @@ namespace Comander.ViewModel
             CompareDirCommand = new ExecuteCommand(CompareDirectories);
             AboutCommand = new ExecuteCommand(() => (new AboutWindow(string.Format("Product version: {0}\nCreated by Michał Marszałek.",
                 _assemblyVersionResolver.GetProductVersion(GetType())))).ShowDialog());
-            KeyMapCommand = new ExecuteCommand(() =>  Process.Start(_configReader["web"].Value, keymapUri.AbsolutePath), _logger);
-            SyntaxCommand = new ExecuteCommand(() => Process.Start(_configReader["web"].Value, syntaxUri.AbsolutePath), _logger);
+            KeyMapCommand = new ExecuteCommand(() =>  Process.Start(_configReader["web"].Value, keymapUri.AbsoluteUri), _logger);
+            SyntaxCommand = new ExecuteCommand(() => Process.Start(_configReader["web"].Value, syntaxUri.AbsoluteUri), _logger);
             DuplicateCommand = new ExecuteCommand(DuplicateCommanders);
 
             SearchCommand = new ExecuteCommand(Search,_logger);
@@ -86,6 +86,8 @@ namespace Comander.ViewModel
             try
             {
                 SearchWindow window = new SearchWindow(_io1);
+                window.Width = 600;
+                window.Height = 250;
                 window.Show();
             }
             catch (Exception e)

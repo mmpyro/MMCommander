@@ -61,7 +61,7 @@ namespace Comander.CommanderIO
             //do nothing
         }
 
-        public void Copy(IAbstractFileStructure destinationDirectory, Func<string, bool> allowOverride)
+        public void Copy(IAbstractFileStructure destinationDirectory, Func<string,string, bool> allowOverride)
         {
             //do nothing
         }

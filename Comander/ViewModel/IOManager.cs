@@ -122,7 +122,7 @@ namespace Comander.ViewModel
                     Refresh();
                 else
                 {
-                    var files = await _fileManager.GetFilesFromPathAsync(ActualPath);
+                    var files = await _fileManager.GetAllStructuresAsync(ActualPath);
                     var filterFiles = await _syntaxParser.PerformAsync(Filter, files.ToArray());
                     Files = new ObservableCollection<IMetadataFileStructure>(filterFiles.Cast<IMetadataFileStructure>());
                 }
@@ -135,7 +135,27 @@ namespace Comander.ViewModel
 
         private void CopyFile()
         {
-            _proxy.CopyFile(_files.Where(t => t.IsSelected()), SeccondManagerCurrentDir);
+            Func<string, string, bool> allowOverride = OpenConfirWindowForOvverideFiles();
+            _proxy.CopyFile(_files.Where(t => t.IsSelected()), SeccondManagerCurrentDir, allowOverride);
+            copyStatusDto.SetToDefault();
+        }
+
+        private Func<string, string, bool> OpenConfirWindowForOvverideFiles()
+        {
+            return new Func<string, string, bool>((f, d) =>
+            {
+                if (copyStatusDto.OverrideAll)
+                {
+                    return true;
+                }
+                if(copyStatusDto.OverrideAny)
+                {
+                    return false;
+                }
+                var overrideWindow = new OverrideWindow(string.Format("File {0} exist in {1}. \n Do you want to override it ?", f, d), copyStatusDto);
+                var result = overrideWindow.ShowDialog();
+                return result ?? false;
+            });
         }
 
         public void CreateDirectory()
@@ -251,7 +271,7 @@ namespace Comander.ViewModel
             _logger.Debug(message);
         }
 
-        public void LogError(Exception ex)
+        public void LogError(Exception ex, string message = null)
         {
             if(ex is NullReferenceException)
             {
@@ -259,7 +279,14 @@ namespace Comander.ViewModel
             }
             else
             {
-                Application.Current.Dispatcher.Invoke(() => _logger.Error(ex));
+                if (string.IsNullOrEmpty(message))
+                {
+                    Application.Current.Dispatcher.Invoke(() => _logger.Error(ex));
+                }
+                else
+                {
+                    Application.Current.Dispatcher.Invoke(() => _logger.Error(message, ex));
+                }
             }
         }
 
@@ -289,7 +316,8 @@ namespace Comander.ViewModel
 
         public void TakeFilesFromClipboard()
         {
-            _proxy.PasteFromClipboard(CurrentDir);
+            
+            _proxy.PasteFromClipboard(CurrentDir, OpenConfirWindowForOvverideFiles());
         }
         #endregion
 

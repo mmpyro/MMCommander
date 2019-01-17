@@ -35,7 +35,7 @@ namespace Comander.Core
             _monitor = monitor;
         }
 
-        public void CopyFile(IEnumerable<IMetadataFileStructure> files, IMetadataFileStructure destinationDir)
+        public void CopyFile(IEnumerable<IMetadataFileStructure> files, IMetadataFileStructure destinationDir, Func<string, string, bool> allowOverride)
         {
             if(_monitor.Enter())
                 Task.Run(() =>
@@ -43,17 +43,23 @@ namespace Comander.Core
                     try
                     {
                         Busy();
-                        int iterator = 1, allfiles = files.Count();
+                        int allfiles = files.Count();
                         foreach (var file in files)
                         {
-                            _ioManager.Notify(string.Format("Copy {0} of {1} files", iterator++, allfiles));
-                            file.OverrideCopy(destinationDir);
-                            _ioManager.LogDebug(string.Format("Copy {0} to {1}", file.Name, destinationDir.FullName));
+                            try
+                            {
+                                _ioManager.Notify(string.Format("Copy {0} to {1}", file.Name, destinationDir.FullName));
+                                Application.Current.Dispatcher.Invoke(() =>
+                                {
+                                    file.Copy(destinationDir, allowOverride);
+                                });
+                                _ioManager.LogDebug(string.Format("Copy {0} to {1}", file.Name, destinationDir.FullName));
+                            }
+                            catch (Exception ex)
+                            {
+                                _ioManager.LogError(ex, string.Format("Cannot copy {0} to {1}", file.Name, destinationDir.FullName));
+                            }
                         }
-                    }
-                    catch (Exception ex)
-                    {
-                        _ioManager.LogError(ex);
                     }
                     finally
                     {
@@ -142,14 +148,17 @@ namespace Comander.Core
                             int iterator = 1;
                             foreach (var file in files)
                             {
-                                _ioManager.Notify(string.Format("Delete {0} of {1} files", iterator++, allfiles));
-                                file.Delete();
-                                _ioManager.LogDebug("Delete " + file.Name);
+                                try
+                                {
+                                    _ioManager.Notify(string.Format("Delete {0}, {1} of {2}", file.Name, iterator++, allfiles));
+                                    file.Delete();
+                                    _ioManager.LogDebug("Delete " + file.Name);
+                                }
+                                catch (Exception ex)
+                                {
+                                    _ioManager.LogError(ex, string.Format("Cannot delete {0} file", file.Name));
+                                }
                             }
-                        }
-                        catch (Exception ex)
-                        {
-                            _ioManager.LogError(ex);
                         }
                         finally
                         {
@@ -173,17 +182,20 @@ namespace Comander.Core
                     {
                         Busy();
 
-                        int iterator = 1, allfiles = files.Count();
+                        int allfiles = files.Count();
                         foreach (var file in files)
                         {
-                            _ioManager.Notify(string.Format("Move {0} of {1} files", iterator++, allfiles));
-                            file.Move(destinationDir);
-                            _ioManager.LogDebug(string.Format("Move {0} to {1}", file.Name, destinationDir.FullName));
+                            try
+                            {
+                                _ioManager.Notify(string.Format("Move {0} to {1}", file.Name, destinationDir.FullName));
+                                file.Move(destinationDir);
+                                _ioManager.LogDebug(string.Format("Move {0} to {1}", file.Name, destinationDir.FullName));
+                            }
+                            catch (Exception ex)
+                            {
+                                _ioManager.LogError(ex, string.Format("Cannot move {0} to {1}", file.Name, destinationDir.FullName));
+                            }
                         }
-                    }
-                    catch (Exception ex)
-                    {
-                        _ioManager.LogError(ex);
                     }
                     finally
                     {
@@ -290,14 +302,18 @@ namespace Comander.Core
                         ZipAdapter zipper = new ZipAdapter();
                         var files = (from file in zFiles select file.FullName).ToArray();
                         if (string.IsNullOrEmpty(zipParameters.Password))
+                        {
                             zipper.CompressFiles(zipParameters, files);
+                        }
                         else
+                        {
                             zipper.CompressFilesWithEncryption(zipParameters, files);
+                        }
                         _ioManager.LogInfo("Zip proccess was finished without errors.");
                     }
                     catch (Exception ex)
                     {
-                        _ioManager.LogError(ex);
+                        _ioManager.LogError(ex, "Error occur during zip. Check logs.");
                     }
                     finally
                     {
@@ -317,14 +333,18 @@ namespace Comander.Core
                         Busy();
                         ZipAdapter zipper = new ZipAdapter();
                         if (string.IsNullOrEmpty(zipParameters.Password))
+                        {
                             zipper.CompressDir(zipParameters, dir.FullName);
+                        }
                         else
-                            zipper.CompressFilesWithEncryption(zipParameters, dir.FullName);
+                        {
+                            zipper.CompressDirWithEncryption(zipParameters, dir.FullName);
+                        }
                         _ioManager.LogInfo(string.Format("Zip {0} was finished without errors.", dir.Name));
                     }
                     catch (Exception ex)
                     {
-                        _ioManager.LogError(ex);
+                        _ioManager.LogError(ex, "Error occur during zip. Check logs.");
                     }
                     finally
                     {
@@ -356,7 +376,7 @@ namespace Comander.Core
                     }
                     catch (Exception ex)
                     {
-                        _ioManager.LogError(ex);
+                        _ioManager.LogError(ex, "Error occur during unzip. Check logs.");
                     }
                     finally
                     {
@@ -376,7 +396,7 @@ namespace Comander.Core
             _ioManager.SetBusyApp();
         }
 
-        public void PasteFromClipboard(IMetadataFileStructure destinationDir)
+        public void PasteFromClipboard(IMetadataFileStructure destinationDir, Func<string, string, bool> allowOverride)
         {
             StringCollection paths = Clipboard.GetFileDropList();
             MetaDataFileFactory fileFactory = new MetaDataFileFactory();
@@ -385,7 +405,7 @@ namespace Comander.Core
             {
                 files.Add((IMetadataFileStructure)fileFactory.CreateFileMsg(path));
             }
-            CopyFile(files, destinationDir);
+            CopyFile(files, destinationDir, allowOverride);
         }
     }
 }

@@ -21,13 +21,12 @@ namespace Comander.Core
         private readonly string shortCutsPath = Path.Combine(Directory.GetCurrentDirectory(), "Config.xml");
         private readonly RegistryKey registryKey = Registry.CurrentUser.OpenSubKey("Software", true);
         private IDictionary<string, ConfigurationProgram> _config;
-        private readonly IShortcutManager _shortcutManager;
         private Configuration _configuration;
 
         public ConfigReader(IShortcutManager shortcutManager)
         {
             ReadConfig();
-            _shortcutManager = shortcutManager;
+            ShortcutManager = shortcutManager;
             ReadRegisterPaths();
             ReadShortCuts();
             ReadApplications();
@@ -60,13 +59,13 @@ namespace Comander.Core
         {
             foreach (var item in _configuration.ShortCuts)
             {
-                _shortcutManager.Add(item);
+                ShortcutManager.Add(item);
             }
         }
 
         private void SavePaths()
         {
-            _configuration.ShortCuts = _shortcutManager.GetShortcuts().ToArray();
+            _configuration.ShortCuts = ShortcutManager.GetShortcuts().ToArray();
             var serializer = new XmlSerializer(typeof(Configuration));
             TextWriter textWriter = new StreamWriter(shortCutsPath);
             serializer.Serialize(textWriter, _configuration);
@@ -79,10 +78,7 @@ namespace Comander.Core
             set { _config[key] = value; }
         }
 
-        public IShortcutManager ShortcutManager
-        {
-            get { return _shortcutManager; }
-        }
+        public IShortcutManager ShortcutManager { get; }
 
         public string Io2 { get; protected set; }
         public string Io1 { get; protected set; }

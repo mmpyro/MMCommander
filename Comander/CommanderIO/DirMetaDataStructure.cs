@@ -33,7 +33,7 @@ namespace Comander.CommanderIO
             _filestructure = new DirStructure(fileInfo, _fileFactory);
             Name = fileInfo.Name;
             FullName = fileInfo.FullName;
-            Ext = fileInfo.Extension;
+            Ext = fileInfo.Extension ?? string.Empty;
             CreationTime = fileInfo.CreationTime;
             LastAccessTime = fileInfo.LastAccessTime;
             LastModifyTime = fileInfo.LastWriteTime;
@@ -64,7 +64,7 @@ namespace Comander.CommanderIO
             _filestructure.Move(destinationDirectory);
         }
 
-        public void Copy(IAbstractFileStructure destinationDirectory, Func<string, bool> allowOverride)
+        public void Copy(IAbstractFileStructure destinationDirectory, Func<string,string, bool> allowOverride)
         {
             _filestructure.Copy(destinationDirectory, allowOverride);
         }

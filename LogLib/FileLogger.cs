@@ -49,17 +49,17 @@ namespace LogLib
 
         public void Info(string message, Exception ex)
         {
-            _logger.Info(message, ex);
+            _logger.Info(ex,message);
         }
 
         public void Warn(string message, Exception ex)
         {
-            _logger.Warn(message, ex);
+            _logger.Warn(ex, message);
         }
 
         public void Error(string message, Exception ex)
         {
-            _logger.Error(message, ex);
+            _logger.Error(ex, message);
         }
 
         public void Fatal(Exception ex)

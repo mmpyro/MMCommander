@@ -28,10 +28,10 @@
                 <MenuItem Header="Reload drives"  Command="{Binding RefreshCommand}" />
                 <MenuItem Header="Config">
                      <MenuItem Header="Programs"/>
-                     <MenuItem Header="Commands"/>
+                     <MenuItem Header="Exts"/>
                 </MenuItem>
                 <MenuItem Header="Open logs" Command="{Binding ReadLogsCommand}"/>
-                <MenuItem Header="Clen logs" Command="{Binding ClearLogCommand}"/>
+                <MenuItem Header="Clear logs" Command="{Binding ClearLogCommand}"/>
             </MenuItem>
             <MenuItem Header="Run" ItemsSource="{Binding Programs}" />
             <MenuItem ItemsSource="{Binding Exts}" Header="Ext"/>

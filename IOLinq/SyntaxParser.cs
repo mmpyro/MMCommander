@@ -12,9 +12,10 @@ namespace IOLinq
         ExtEquals,
         ExtIn,
         NameEquals,
-        LiekName,
+        LikeName,
         ExtNotEquals,
-        ExtNotIn
+        ExtNotIn,
+        IsType
     }
 
     public class SyntaxParser
@@ -31,9 +32,10 @@ namespace IOLinq
             _parserDict.Add(ParserType.ExtEquals, new ExtEqualsParser());
             _parserDict.Add(ParserType.ExtIn, new ExtInParser());
             _parserDict.Add(ParserType.NameEquals, new NameEqualsParser());
-            _parserDict.Add(ParserType.LiekName, new NameLikeParser());
+            _parserDict.Add(ParserType.LikeName, new NameLikeParser());
             _parserDict.Add(ParserType.ExtNotEquals, new NotExtEqualsParser());
             _parserDict.Add(ParserType.ExtNotIn, new ExtNotInParser());
+            _parserDict.Add(ParserType.IsType, new IsTypeParser());
         }
 
         public List<IAbstractFileStructure> Perform(string txt, IAbstractFileStructure[] abstractFiles)
@@ -79,7 +81,7 @@ namespace IOLinq
 
         public Task<List<IAbstractFileStructure>> PerformAsync(string txt, IAbstractFileStructure[] abstractFiles)
         {
-            return Task<List<IAbstractFileStructure>>.Run(() =>
+            return Task.Run(() =>
             {
                 return Perform(txt, abstractFiles);
             });
@@ -114,7 +116,11 @@ namespace IOLinq
             }
             if (Parser.IsLikeNameParser(value))
             {
-                return _parserDict[ParserType.LiekName].Perform(value, _abstractFiles);
+                return _parserDict[ParserType.LikeName].Perform(value, _abstractFiles);
+            }
+            if (Parser.IsTypeParser(value))
+            {
+                return _parserDict[ParserType.IsType].Perform(value, _abstractFiles);
             }
             throw new InvalidDataException("Syntax is invalid");
         }

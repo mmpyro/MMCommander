@@ -9,6 +9,7 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Navigation;
 using Comander.Annotations;
+using Comander.Messages;
 using Comander.ViewModel;
 using Comander.ViewModel.Commands;
 using IOLib;
@@ -25,7 +26,6 @@ namespace Search.ViewModel
         private bool _isRunning;
         private Thread _task;
         private string _status = "";
-        private object _searchOptions;
         private readonly ILogger _logger;
 
         public SearchVm(ILogger logger)
@@ -36,9 +36,13 @@ namespace Search.ViewModel
                 Files = new ObservableCollection<IAbstractFileStructure>();
                 NavigationCommand = new ExecuteCommand(() =>
                 {
-                    _task.Abort();
+                    if (_task != null)
+                    {
+                        _task.Abort();
+                    }
                     NavigationService navigationService = NavigationService.GetNavigationService(Page);
                     navigationService.Navigate(new Uri("../View/Pages/SettingsPage.xaml", UriKind.Relative));
+                    var messanger = Messanger.Messanger.GetInstance();
                 });
                 StartCommand = new ExecuteCommand(StartSearch);
                 StopCommand = new RelayCommand((t) => StopSearch(), Log, _ => true);
@@ -79,21 +83,13 @@ namespace Search.ViewModel
         {
             try
             {
-                _searchParameters = (SearchParameters)Application.Current.Properties["parameter"];
-                _searchOptions = Application.Current.Properties["options"];
+                _searchParameters = Application.Current.Properties["parameter"] as SearchParameters;
                 ClearCollection();
                 var directoryManager = new DirectoryManager(new FileFactory());
                 directoryManager.OnFindFile += AddFileToList;
-                if (_searchOptions is RegexOptions)
+                if (_searchParameters != null)
                 {
-                    var options = (RegexOptions)_searchOptions;
-                    directoryManager.SearchFiles(_searchParameters, options);
-                    OnComplete();
-                }
-                else if (_searchOptions is MatchOptions)
-                {
-                    var options = (MatchOptions)_searchOptions;
-                    directoryManager.SearchFiles(_searchParameters, options);
+                    directoryManager.SearchFiles(_searchParameters);
                     OnComplete();
                 }
                 else

@@ -7,9 +7,9 @@ namespace Comander.Core
 {
     public interface IProxyIO
     {
-        void CopyFile(IEnumerable<IMetadataFileStructure> files, IMetadataFileStructure destinationDir);
+        void CopyFile(IEnumerable<IMetadataFileStructure> files, IMetadataFileStructure destinationDir, Func<string, string, bool> allowOverride);
         void MoveFile(IEnumerable<IMetadataFileStructure> files, IMetadataFileStructure destinationDir);
-        void PasteFromClipboard(IMetadataFileStructure destinationDir);
+        void PasteFromClipboard(IMetadataFileStructure destinationDir, Func<string, string, bool> allowOverride);
         void ZipFiles();
         void UnZipFiles();
         void DeleteFile(IEnumerable<IMetadataFileStructure> files);

@@ -19,7 +19,7 @@ namespace IOLib
 
         void Delete();
         void Move(IAbstractFileStructure destinationDirectory);
-        void Copy(IAbstractFileStructure destinationDirectory, Func<string, bool> allowOverride);
+        void Copy(IAbstractFileStructure destinationDirectory, Func<string,string, bool> allowOverride);
         void OverrideCopy(IAbstractFileStructure destinationDirectory);
         void Rename(string newName);
     }

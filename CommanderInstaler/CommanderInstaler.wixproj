@@ -21,7 +21,7 @@
     <IntermediateOutputPath>obj\$(Configuration)\</IntermediateOutputPath>
     <WixVariables>
     </WixVariables>
-    <DefineConstants>MMComander=C:\Users\MM\Projects\MMComander\Comander\bin\Release;</DefineConstants>
+    <DefineConstants>MMComander=C:\MMCommander\Comander\bin\x64\Release;</DefineConstants>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x64' ">
     <DefineConstants>Debug;MMComander=C:\Users\MM\Projects\MMComander\Comander\bin\Release</DefineConstants>

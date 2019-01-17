@@ -65,7 +65,7 @@ namespace IOLib
 
         public abstract void Delete();
         public abstract void Move(IAbstractFileStructure destinationDirectory);
-        public abstract void Copy(IAbstractFileStructure destinationDirectory, Func<string, bool> allowOverride);
+        public abstract void Copy(IAbstractFileStructure destinationDirectory, Func<string,string, bool> allowOverride);
         public abstract void OverrideCopy(IAbstractFileStructure destinationDirectory);
         public abstract void Rename(string newName);
     }
@@ -103,7 +103,7 @@ namespace IOLib
             Init(newPath);
         }
 
-        public override void Copy(IAbstractFileStructure destinationDirectory, Func<string, bool> allowOverride)
+        public override void Copy(IAbstractFileStructure destinationDirectory, Func<string,string, bool> allowOverride)
         {
             string destinationPath = Path.Combine(destinationDirectory.FullName, Name);
             Directory.CreateDirectory(destinationPath);
@@ -115,7 +115,7 @@ namespace IOLib
             foreach (var dir in Directory.GetDirectories(FullName))
             {
                 var dirStructure = _fileFactory.CreateFileMsg(dir);
-                dirStructure.Copy(_fileFactory.CreateFileMsg(destinationPath), (s) => true);
+                dirStructure.Copy(_fileFactory.CreateFileMsg(destinationPath), (s,d) => true);
             }
         }
 

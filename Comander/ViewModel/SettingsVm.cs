@@ -9,7 +9,9 @@ using System.Windows.Navigation;
 using Comander.Annotations;
 using Comander.ViewModel.Commands;
 using IOLib;
+using System.Linq;
 using Application = System.Windows.Application;
+using Messanger;
 
 namespace Search.ViewModel
 {
@@ -17,57 +19,38 @@ namespace Search.ViewModel
     {
         private Page _page;
         private bool _recursive;
-        private string _fraze;
+        private string _phrase;
         private string _rootPath;
-        private string _searchType;
-        private string _optionType;
-        private bool _cultureInvariant;
         private bool _ignoreCase;
-        private bool _rigthToLeft;
-        private bool _ignorePatternWhiteSpace;
-
+        private bool _wholeWord;
+        private bool _contains;
 
         public SettingsVm()
         {
             RootPath = @"C:\";
-            _searchType = "Text";
-            _optionType = "Whole";
+            Contains = true;
+
             NavigationCommand = new ExecuteCommand(() =>
             {
                 NavigationService navigationService = NavigationService.GetNavigationService(Page);
                 Application.Current.Properties["parameter"] = CreateSearchParameters();
-                Application.Current.Properties["options"] = CreateSearchOptions();
+
                 navigationService.Navigate(new Uri("../View/Pages/SearchPage.xaml", UriKind.Relative));
             });
-            TypeCommand = new RelayCommand( t => _searchType = t.ToString());
-            OptionCommand = new RelayCommand(t => _optionType = t.ToString());
             SetDirectoryCommand = new ExecuteCommand(SetDirectory);
         }
 
-        private object CreateSearchOptions()
+        private SearchParameters CreateSearchParameters()
         {
-            if (_searchType.Equals("Text"))
+            var searchParameters = new SearchParameters(RootPath, Phrase, Recursive);
+            searchParameters.MatchOptions = WholeWord ? MatchOptions.WholeWord : MatchOptions.Contains;
+            RegexOptions regexOptions = RegexOptions.None;
+            if (_ignoreCase)
             {
-                return _optionType.Equals("Whole") ? MatchOptions.WholeWord : MatchOptions.Contains;
+                regexOptions = regexOptions | RegexOptions.IgnoreCase;
             }
-            else
-            {
-                RegexOptions options = RegexOptions.None;
-                if (_ignoreCase)
-                    options = options | RegexOptions.IgnoreCase;
-                if (_cultureInvariant)
-                    options = options | RegexOptions.CultureInvariant;
-                if (_rigthToLeft)
-                    options = options | RegexOptions.RightToLeft;
-                if (_ignorePatternWhiteSpace)
-                    options = options | RegexOptions.IgnorePatternWhitespace;
-                return options;
-            }
-        }
-
-        private object CreateSearchParameters()
-        {
-            return new SearchParameters(RootPath, Fraze, Recursive);
+            searchParameters.RegexOptions = regexOptions;
+            return searchParameters;
         }
 
         private void SetDirectory()
@@ -82,8 +65,6 @@ namespace Search.ViewModel
         }
 
         public ICommand NavigationCommand { get; set; }
-        public ICommand OptionCommand { get; set; }
-        public ICommand TypeCommand { get; set; }
         public ICommand SetDirectoryCommand { get; set; }
 
         #region Property
@@ -98,6 +79,38 @@ namespace Search.ViewModel
             }
         }
 
+        public bool WholeWord
+        {
+            get
+            {
+                return _wholeWord;
+            }
+            set
+            {
+                if (!(value == false && _contains == false))
+                {
+                    _wholeWord = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
+        public bool Contains
+        {
+            get
+            {
+                return _contains;
+            }
+            set
+            {
+                if (!(value == false && _wholeWord == false))
+                {
+                    _contains = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
         public bool Recursive
         {
             get { return _recursive; }
@@ -108,12 +121,12 @@ namespace Search.ViewModel
             }
         }
 
-        public string Fraze
+        public string Phrase
         {
-            get { return _fraze; }
+            get { return _phrase; }
             set
             {
-                _fraze = value;
+                _phrase = value;
                 OnPropertyChanged();
             }
         }
@@ -128,42 +141,12 @@ namespace Search.ViewModel
             }
         }
 
-        public bool IgnorePatternWhiteSpace
-        {
-            get { return _ignorePatternWhiteSpace; }
-            set
-            {
-                _ignorePatternWhiteSpace = value;
-                OnPropertyChanged();
-            }
-        }
-
-        public bool RigthToLeft
-        {
-            get { return _rigthToLeft; }
-            set
-            {
-                _rigthToLeft = value;
-                OnPropertyChanged();
-            }
-        }
-
         public bool IgnoreCase
         {
             get { return _ignoreCase; }
             set
             {
                 _ignoreCase = value;
-                OnPropertyChanged();
-            }
-        }
-
-        public bool CultureInvariant
-        {
-            get { return _cultureInvariant; }
-            set
-            {
-                _cultureInvariant = value;
                 OnPropertyChanged();
             }
         }
