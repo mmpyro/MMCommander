@@ -44,7 +44,7 @@ namespace IOLibTest
             var manager = new DirectoryManager(fileFactory);
             manager.OnFindFile += (t) => { foundedFiles++; };
             //When
-            manager.SearchFiles( new SearchParameters(DirectoryPath, "my"), MatchOptions.Contains);
+            manager.SearchFiles( new SearchParameters(DirectoryPath, "my"));
             //Then
             Assert.That(foundedFiles, Is.EqualTo(5));
         }
@@ -58,7 +58,7 @@ namespace IOLibTest
             var manager = new DirectoryManager(fileFactory);
             manager.OnFindFile += (t) => { foundedFiles++; };
             //When
-            await manager.SearchFilesAsync(new SearchParameters(DirectoryPath,"my"), MatchOptions.Contains);
+            await manager.SearchFilesAsync(new SearchParameters(DirectoryPath,"my"));
             //Then
             Assert.That(foundedFiles, Is.EqualTo(5));
         }
@@ -73,7 +73,7 @@ namespace IOLibTest
             var manager = new DirectoryManager(fileFactory);
             manager.OnFindFile += (t) => { foundedFiles++; };
             //When
-            await manager.SearchFilesAsync( new SearchParameters(DirectoryPath, @"[a-z]{2}[A-Z]{1}[0-9]?.*"),RegexOptions.None);
+            await manager.SearchFilesAsync( new SearchParameters(DirectoryPath, @"[a-z]{2}[A-Z]{1}[0-9]?.*"));
             //Then
             Assert.That(foundedFiles, Is.EqualTo(5));
         }
@@ -88,7 +88,7 @@ namespace IOLibTest
             manager.OnFindFile += (t) => { foundedFiles++; };
             //When
             manager.SearchFiles(new SearchParameters(
-                DirectoryPath, @".*.js", true), RegexOptions.IgnoreCase);
+                DirectoryPath, @".*.js", true));
             //Then
             Assert.That(foundedFiles, Is.EqualTo(6));
         }
@@ -103,7 +103,7 @@ namespace IOLibTest
             manager.OnFindFile += (t) => { foundedFiles++; };
             //When
             await manager.SearchFilesAsync(new SearchParameters(
-                DirectoryPath, @".*.js", true), RegexOptions.IgnoreCase);
+                DirectoryPath, @".*.js", true));
             //Then
             Assert.That(foundedFiles, Is.EqualTo(6));
         }

@@ -45,6 +45,10 @@ namespace IOLinqTest
         public void Rename(string newName)
         {
         }
+
+        public void Copy(IAbstractFileStructure destinationDirectory, Func<string, string, bool> allowOverride)
+        {
+        }
     }
 
     public class FileFakeCreator 

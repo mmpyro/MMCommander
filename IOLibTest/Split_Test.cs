@@ -45,6 +45,11 @@ namespace IOLibTest
         {
             Size = size;
         }
+
+        public void Copy(IAbstractFileStructure destinationDirectory, Func<string, string, bool> allowOverride)
+        {
+            
+        }
     }
 
     [TestFixture]
