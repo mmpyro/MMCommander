@@ -43,8 +43,10 @@ namespace IOLibTest
             var fileFactory = new FileFactory();
             var manager = new DirectoryManager(fileFactory);
             manager.OnFindFile += (t) => { foundedFiles++; };
+            var searchParameters = new SearchParameters(DirectoryPath, "my");
+            searchParameters.MatchOptions = MatchOptions.Contains;
             //When
-            manager.SearchFiles( new SearchParameters(DirectoryPath, "my"));
+            manager.SearchFiles(searchParameters);
             //Then
             Assert.That(foundedFiles, Is.EqualTo(5));
         }
@@ -57,8 +59,10 @@ namespace IOLibTest
             var fileFactory = new FileFactory();
             var manager = new DirectoryManager(fileFactory);
             manager.OnFindFile += (t) => { foundedFiles++; };
+            var searchParameters = new SearchParameters(DirectoryPath, "my");
+            searchParameters.MatchOptions = MatchOptions.Contains;
             //When
-            await manager.SearchFilesAsync(new SearchParameters(DirectoryPath,"my"));
+            await manager.SearchFilesAsync(searchParameters);
             //Then
             Assert.That(foundedFiles, Is.EqualTo(5));
         }
@@ -72,8 +76,10 @@ namespace IOLibTest
             var fileFactory = new FileFactory();
             var manager = new DirectoryManager(fileFactory);
             manager.OnFindFile += (t) => { foundedFiles++; };
+            var searchParameters = new SearchParameters(DirectoryPath, @"[a-z]{2}[A-Z]{1}[0-9]?.*");
+            searchParameters.RegexOptions = RegexOptions.None;
             //When
-            await manager.SearchFilesAsync( new SearchParameters(DirectoryPath, @"[a-z]{2}[A-Z]{1}[0-9]?.*"));
+            await manager.SearchFilesAsync(searchParameters);
             //Then
             Assert.That(foundedFiles, Is.EqualTo(5));
         }
@@ -87,8 +93,7 @@ namespace IOLibTest
             var manager = new DirectoryManager(fileFactory);
             manager.OnFindFile += (t) => { foundedFiles++; };
             //When
-            manager.SearchFiles(new SearchParameters(
-                DirectoryPath, @".*.js", true));
+            manager.SearchFiles(new SearchParameters(DirectoryPath, @".*.js", true));
             //Then
             Assert.That(foundedFiles, Is.EqualTo(6));
         }
@@ -102,8 +107,7 @@ namespace IOLibTest
             var manager = new DirectoryManager(fileFactory);
             manager.OnFindFile += (t) => { foundedFiles++; };
             //When
-            await manager.SearchFilesAsync(new SearchParameters(
-                DirectoryPath, @".*.js", true));
+            await manager.SearchFilesAsync(new SearchParameters(DirectoryPath, @".*.js", true));
             //Then
             Assert.That(foundedFiles, Is.EqualTo(6));
         }
