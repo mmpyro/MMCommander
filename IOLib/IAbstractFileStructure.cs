@@ -16,6 +16,7 @@ namespace IOLib
         long Size { get;  }
         bool IsReadOnly { get;}
         FileAttributes Attributes { get; set; }
+        FileType Type { get; }
 
         void Delete();
         void Move(IAbstractFileStructure destinationDirectory);
@@ -23,4 +24,5 @@ namespace IOLib
         void OverrideCopy(IAbstractFileStructure destinationDirectory);
         void Rename(string newName);
     }
+
 }

@@ -13,11 +13,11 @@ namespace IOLinq
             string type = regex.Replace(input, string.Empty).ToLower();
             if (type == "dir")
             {
-                abstractFiles = abstractFiles.Where(t => t.IsDirectory).ToArray();
+                abstractFiles = abstractFiles.Where(t => t.IsDirectory || IsParentDirMetaDataStructure(t)).ToArray();
             }
             else if(type == "file")
             {
-                abstractFiles = abstractFiles.Where(t => !t.IsDirectory).ToArray();
+                abstractFiles = abstractFiles.Where(t => !t.IsDirectory || IsParentDirMetaDataStructure(t)).ToArray();
             }
             return new Unit(abstractFiles);
         }

@@ -16,7 +16,7 @@ namespace IOLinq
         {
             Regex regex = new Regex(@"name\s*[=]{2}\s*", RegexOptions.IgnoreCase);
             string val = regex.Replace(input, string.Empty).ToLower();
-            abstractFiles = abstractFiles.Where(t => RemoveExt(t.Name).Equals(val, StringComparison.OrdinalIgnoreCase)).ToArray();
+            abstractFiles = abstractFiles.Where(t => RemoveExt(t.Name).Equals(val, StringComparison.OrdinalIgnoreCase) || IsParentDirMetaDataStructure(t)).ToArray();
             return new Unit(abstractFiles);
         }
     }

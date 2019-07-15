@@ -47,6 +47,11 @@ namespace IOLinq
             return Regex.IsMatch(value, @"type\s*is\s*.*");
         }
 
+        public bool IsParentDirMetaDataStructure(IAbstractFileStructure abstractFile)
+        {
+            return abstractFile.Type == FileType.Special && abstractFile.Name == "..";
+        }
+
         public abstract Unit Perform(string input, IAbstractFileStructure[] abstractFiles);
     }
 }

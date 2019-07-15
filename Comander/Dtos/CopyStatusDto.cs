@@ -1,47 +1,20 @@
-﻿using System;
-
-namespace Comander.Dtos
+﻿namespace Comander.Dtos
 {
-    public class CopyStatusDto
+    public enum CopyOption
     {
-        private bool _overrideAll = false;
-        private bool _overrideAny = false;
+        None,
+        OverrideAll,
+        OverrideSingle,
+        Cancel
+    }
 
-        public bool OverrideAll
+    public class CopyOptionDto
+    {
+        public CopyOptionDto()
         {
-            get
-            {
-                return _overrideAll;
-            }
-            set
-            {
-                if (OverrideAny && value)
-                {
-                    _overrideAny = false;
-                    _overrideAll = value;
-                }
-            }
-        }
-        public bool OverrideAny
-        {
-            get
-            {
-                return _overrideAny;
-            }
-            set
-            {
-                if(OverrideAll && value)
-                {
-                    _overrideAll = false;
-                    _overrideAny = value;
-                }
-            }
+            Options = CopyOption.None;
         }
 
-        public void SetToDefault()
-        {
-            _overrideAny = false;
-            _overrideAll = false;
-        }
+        public CopyOption Options { get; set; }
     }
 }

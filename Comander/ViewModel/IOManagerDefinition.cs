@@ -41,10 +41,7 @@ namespace Comander.ViewModel
         private IProxyIO _proxy;
         private ManagerType _type;
         private bool _focus;
-        private CopyStatusDto copyStatusDto = new CopyStatusDto
-        {
-            OverrideAll = false
-        };
+        private CopyOptionDto copyOption = new CopyOptionDto();
 
         public IOManager(ManagerType type,string actualPath, IFileSystemManager fileManager, SyntaxParser syntaxParser, 
             IHistoryManager historyManager, IConfigReader configReader, 

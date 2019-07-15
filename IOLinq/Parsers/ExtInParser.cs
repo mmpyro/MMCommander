@@ -17,7 +17,7 @@ namespace IOLinq
             {
                 val[i] = PerformString(val[i]);
             }
-            abstractFiles = abstractFiles.Where(t => val.Contains(t.Ext.ToLower().Replace(".", string.Empty))).ToArray();
+            abstractFiles = abstractFiles.Where(t => val.Contains(t.Ext.ToLower().Replace(".", string.Empty)) || IsParentDirMetaDataStructure(t)).ToArray();
             return new Unit(abstractFiles);
         }
     }

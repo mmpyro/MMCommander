@@ -26,6 +26,9 @@ namespace IOLinqTest
         public long Size { get; private set; }
         public bool IsReadOnly { get; private set; }
         public FileAttributes Attributes { get; set; }
+
+        public FileType Type => FileType.Normal;
+
         public void Delete()
         {
         }

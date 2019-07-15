@@ -103,6 +103,9 @@ namespace Comander.CommanderIO
         }
 
         public MetaData MetaData { get; set; }
+
+        public FileType Type => FileType.Normal;
+
         public bool IsSelected()
         {
             return MetaData.IsSelected;

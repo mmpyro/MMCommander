@@ -38,7 +38,7 @@
             <DockPanel Background="Transparent" Width="40" Height="40" Grid.Column="0"  Margin="0,30,0,40" >
                 <Image Margin="-10" Name="Image" Height="40" Width="40" />
             </DockPanel>
-            <TextBlock Foreground="White" TextAlignment="Center" Name="InfoTextBlock" FontWeight="Bold" Height="50" Grid.Column="1" Margin="0,20,0,0"  />
+            <TextBlock TextWrapping="Wrap" Foreground="White" TextAlignment="Center" Name="InfoTextBlock" FontWeight="Bold" Height="50" Grid.Column="1" Margin="0,20,0,0"  />
         </Grid>
         <Grid>
             <Grid.ColumnDefinitions>
@@ -51,7 +51,7 @@
             </Grid.RowDefinitions>
             <Button Grid.Row="0" Grid.Column="0" Content="Override all files" Click="OverrideAllButtonClick"/>
             <Button Grid.Row="0" Grid.Column="1" Content="Don't override conflicted" Click="DotNotOverrideButtonClick"/>
-            <Button Grid.Row="1" Grid.Column="0" Content="Override single file" Click="AcceptButton_OnClick"/>
+            <Button Grid.Row="1" Grid.Column="0" Content="Override single file" Click="OverrideSingleButtonClick"/>
             <Button Grid.Row="1" Grid.Column="1" Content="Cancel" Click="CancelButton_OnClick"/>
         </Grid>
 

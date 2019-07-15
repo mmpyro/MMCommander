@@ -11,6 +11,7 @@ using Search;
 using Comander.Core;
 using Comander.Messages;
 using System.Collections.Specialized;
+using Comander.Dtos;
 
 namespace Comander.ViewModel
 {
@@ -137,24 +138,30 @@ namespace Comander.ViewModel
         {
             Func<string, string, bool> allowOverride = OpenConfirWindowForOvverideFiles();
             _proxy.CopyFile(_files.Where(t => t.IsSelected()), SeccondManagerCurrentDir, allowOverride);
-            copyStatusDto.SetToDefault();
+            copyOption.Options = CopyOption.None;
         }
 
         private Func<string, string, bool> OpenConfirWindowForOvverideFiles()
         {
             return new Func<string, string, bool>((f, d) =>
             {
-                if (copyStatusDto.OverrideAll)
+                if (copyOption.Options == CopyOption.OverrideAll)
                 {
                     return true;
                 }
-                if(copyStatusDto.OverrideAny)
+                if(copyOption.Options == CopyOption.Cancel)
                 {
                     return false;
                 }
-                var overrideWindow = new OverrideWindow(string.Format("File {0} exist in {1}. \n Do you want to override it ?", f, d), copyStatusDto);
-                var result = overrideWindow.ShowDialog();
-                return result ?? false;
+
+                var overrideWindow = new OverrideWindow(string.Format("File {0} exist in {1}.\nDo you want to override it ?", f, d), copyOption);
+                var result = overrideWindow.ShowDialog() ?? false;
+    
+                if (result && (copyOption.Options == CopyOption.OverrideAll || copyOption.Options == CopyOption.OverrideSingle))
+                {
+                    return true;
+                }
+                return false;
             });
         }
 

@@ -10,9 +10,9 @@ namespace Comander.View
     
     public partial class OverrideWindow : Window
     {
-        private readonly CopyStatusDto copyStatus;
+        private readonly CopyOptionDto copyOption;
 
-        public OverrideWindow(string textMessage, CopyStatusDto copyStatus, WindowIcon icon = WindowIcon.Warrning)
+        public OverrideWindow(string textMessage, CopyOptionDto copyOption, WindowIcon icon = WindowIcon.Warrning)
         {
             InitializeComponent();
             this.InfoTextBlock.Text = textMessage;
@@ -22,21 +22,22 @@ namespace Comander.View
                 Image.Source = new BitmapImage(new Uri(@"..\Icons\Cancel-48.png", UriKind.Relative));
             else
                 Image.Source = new BitmapImage(new Uri(@"..\Icons\info_black.png", UriKind.Relative));
-            this.copyStatus = copyStatus;
+            this.copyOption = copyOption;
         }
 
 
-        private void AcceptButton_OnClick(object sender, RoutedEventArgs e)
+        private void OverrideSingleButtonClick(object sender, RoutedEventArgs e)
         {
+            copyOption.Options = CopyOption.OverrideSingle;
             this.DialogResult = true;
 
         }
 
         private void CancelButton_OnClick(object sender, RoutedEventArgs e)
         {
+            copyOption.Options = CopyOption.Cancel;
             this.DialogResult = false;
         }
-
 
         private void Move_OnMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
@@ -45,13 +46,13 @@ namespace Comander.View
 
         private void OverrideAllButtonClick(object sender, RoutedEventArgs e)
         {
-            copyStatus.OverrideAll = true;
+            copyOption.Options = CopyOption.OverrideAll;
             this.DialogResult = true;
         }
 
         private void DotNotOverrideButtonClick(object sender, RoutedEventArgs e)
         {
-            copyStatus.OverrideAny = true;
+            copyOption.Options = CopyOption.None;
             this.DialogResult = true;
         }
     }

@@ -77,6 +77,9 @@ namespace Comander.CommanderIO
         }
 
         public MetaData MetaData { get; set; }
+
+        public FileType Type => FileType.Special;
+
         public bool IsSelected()
         {
             return false;

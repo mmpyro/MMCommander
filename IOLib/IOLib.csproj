@@ -83,6 +83,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="FileType.cs" />
     <Compile Include="IAbstractFileStructure.cs" />
     <Compile Include="Comparators\FileNameComparer.cs" />
     <Compile Include="Comparators\FileTypeComparer.cs" />

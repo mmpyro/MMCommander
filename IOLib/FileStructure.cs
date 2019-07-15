@@ -65,6 +65,8 @@ namespace IOLib
             set { _fileInfo.Attributes = value; }
         }
 
+        public FileType Type => FileType.Normal;
+
         public abstract void Delete();
         public abstract void Move(IAbstractFileStructure destinationDirectory);
         public abstract void Copy(IAbstractFileStructure destinationDirectory, Func<string,string, bool> allowOverride);
