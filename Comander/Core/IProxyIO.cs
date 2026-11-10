@@ -8,12 +8,12 @@ namespace Comander.Core
 {
     public interface IProxyIO
     {
-        Task CopyFile(IEnumerable<IMetadataFileStructure> files, IMetadataFileStructure destinationDir);
+        Task CopyFile(IEnumerable<IMetadataFileStructure> files, IMetadataFileStructure destinationDir, IOLib.ConflictPolicy policy = IOLib.ConflictPolicy.Ask);
         Task MoveFile(IEnumerable<IMetadataFileStructure> files, IMetadataFileStructure destinationDir);
         Task PasteFromClipboard(IMetadataFileStructure destinationDir);
         Task ZipFiles();
         Task UnZipFiles();
-        Task DeleteFile(IEnumerable<IMetadataFileStructure> files);
+        Task DeleteFile(IEnumerable<IMetadataFileStructure> files, bool permanent = false);
         Task CreateFile();
         Task CreateDirectory();
         void Run(IMetadataFileStructure selectedFile);
@@ -36,5 +36,7 @@ namespace Comander.Core
         void SetBusyApp();
         void UnsetBusyApp();
         void FilterFiles();
+        // Null when the panel has no filter; otherwise true for paths the filter keeps.
+        Func<string, bool> FilterPredicate();
     }
 }

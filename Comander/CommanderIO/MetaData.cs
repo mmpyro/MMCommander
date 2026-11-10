@@ -1,4 +1,4 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.ComponentModel;
 
 namespace Comander.CommanderIO
 {
@@ -24,6 +24,14 @@ namespace Comander.CommanderIO
         {
             get => _isSelected;
             set => SetProperty(ref _isSelected, value);
+        }
+
+        private long? _folderSize;
+        // Computed in the background when a folder is marked (Settings > Calculate folder sizes).
+        public long? FolderSize
+        {
+            get => _folderSize;
+            set => SetProperty(ref _folderSize, value);
         }
     }
 }

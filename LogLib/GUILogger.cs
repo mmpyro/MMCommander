@@ -4,8 +4,6 @@ namespace LogLib
 {
     public class GUILogger : ILogger
     {
-        private const string FatalMessage = "Unhandled exception occour check logs";
-        
         public void Info(string message)
         {
             PerformInfoMessage(message);
@@ -28,32 +26,32 @@ namespace LogLib
 
         public void Info(Exception ex)
         {
-            PerformInfoMessage(ex.ToString());
+            PerformInfoMessage(ex.Message);
         }
 
         public void Warn(Exception ex)
         {
-            PerformWarnMessage(ex.ToString());
+            PerformWarnMessage(ex.Message);
         }
 
         public void Error(Exception ex)
         {
-            PerformErrorMessage(ex.ToString());
+            PerformErrorMessage(ex.Message);
         }
 
         public void Info(string message, Exception ex)
         {
-            PerformInfoMessage(message);
+            PerformInfoMessage(WithReason(message, ex));
         }
 
         public void Warn(string message, Exception ex)
         {
-            PerformWarnMessage(message);
+            PerformWarnMessage(WithReason(message, ex));
         }
 
         public void Error(string message, Exception ex)
         {
-            PerformErrorMessage(message);
+            PerformErrorMessage(WithReason(message, ex));
         }
 
         public event Notify NotifyEvent;
@@ -82,14 +80,15 @@ namespace LogLib
             return string.Format("{0}|{1}",dt.ToShortTimeString() , message);
         }
 
-        protected string PerformLogMessage(Exception ex)
+        // The GUI shows a short reason; the full stack trace goes to the log file (FileLogger).
+        private static string WithReason(string message, Exception ex)
         {
-            return PerformLogMessage(ex.Message);
+            return string.IsNullOrEmpty(ex?.Message) ? message : message + ": " + ex.Message;
         }
 
         public void Fatal(Exception ex)
         {
-            Error(FatalMessage);
+            Error("Unexpected error: " + ex.Message + " (details in the log file)");
         }
     }
 }

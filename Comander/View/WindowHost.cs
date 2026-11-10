@@ -14,14 +14,21 @@ namespace Comander.View
     // UI-thread helpers for view-models: owner window, dialogs, pickers, clipboard. Safe to call from any thread.
     public static class WindowHost
     {
+        // Headless tests have no desktop lifetime; the last MainWindow then owns the dialogs.
         public static Window Owner =>
-            (Application.Current?.ApplicationLifetime as IClassicDesktopStyleApplicationLifetime)?.MainWindow;
+            (Application.Current?.ApplicationLifetime as IClassicDesktopStyleApplicationLifetime)?.MainWindow ?? MainWindow.Last;
 
+        // Modal dialogs dim the main window while they are open.
         public static Task<T> ShowDialog<T>(Func<Window> create) =>
-            Dispatcher.UIThread.InvokeAsync(() => create().ShowDialog<T>(Owner));
+            Dispatcher.UIThread.InvokeAsync(async () =>
+            {
+                var owner = Owner;
+                (owner as MainWindow)?.Dim(true);
+                try { return await create().ShowDialog<T>(owner); }
+                finally { (owner as MainWindow)?.Dim(false); }
+            });
 
-        public static Task ShowDialog(Func<Window> create) =>
-            Dispatcher.UIThread.InvokeAsync(() => create().ShowDialog(Owner));
+        public static Task ShowDialog(Func<Window> create) => ShowDialog<object>(create);
 
         public static void Show(Func<Window> create) =>
             Dispatcher.UIThread.Post(() => create().Show(Owner));

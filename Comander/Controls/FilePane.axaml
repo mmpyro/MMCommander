@@ -1,0 +1,291 @@
+<UserControl x:Class="Comander.Controls.FilePane"
+             xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:local="clr-namespace:Comander.Controls">
+    <!-- One panel: tab strip, path row, file list, footer (docs/design/Main.dc.html). DataContext is an IOManager. -->
+    <UserControl.Styles>
+        <!-- Tabs -->
+        <Style Selector="Button.tab">
+            <Setter Property="Height" Value="30"/>
+            <Setter Property="Padding" Value="12,0"/>
+            <Setter Property="CornerRadius" Value="7,7,0,0"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="VerticalAlignment" Value="Bottom"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="Foreground" Value="{DynamicResource Brush.Text.Muted}"/>
+        </Style>
+        <Style Selector="Button.tab TextBlock">
+            <Setter Property="Foreground" Value="{DynamicResource Brush.Text.Muted}"/>
+        </Style>
+        <Style Selector="Button.tab Path.icon">
+            <Setter Property="IsVisible" Value="False"/>
+        </Style>
+        <Style Selector="Button.tab.active">
+            <Setter Property="Background" Value="{DynamicResource Brush.Bg.Pane}"/>
+        </Style>
+        <Style Selector="Button.tab.active TextBlock">
+            <Setter Property="Foreground" Value="{DynamicResource Brush.Text.Primary}"/>
+            <Setter Property="FontWeight" Value="Medium"/>
+        </Style>
+        <Style Selector="Button.tab.active Path.icon">
+            <Setter Property="IsVisible" Value="True"/>
+        </Style>
+        <Style Selector="Button.tab.active:pointerover /template/ ContentPresenter">
+            <Setter Property="Background" Value="{DynamicResource Brush.Bg.Pane}"/>
+        </Style>
+        <Style Selector="Button.ghost">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Foreground" Value="{DynamicResource Brush.Text.Muted}"/>
+        </Style>
+        <!-- Path row -->
+        <Style Selector="Button.drive">
+            <Setter Property="Height" Value="30"/>
+            <Setter Property="Padding" Value="10,0"/>
+            <Setter Property="CornerRadius" Value="7"/>
+            <Setter Property="Background" Value="{DynamicResource Brush.Bg.Raised}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource Brush.Border.Control}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Foreground" Value="{DynamicResource Brush.Text.Secondary}"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+        </Style>
+        <Style Selector="Button.drive TextBlock">
+            <Setter Property="Foreground" Value="{DynamicResource Brush.Text.Secondary}"/>
+        </Style>
+        <Style Selector="Button.crumb">
+            <Setter Property="Padding" Value="6,3"/>
+            <Setter Property="MinHeight" Value="0"/>
+            <Setter Property="CornerRadius" Value="5"/>
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+        </Style>
+        <Style Selector="Button.crumb TextBlock">
+            <Setter Property="Foreground" Value="{DynamicResource Brush.Text.Muted}"/>
+        </Style>
+        <Style Selector="Button.crumb.last TextBlock">
+            <Setter Property="Foreground" Value="{DynamicResource Brush.Text.Primary}"/>
+        </Style>
+        <!-- List cells -->
+        <Style Selector="DataGridCell.mono TextBlock">
+            <Setter Property="FontFamily" Value="{DynamicResource Font.Mono}"/>
+            <Setter Property="FontSize" Value="12"/>
+        </Style>
+        <Style Selector="DataGridCell.muted TextBlock">
+            <Setter Property="Foreground" Value="{DynamicResource Brush.Text.Muted}"/>
+        </Style>
+        <Style Selector="DataGridCell.num TextBlock">
+            <Setter Property="Foreground" Value="{DynamicResource Brush.Text.Secondary}"/>
+            <Setter Property="HorizontalAlignment" Value="Right"/>
+        </Style>
+        <!-- Row states (Tokens.dc.html): marked = accent text + faint tint; cursor = tint + 1px ring in the active pane, neutral in the other. -->
+        <Style Selector="DataGridRow /template/ Border#RowBorder">
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="BorderBrush" Value="Transparent"/>
+        </Style>
+        <Style Selector="DataGridRow.marked /template/ Rectangle#BackgroundRectangle">
+            <Setter Property="Fill" Value="{DynamicResource Brush.Accent.Marked}"/>
+            <Setter Property="Opacity" Value="1"/>
+        </Style>
+        <Style Selector="DataGridRow.marked TextBlock">
+            <Setter Property="Foreground" Value="{DynamicResource Brush.Text.Marked}"/>
+        </Style>
+        <Style Selector="DataGridRow:selected /template/ Rectangle#BackgroundRectangle">
+            <Setter Property="Fill" Value="{DynamicResource Brush.Cursor.Inactive}"/>
+            <Setter Property="Opacity" Value="1"/>
+        </Style>
+        <Style Selector="Border#Card.active DataGridRow:selected /template/ Rectangle#BackgroundRectangle">
+            <Setter Property="Fill" Value="{DynamicResource Brush.Accent.Tint}"/>
+        </Style>
+        <Style Selector="Border#Card.active DataGridRow:selected /template/ Border#RowBorder">
+            <Setter Property="BorderBrush" Value="{DynamicResource Brush.Accent}"/>
+        </Style>
+        <Style Selector="Border#Card.active">
+            <Setter Property="BorderBrush" Value="{DynamicResource Brush.Accent.Border}"/>
+        </Style>
+        <Style Selector="ListBox#ThumbList ListBoxItem">
+            <Setter Property="Padding" Value="0"/>
+            <Setter Property="CornerRadius" Value="{DynamicResource Radius.Button}"/>
+        </Style>
+        <Style Selector="Border.thumb">
+            <Setter Property="Background" Value="Transparent"/>
+        </Style>
+        <Style Selector="Border.thumb.marked">
+            <Setter Property="Background" Value="{DynamicResource Brush.Accent.Marked}"/>
+        </Style>
+        <Style Selector="Border.thumb.marked TextBlock.name">
+            <Setter Property="Foreground" Value="{DynamicResource Brush.Text.Marked}"/>
+        </Style>
+        <Style Selector="Border#Card.active ListBox#ThumbList ListBoxItem:selected /template/ ContentPresenter#PART_ContentPresenter">
+            <Setter Property="BorderBrush" Value="{DynamicResource Brush.Accent}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+        </Style>
+        <Style Selector="ProgressBar.usage">
+            <Setter Property="MinHeight" Value="4"/>
+            <Setter Property="Height" Value="4"/>
+            <Setter Property="MinWidth" Value="80"/>
+            <Setter Property="Width" Value="80"/>
+            <Setter Property="CornerRadius" Value="2"/>
+            <Setter Property="Background" Value="{DynamicResource Brush.Border.Subtle}"/>
+            <Setter Property="Foreground" Value="{DynamicResource Brush.Accent}"/>
+        </Style>
+    </UserControl.Styles>
+
+    <Border Name="Card" Classes.active="{Binding IsActive}" Background="{DynamicResource Brush.Bg.Pane}"
+            BorderBrush="{DynamicResource Brush.Border.Subtle}" BorderThickness="1" CornerRadius="{DynamicResource Radius.Pane}" ClipToBounds="True">
+        <DockPanel>
+            <!-- Tab strip -->
+            <Border DockPanel.Dock="Top" Height="36" Padding="6,0" Background="{DynamicResource Brush.Bg.PaneHeader}"
+                    BorderBrush="{DynamicResource Brush.Border.Subtle}" BorderThickness="0,0,0,1">
+                <StackPanel Orientation="Horizontal" Spacing="2">
+                    <ItemsControl Name="TabStrip" ItemsSource="{Binding Tabs}">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate><StackPanel Orientation="Horizontal" Spacing="2"/></ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Button Classes="tab" Classes.active="{Binding IsActive}" ToolTip.Tip="{Binding Path}"
+                                        Command="{Binding #Card.DataContext.SelectTabCommand}" CommandParameter="{Binding}">
+                                    <StackPanel Orientation="Horizontal" Spacing="8">
+                                        <Path Classes="icon" Width="14" Height="14" Stroke="{DynamicResource Brush.Accent}" Data="{StaticResource Icon.Folder}"/>
+                                        <TextBlock Text="{Binding Title}" VerticalAlignment="Center"/>
+                                    </StackPanel>
+                                </Button>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                    <Button Name="NewTabButton" Classes="ghost" Width="30" Height="30" Padding="0" VerticalAlignment="Bottom"
+                            HorizontalContentAlignment="Center" VerticalContentAlignment="Center"
+                            ToolTip.Tip="New tab (Ctrl+T)" Command="{Binding NewTabCommand}">
+                        <Path Classes="icon" Width="14" Height="14" StrokeThickness="2" Data="{StaticResource Icon.Plus}"/>
+                    </Button>
+                </StackPanel>
+            </Border>
+
+            <!-- Path row: drive picker, breadcrumb (click empty space or Ctrl+L to type a path), filter. -->
+            <Grid DockPanel.Dock="Top" ColumnDefinitions="Auto,*,180" ColumnSpacing="8" Margin="10,8">
+                <Button Name="DriveButton" Grid.Column="0" Classes="drive" ToolTip.Tip="Drives">
+                    <StackPanel Orientation="Horizontal" Spacing="6">
+                        <Path Classes="icon" Width="14" Height="14" Data="{StaticResource Icon.Drive}"/>
+                        <TextBlock Text="{Binding DriveLabel}" VerticalAlignment="Center" MaxWidth="140" TextTrimming="CharacterEllipsis"/>
+                        <Path Classes="icon" Width="12" Height="12" StrokeThickness="2" Data="{StaticResource Icon.ChevronDown}"/>
+                    </StackPanel>
+                    <Button.Flyout>
+                        <Flyout Placement="BottomEdgeAlignedLeft">
+                            <ListBox Name="DriveList" ItemsSource="{Binding Drives}" MaxHeight="320" MinWidth="220" Background="Transparent">
+                                <ListBox.ItemTemplate>
+                                    <DataTemplate>
+                                        <StackPanel Orientation="Horizontal" Spacing="8">
+                                            <TextBlock Text="{Binding Label}"/>
+                                            <TextBlock Classes="muted mono" Text="{Binding DriveLetter}" VerticalAlignment="Center"/>
+                                        </StackPanel>
+                                    </DataTemplate>
+                                </ListBox.ItemTemplate>
+                            </ListBox>
+                        </Flyout>
+                    </Button.Flyout>
+                </Button>
+                <Border Name="PathBar" Grid.Column="1" Height="30" Padding="6,0" CornerRadius="7" Background="{DynamicResource Brush.Bg.Input}"
+                        Cursor="IBeam" ClipToBounds="True">
+                    <Panel>
+                        <!-- Long paths keep their end visible: the scroller jumps to the right on every change. -->
+                        <ScrollViewer Name="CrumbScroll" HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Disabled">
+                        <ItemsControl Name="Breadcrumb" ItemsSource="{Binding Segments}" VerticalAlignment="Center" HorizontalAlignment="Left" Cursor="Arrow">
+                            <ItemsControl.ItemsPanel>
+                                <ItemsPanelTemplate><StackPanel Orientation="Horizontal" Spacing="2"/></ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <StackPanel Orientation="Horizontal" Spacing="2">
+                                        <Button Classes="crumb" Classes.last="{Binding IsLast}" ToolTip.Tip="{Binding FullPath}"
+                                                Command="{Binding #Card.DataContext.NavigateCommand}" CommandParameter="{Binding FullPath}">
+                                            <TextBlock Classes="mono" Text="{Binding Name}"/>
+                                        </Button>
+                                        <TextBlock Classes="mono" Text="›" Foreground="{DynamicResource Brush.Glyph.Dim}" VerticalAlignment="Center"
+                                                   IsVisible="{Binding ShowSeparator}"/>
+                                    </StackPanel>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                        </ScrollViewer>
+                        <TextBox Name="PathBox" Classes="bare mono" FontFamily="{DynamicResource Font.Mono}" FontSize="12" IsVisible="False"
+                                 Text="{Binding ActualPath}"/>
+                    </Panel>
+                </Border>
+                <Border Grid.Column="2" Height="30" Padding="8,0,2,0" CornerRadius="7" BorderBrush="{DynamicResource Brush.Border.Control}" BorderThickness="1">
+                    <DockPanel>
+                        <Path DockPanel.Dock="Left" Classes="icon" Width="13" Height="13" Stroke="{DynamicResource Brush.Text.Muted}" Data="{StaticResource Icon.Filter}"/>
+                        <TextBox Name="FilterBox" Classes="bare" FontSize="12" PlaceholderText="Filter  ext == png" Text="{Binding Filter}"/>
+                    </DockPanel>
+                </Border>
+            </Grid>
+
+            <!-- Footer -->
+            <Border DockPanel.Dock="Bottom" MinHeight="30" Padding="12,0" BorderBrush="{DynamicResource Brush.Border.Subtle}" BorderThickness="0,1,0,0">
+                <DockPanel>
+                    <ProgressBar DockPanel.Dock="Right" Classes="usage" Minimum="0" Maximum="1" Value="{Binding Space.UsedFraction}"
+                                 VerticalAlignment="Center" IsVisible="{Binding Space, Converter={x:Static ObjectConverters.IsNotNull}}"/>
+                    <TextBlock DockPanel.Dock="Right" Classes="muted" FontSize="12" Margin="0,0,14,0" VerticalAlignment="Center" Text="{Binding SpaceText}"/>
+                    <StackPanel Orientation="Horizontal" Spacing="14" VerticalAlignment="Center">
+                        <TextBlock Name="SummaryText" Classes="muted" FontSize="12" Text="{Binding SummaryText}"/>
+                        <TextBlock Name="SelectionText" Classes="secondary" FontSize="12" Text="{Binding SelectionText}"/>
+                    </StackPanel>
+                </DockPanel>
+            </Border>
+
+            <Panel>
+            <!-- Thumbnail view (toolbar toggle). shortcut: WrapPanel is not virtualized, so huge folders realize every tile; switch to a virtualizing panel if that hurts. -->
+            <ListBox Name="ThumbList" ItemsSource="{Binding Files}" SelectedItem="{Binding SelectedFile}" SelectionMode="Single"
+                     IsVisible="{Binding IsThumbnails}" Background="Transparent" Padding="8"
+                     ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+                <ListBox.ItemsPanel>
+                    <ItemsPanelTemplate><WrapPanel ItemSpacing="6" LineSpacing="6"/></ItemsPanelTemplate>
+                </ListBox.ItemsPanel>
+                <ListBox.ItemTemplate>
+                    <DataTemplate>
+                        <Border Classes="thumb" Classes.marked="{Binding MetaData.IsSelected}" Width="128" Height="136" Padding="8" ToolTip.Tip="{Binding Name}">
+                            <DockPanel>
+                                <TextBlock DockPanel.Dock="Bottom" Classes="name" Text="{Binding Name}" TextAlignment="Center" FontSize="12"
+                                           TextTrimming="CharacterEllipsis" MaxLines="2" TextWrapping="Wrap" Margin="0,6,0,0"/>
+                                <Panel>
+                                    <Path Classes="icon" Width="44" Height="44" StrokeThickness="1.3" HorizontalAlignment="Center" VerticalAlignment="Center"
+                                          Data="{Binding Converter={StaticResource FileIconConverter}}" Stroke="{Binding Converter={StaticResource FileKindBrushConverter}}"
+                                          IsVisible="{Binding #Thumb.HasImage, Converter={x:Static BoolConverters.Not}}"/>
+                                    <local:Thumbnail Name="Thumb" FilePath="{Binding FullName}" Stretch="Uniform"/>
+                                </Panel>
+                            </DockPanel>
+                        </Border>
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </ListBox>
+            <DataGrid Name="DataGrid1" IsVisible="{Binding !IsThumbnails}" AutoGenerateColumns="False" IsReadOnly="True" SelectionMode="Extended"
+                      GridLinesVisibility="None" CanUserSortColumns="False" HeadersVisibility="Column" BorderThickness="0,1,0,0"
+                      SelectedItem="{Binding SelectedFile}" ItemsSource="{Binding Files}">
+                <DataGrid.Columns>
+                    <DataGridTemplateColumn Width="36" CanUserResize="False" CanUserReorder="False">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <Path Classes="icon" HorizontalAlignment="Center" Data="{Binding Converter={StaticResource FileIconConverter}}"
+                                      Stroke="{Binding Converter={StaticResource FileKindBrushConverter}}"/>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+                    <DataGridTextColumn Header="NAME ↑" Binding="{Binding Mode=OneWay, Converter={StaticResource DisplayNameConverter}}" Width="*" MinWidth="160"/>
+                    <DataGridTextColumn Header="EXT" Binding="{Binding Mode=OneWay, Converter={StaticResource ExtConverter}}" Width="72" CellStyleClasses="mono muted"/>
+                    <DataGridTextColumn Header="SIZE" Width="90" CellStyleClasses="mono num">
+                        <DataGridTextColumn.Binding>
+                            <MultiBinding Mode="OneWay" Converter="{StaticResource SizeConverter}">
+                                <Binding/>
+                                <Binding Path="MetaData.FolderSize"/>
+                            </MultiBinding>
+                        </DataGridTextColumn.Binding>
+                    </DataGridTextColumn>
+                    <DataGridTextColumn Header="MODIFIED" Binding="{Binding LastModifyTime, Mode=OneWay, Converter={StaticResource DateConverter}}" Width="140" CellStyleClasses="mono muted"/>
+                </DataGrid.Columns>
+                <!-- Keys come from Core/CommandRegistry.cs (KeyMap); FilePane.axaml.cs runs them. -->
+            </DataGrid>
+            </Panel>
+        </DockPanel>
+    </Border>
+</UserControl>

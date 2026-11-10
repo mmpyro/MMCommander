@@ -1,34 +1,273 @@
 <Styles xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
-    <Styles.Resources>
-        <SolidColorBrush x:Key="MainBorderBrush" Color="#FF0092BE"/>
-        <SolidColorBrush x:Key="BackgroundBrush" Color="#FF181818"/>
-    </Styles.Resources>
+    <!-- Control styles on top of FluentTheme. Every colour comes from Themes/Dark.axaml via DynamicResource. -->
     <Style Selector="Window">
-        <Setter Property="Background" Value="{StaticResource BackgroundBrush}"/>
+        <Setter Property="Background" Value="{DynamicResource Brush.Bg.Base}"/>
+        <Setter Property="Foreground" Value="{DynamicResource Brush.Text.Primary}"/>
+        <Setter Property="FontFamily" Value="{DynamicResource Font.UI}"/>
+        <Setter Property="FontSize" Value="13"/>
+    </Style>
+    <!-- Dialog card (DialogWindow adds the "dialog" class; derived windows style as Window, so type selectors miss them): Bg.Dialog, radius 14, Border.Control. VisualLayerManager keeps flyouts and tooltips working. -->
+    <Style Selector="Window.dialog">
+        <Setter Property="Template">
+            <ControlTemplate>
+                <Border Background="{DynamicResource Brush.Bg.Dialog}" BorderBrush="{TemplateBinding BorderBrush}"
+                        BorderThickness="1" CornerRadius="{DynamicResource Radius.Dialog}" Padding="6" ClipToBounds="True">
+                    <VisualLayerManager>
+                        <ContentPresenter Name="PART_ContentPresenter" Content="{TemplateBinding Content}"
+                                          ContentTemplate="{TemplateBinding ContentTemplate}"/>
+                    </VisualLayerManager>
+                </Border>
+            </ControlTemplate>
+        </Setter>
+    </Style>
+    <Style Selector="Window.dialog">
+        <Setter Property="BorderBrush" Value="{DynamicResource Brush.Border.Control}"/>
+    </Style>
+    <!-- Permanent delete: the card border turns red. -->
+    <Style Selector="Window.dialog.danger">
+        <Setter Property="BorderBrush" Value="{DynamicResource Brush.Danger.Strong}"/>
     </Style>
     <Style Selector="Menu">
-        <Setter Property="Background" Value="#FF181818"/>
-        <Setter Property="Foreground" Value="#FFBABABA"/>
-        <Setter Property="FontWeight" Value="Bold"/>
+        <Setter Property="Background" Value="Transparent"/>
     </Style>
+    <Style Selector="Menu > MenuItem">
+        <Setter Property="Foreground" Value="{DynamicResource Brush.Text.Secondary}"/>
+        <Setter Property="CornerRadius" Value="{DynamicResource Radius.Control}"/>
+    </Style>
+
+    <!-- Lists (log, palette, drives): selection is the accent tint, not Fluent's solid accent. -->
+    <Style Selector="ListBoxItem:selected /template/ ContentPresenter#PART_ContentPresenter">
+        <Setter Property="Background" Value="{DynamicResource Brush.Accent.Tint}"/>
+    </Style>
+    <Style Selector="ListBoxItem:selected:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+        <Setter Property="Background" Value="{DynamicResource Brush.Accent.Tint}"/>
+    </Style>
+    <Style Selector="ListBoxItem:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+        <Setter Property="Background" Value="{DynamicResource Brush.Bg.Raised}"/>
+    </Style>
+
     <Style Selector="TextBlock">
-        <Setter Property="Foreground" Value="White"/>
+        <Setter Property="Foreground" Value="{DynamicResource Brush.Text.Primary}"/>
     </Style>
+    <!-- Text roles; must come after the global TextBlock style to win. -->
+    <Style Selector="TextBlock.secondary">
+        <Setter Property="Foreground" Value="{DynamicResource Brush.Text.Secondary}"/>
+    </Style>
+    <Style Selector="TextBlock.muted">
+        <Setter Property="Foreground" Value="{DynamicResource Brush.Text.Muted}"/>
+    </Style>
+    <Style Selector=":is(TextBlock).mono">
+        <Setter Property="FontFamily" Value="{DynamicResource Font.Mono}"/>
+        <Setter Property="FontSize" Value="12"/>
+    </Style>
+    <Style Selector="TextBlock.title">
+        <Setter Property="FontSize" Value="17"/>
+        <Setter Property="FontWeight" Value="SemiBold"/>
+    </Style>
+    <Style Selector=":is(TextBlock).warn">
+        <Setter Property="Foreground" Value="{DynamicResource Brush.Warning}"/>
+    </Style>
+    <Style Selector=":is(TextBlock).error">
+        <Setter Property="Foreground" Value="{DynamicResource Brush.Danger}"/>
+    </Style>
+
+    <Style Selector="TextBox">
+        <Setter Property="CornerRadius" Value="{DynamicResource Radius.Control}"/>
+        <Setter Property="BorderThickness" Value="1"/>
+    </Style>
+    <!-- Borderless text box inside a styled container (path bar, filter, palette). -->
+    <Style Selector="TextBox.bare">
+        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="BorderThickness" Value="0"/>
+        <Setter Property="MinHeight" Value="0"/>
+        <Setter Property="Padding" Value="4,0"/>
+        <Setter Property="VerticalContentAlignment" Value="Center"/>
+    </Style>
+    <Style Selector="TextBox.bare:focus /template/ Border#PART_BorderElement, TextBox.bare:pointerover /template/ Border#PART_BorderElement">
+        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="BorderThickness" Value="0"/>
+    </Style>
+    <Style Selector="ComboBox">
+        <Setter Property="CornerRadius" Value="{DynamicResource Radius.Control}"/>
+    </Style>
+    <Style Selector=":is(Button)">
+        <Setter Property="CornerRadius" Value="{DynamicResource Radius.Button}"/>
+    </Style>
+    <!-- CheckBox derives from Button; keep its box square-ish. -->
+    <Style Selector="CheckBox">
+        <Setter Property="CornerRadius" Value="4"/>
+    </Style>
+    <Style Selector="Button.danger">
+        <Setter Property="Foreground" Value="{DynamicResource Brush.Danger}"/>
+    </Style>
+    <Style Selector="Button.dangerfill">
+        <Setter Property="Background" Value="{DynamicResource Brush.Danger.Fill}"/>
+        <Setter Property="Foreground" Value="{DynamicResource Brush.Danger.FillText}"/>
+        <Setter Property="BorderThickness" Value="0"/>
+    </Style>
+    <Style Selector="Button.dangerfill TextBlock">
+        <Setter Property="Foreground" Value="{DynamicResource Brush.Danger.FillText}"/>
+    </Style>
+    <Style Selector="Button.dangerfill:pointerover /template/ ContentPresenter">
+        <Setter Property="Background" Value="{DynamicResource Brush.Danger}"/>
+        <Setter Property="Foreground" Value="{DynamicResource Brush.Danger.FillText}"/>
+    </Style>
+    <Style Selector="Button.accent TextBlock">
+        <Setter Property="Foreground" Value="{DynamicResource Brush.Accent.Text}"/>
+    </Style>
+    <Style Selector="Button.footer">
+        <Setter Property="MinWidth" Value="88"/>
+        <Setter Property="Height" Value="34"/>
+        <Setter Property="Padding" Value="14,0"/>
+        <Setter Property="HorizontalContentAlignment" Value="Center"/>
+        <Setter Property="VerticalContentAlignment" Value="Center"/>
+    </Style>
+    <!-- Segmented control: a ListBox of short labels (conflict policy, delete mode, theme, ...). -->
+    <Style Selector="ListBox.seg">
+        <Setter Property="Background" Value="{DynamicResource Brush.Bg.Base}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource Brush.Border.Control}"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="CornerRadius" Value="9"/>
+        <Setter Property="Padding" Value="3"/>
+        <Setter Property="HorizontalAlignment" Value="Left"/>
+        <Setter Property="ScrollViewer.HorizontalScrollBarVisibility" Value="Disabled"/>
+        <Setter Property="ItemsPanel">
+            <ItemsPanelTemplate><StackPanel Orientation="Horizontal" Spacing="2"/></ItemsPanelTemplate>
+        </Setter>
+    </Style>
+    <Style Selector="ListBox.seg ListBoxItem">
+        <Setter Property="Padding" Value="12,5"/>
+        <Setter Property="MinHeight" Value="0"/>
+        <Setter Property="CornerRadius" Value="6"/>
+    </Style>
+    <Style Selector="ListBox.seg ListBoxItem TextBlock">
+        <Setter Property="Foreground" Value="{DynamicResource Brush.Text.Muted}"/>
+    </Style>
+    <Style Selector="ListBox.seg ListBoxItem:selected /template/ ContentPresenter#PART_ContentPresenter, ListBox.seg ListBoxItem:selected:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+        <Setter Property="Background" Value="{DynamicResource Brush.Segment.Selected}"/>
+    </Style>
+    <Style Selector="ListBox.seg ListBoxItem:selected TextBlock">
+        <Setter Property="Foreground" Value="{DynamicResource Brush.Text.Primary}"/>
+    </Style>
+    <Style Selector="ListBox.seg.danger ListBoxItem:selected /template/ ContentPresenter#PART_ContentPresenter, ListBox.seg.danger ListBoxItem:selected:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+        <Setter Property="Background" Value="{DynamicResource Brush.Danger.Segment}"/>
+    </Style>
+    <Style Selector="ListBox.seg.danger ListBoxItem:selected TextBlock">
+        <Setter Property="Foreground" Value="{DynamicResource Brush.Danger.Text}"/>
+    </Style>
+    <!-- Inset list box inside a dialog (tree, history, bookmarks). -->
+    <Style Selector="Border.listbox">
+        <Setter Property="Background" Value="{DynamicResource Brush.Bg.Input}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource Brush.Border.Subtle}"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="CornerRadius" Value="{DynamicResource Radius.Control}"/>
+        <Setter Property="Padding" Value="4"/>
+        <Setter Property="ClipToBounds" Value="True"/>
+    </Style>
+    <Style Selector="Border.listbox > ListBox, Border.listbox > TreeView">
+        <Setter Property="Background" Value="Transparent"/>
+    </Style>
+    <Style Selector="Border.listbox ListBoxItem, Border.listbox TreeViewItem">
+        <Setter Property="MinHeight" Value="{DynamicResource RowHeight}"/>
+        <Setter Property="CornerRadius" Value="{DynamicResource Radius.Control}"/>
+    </Style>
+    <Style Selector="Border.listbox ListBoxItem">
+        <Setter Property="Padding" Value="8,0"/>
+        <Setter Property="VerticalContentAlignment" Value="Center"/>
+    </Style>
+    <Style Selector="TreeViewItem:selected /template/ Border#PART_LayoutRoot, TreeViewItem:selected:pointerover /template/ Border#PART_LayoutRoot">
+        <Setter Property="Background" Value="{DynamicResource Brush.Accent.Tint}"/>
+    </Style>
+    <Style Selector="TreeViewItem:pointerover /template/ Border#PART_LayoutRoot">
+        <Setter Property="Background" Value="{DynamicResource Brush.Bg.Raised}"/>
+    </Style>
+    <Style Selector="TreeViewItem TextBlock.dir">
+        <Setter Property="FontWeight" Value="Medium"/>
+    </Style>
+    <!-- A list of folder paths (history, bookmarks): folder icon + mono path, trimmed at the front so the folder name stays. -->
+    <Style Selector="ListBox.paths">
+        <Setter Property="ItemTemplate">
+            <DataTemplate>
+                <Grid ColumnDefinitions="Auto,*" ColumnSpacing="8">
+                    <!-- Stroke follows Foreground (Path.icon style), so colour it through Foreground. -->
+                    <Path Classes="icon" Data="{StaticResource Icon.Folder}" TextElement.Foreground="{DynamicResource Brush.File.Folder}"/>
+                    <TextBlock Grid.Column="1" Classes="mono" VerticalAlignment="Center" TextTrimming="PrefixCharacterEllipsis"
+                               Text="{Binding}" ToolTip.Tip="{Binding}"/>
+                </Grid>
+            </DataTemplate>
+        </Setter>
+        <Setter Property="ScrollViewer.HorizontalScrollBarVisibility" Value="Disabled"/>
+    </Style>
+    <!-- Progress bars in dialogs and the footer. -->
+    <Style Selector="ProgressBar.thin">
+        <Setter Property="MinHeight" Value="6"/>
+        <Setter Property="Height" Value="6"/>
+        <Setter Property="CornerRadius" Value="3"/>
+        <Setter Property="Background" Value="{DynamicResource Brush.Border.Subtle}"/>
+        <Setter Property="Foreground" Value="{DynamicResource Brush.Accent}"/>
+    </Style>
+    <Style Selector="Border.tile">
+        <Setter Property="Background" Value="{DynamicResource Brush.Bg.Raised}"/>
+        <Setter Property="CornerRadius" Value="{DynamicResource Radius.Button}"/>
+        <Setter Property="Padding" Value="12,8"/>
+    </Style>
+
+    <!-- Stroke icons (Themes/Icons.axaml). Stroke follows the inherited text colour, like CSS currentColor. -->
+    <Style Selector="Path.icon">
+        <Setter Property="Width" Value="16"/>
+        <Setter Property="Height" Value="16"/>
+        <Setter Property="Stretch" Value="Uniform"/>
+        <Setter Property="StrokeThickness" Value="1.8"/>
+        <Setter Property="StrokeLineCap" Value="Round"/>
+        <Setter Property="StrokeJoin" Value="Round"/>
+        <Setter Property="Stroke" Value="{Binding $self.(TextElement.Foreground)}"/>
+    </Style>
+
+    <!-- File list -->
     <Style Selector="DataGrid">
-        <Setter Property="Background" Value="#FF181818"/>
+        <Setter Property="Background" Value="{DynamicResource Brush.Bg.Pane}"/>
+        <Setter Property="RowBackground" Value="Transparent"/>
+        <Setter Property="RowHeight" Value="{DynamicResource RowHeight}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource Brush.Border.Subtle}"/>
     </Style>
     <Style Selector="DataGridColumnHeader">
-        <Setter Property="Foreground" Value="White"/>
-        <Setter Property="Background" Value="#FF3A3838"/>
+        <Setter Property="Foreground" Value="{DynamicResource Brush.Text.Muted}"/>
+        <Setter Property="Background" Value="{DynamicResource Brush.Bg.Pane}"/>
+        <Setter Property="FontSize" Value="11"/>
+        <Setter Property="FontWeight" Value="SemiBold"/>
+        <Setter Property="MinHeight" Value="28"/>
     </Style>
-    <!-- Cell text is a TextBlock, which the style above forces to white, so row colours target the TextBlock. -->
+    <Style Selector="DataGridColumnHeader TextBlock">
+        <Setter Property="Foreground" Value="{DynamicResource Brush.Text.Muted}"/>
+    </Style>
+    <Style Selector="DataGridRow">
+        <Setter Property="MinHeight" Value="0"/>
+        <Setter Property="Height" Value="{DynamicResource RowHeight}"/>
+    </Style>
+    <Style Selector="DataGridRow:pointerover /template/ Rectangle#BackgroundRectangle">
+        <Setter Property="Fill" Value="{DynamicResource Brush.Bg.Raised}"/>
+        <Setter Property="Opacity" Value="1"/>
+    </Style>
+    <Style Selector="DataGridRow:selected /template/ Rectangle#BackgroundRectangle">
+        <Setter Property="Fill" Value="{DynamicResource Brush.Accent.Tint}"/>
+        <Setter Property="Opacity" Value="1"/>
+    </Style>
+    <!-- The per-cell dashed focus/currency rectangles fight the row cursor; the row state carries focus instead. -->
+    <Style Selector="DataGridCell /template/ Rectangle#CurrencyVisual">
+        <Setter Property="IsVisible" Value="False"/>
+    </Style>
+    <Style Selector="DataGridCell">
+        <Setter Property="FocusAdorner" Value="{x:Null}"/>
+        <Setter Property="BorderThickness" Value="0"/>
+        <Setter Property="BorderBrush" Value="Transparent"/>
+    </Style>
+    <!-- The DataGrid theme forces FocusVisual visible on focus, so hide it with Opacity instead. -->
+    <Style Selector="DataGridCell /template/ Grid#FocusVisual">
+        <Setter Property="Opacity" Value="0"/>
+    </Style>
+    <!-- Cell text is a TextBlock, which the global style colours, so row states target the TextBlock. -->
     <Style Selector="DataGridRow.dir TextBlock">
-        <Setter Property="Foreground" Value="Yellow"/>
-        <Setter Property="FontWeight" Value="Bold"/>
-    </Style>
-    <Style Selector="DataGridRow:pointerover TextBlock">
-        <Setter Property="Foreground" Value="{StaticResource MainBorderBrush}"/>
-        <Setter Property="FontWeight" Value="ExtraBold"/>
+        <Setter Property="FontWeight" Value="Medium"/>
     </Style>
 </Styles>

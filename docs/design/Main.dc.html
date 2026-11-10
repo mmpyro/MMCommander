@@ -1,0 +1,251 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Direction A · Graphite Classic</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#0E1014}
+a{color:#8AB8FF}a:hover{color:#B5D1FF}
+</style>
+</helmet>
+<div style="height: 900px; display: flex; flex-direction: column; background: #0E1014; color: #E6E8EB; font-family: Inter, system-ui, sans-serif; font-size: 13px; overflow: hidden">
+
+  <!-- Menu bar -->
+  <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 4px; min-height: 40px; padding: 0 12px; border-bottom: 1px solid #1E222A">
+    <div style="display: flex; align-items: center; gap: 8px; margin-right: 12px">
+      <div style="width: 22px; height: 22px; border-radius: 6px; background: {{accent}}; display: flex; align-items: center; justify-content: center; color: #0E1014">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5h6v14H4zM14 5h6v14h-6z"></path></svg>
+      </div>
+      <span style="font-weight: 600; letter-spacing: -0.01em">Commander</span>
+    </div>
+    <button style="height: 30px; padding: 0 10px; border: 0; border-radius: 6px; background: transparent; color: #C4C9D1; font: inherit">File</button>
+    <button style="height: 30px; padding: 0 10px; border: 0; border-radius: 6px; background: transparent; color: #C4C9D1; font: inherit">Edit</button>
+    <button style="height: 30px; padding: 0 10px; border: 0; border-radius: 6px; background: transparent; color: #C4C9D1; font: inherit">View</button>
+    <button style="height: 30px; padding: 0 10px; border: 0; border-radius: 6px; background: transparent; color: #C4C9D1; font: inherit">Go</button>
+    <button style="height: 30px; padding: 0 10px; border: 0; border-radius: 6px; background: transparent; color: #C4C9D1; font: inherit">Tools</button>
+    <button style="height: 30px; padding: 0 10px; border: 0; border-radius: 6px; background: transparent; color: #C4C9D1; font: inherit">Plugins</button>
+    <button style="height: 30px; padding: 0 10px; border: 0; border-radius: 6px; background: transparent; color: #C4C9D1; font: inherit">Help</button>
+    <div style="flex: 1 1 40px"></div>
+    <button style="display: flex; align-items: center; gap: 10px; height: 30px; min-width: 280px; padding: 0 10px; border: 1px solid #262B34; border-radius: 8px; background: #14171C; color: #8B93A1; font: inherit; text-align: left">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="M20 20l-3.5-3.5"></path></svg>
+      <span style="flex: 1">Search files or run a command</span>
+      <span style="font-family: 'JetBrains Mono', monospace; font-size: 11px; padding: 2px 6px; border: 1px solid #2C323C; border-radius: 4px; color: #9AA2AE">⌘K</span>
+    </button>
+  </div>
+
+  <!-- Toolbar -->
+  <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 4px; min-height: 48px; padding: 6px 12px; background: #12151A; border-bottom: 1px solid #1E222A">
+    <button aria-label="Back" style="width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; border: 0; border-radius: 8px; background: transparent; color: #C4C9D1"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"></path></svg></button>
+    <button aria-label="Forward" style="width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; border: 0; border-radius: 8px; background: transparent; color: #6E7683"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18l6-6-6-6"></path></svg></button>
+    <button aria-label="Parent folder" style="width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; border: 0; border-radius: 8px; background: transparent; color: #C4C9D1"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 19V5M5 12l7-7 7 7"></path></svg></button>
+    <button aria-label="Refresh" style="width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; border: 0; border-radius: 8px; background: transparent; color: #C4C9D1"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a9 9 0 1 1-3-6.7L21 8"></path><path d="M21 3v5h-5"></path></svg></button>
+    <div style="width: 1px; height: 22px; background: #262B34; margin: 0 8px"></div>
+    <button style="display: flex; align-items: center; gap: 8px; height: 36px; padding: 0 12px; border: 0; border-radius: 8px; background: transparent; color: #C4C9D1; font: inherit"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><path d="M12 10v6M9 13h6"></path></svg>New folder</button>
+    <button style="display: flex; align-items: center; gap: 8px; height: 36px; padding: 0 12px; border: 0; border-radius: 8px; background: transparent; color: #C4C9D1; font: inherit"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20h4L19 9l-4-4L4 16z"></path></svg>Rename</button>
+    <button style="display: flex; align-items: center; gap: 8px; height: 36px; padding: 0 12px; border: 0; border-radius: 8px; background: transparent; color: #C4C9D1; font: inherit"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"></rect><path d="M7 9l3 3-3 3M13 15h4"></path></svg>Terminal here</button>
+    <button style="display: flex; align-items: center; gap: 8px; height: 36px; padding: 0 12px; border: 0; border-radius: 8px; background: transparent; color: #C4C9D1; font: inherit"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3v18M16 3v18M3 8h5M16 16h5"></path></svg>Compare</button>
+    <button style="display: flex; align-items: center; gap: 8px; height: 36px; padding: 0 12px; border: 0; border-radius: 8px; background: transparent; color: #C4C9D1; font: inherit"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a9 9 0 0 1-15 6.7L3 16M3 12a9 9 0 0 1 15-6.7L21 8"></path><path d="M21 3v5h-5M3 21v-5h5"></path></svg>Sync dirs</button>
+    <div style="flex: 1 1 20px"></div>
+    <div style="display: flex; padding: 3px; gap: 2px; border: 1px solid #262B34; border-radius: 9px; background: #0E1014">
+      <button aria-label="Details view" style="width: 32px; height: 28px; display: flex; align-items: center; justify-content: center; border: 0; border-radius: 6px; background: #232831; color: #E6E8EB"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"></path></svg></button>
+      <button aria-label="Thumbnail view" style="width: 32px; height: 28px; display: flex; align-items: center; justify-content: center; border: 0; border-radius: 6px; background: transparent; color: #8B93A1"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1.5"></rect><rect x="14" y="3" width="7" height="7" rx="1.5"></rect><rect x="3" y="14" width="7" height="7" rx="1.5"></rect><rect x="14" y="14" width="7" height="7" rx="1.5"></rect></svg></button>
+    </div>
+    <button aria-label="Show hidden files" style="width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; border: 0; border-radius: 8px; background: transparent; color: #C4C9D1"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12z"></path><circle cx="12" cy="12" r="3"></circle></svg></button>
+  </div>
+
+  <!-- Panes -->
+  <div style="flex: 1; min-height: 0; display: flex; flex-wrap: wrap; gap: 8px; padding: 8px">
+
+    <!-- LEFT PANE -->
+    <section aria-label="Left pane" style="flex: 1 1 520px; min-width: 0; min-height: 0; display: flex; flex-direction: column; background: #14171C; border: 1px solid {{leftBorder}}; border-radius: 10px; overflow: hidden">
+      <div style="display: flex; align-items: flex-end; gap: 2px; height: 36px; padding: 0 6px; background: #101318; border-bottom: 1px solid #232831">
+        <button onClick="{{focusL}}" style="display: flex; align-items: center; gap: 8px; height: 30px; padding: 0 12px; border: 0; border-radius: 7px 7px 0 0; background: #14171C; color: #E6E8EB; font: inherit; font-weight: 500">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="{{accent}}" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg>mmarszalek
+        </button>
+        <button style="display: flex; align-items: center; gap: 8px; height: 30px; padding: 0 12px; border: 0; border-radius: 7px 7px 0 0; background: transparent; color: #9AA2AE; font: inherit">repos</button>
+        <button style="display: flex; align-items: center; gap: 8px; height: 30px; padding: 0 12px; border: 0; border-radius: 7px 7px 0 0; background: transparent; color: #9AA2AE; font: inherit">Downloads</button>
+        <button aria-label="New tab" style="width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; border: 0; background: transparent; color: #8B93A1"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"></path></svg></button>
+      </div>
+      <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 8px; padding: 8px 10px">
+        <button style="display: flex; align-items: center; gap: 6px; height: 30px; padding: 0 10px; border: 1px solid #262B34; border-radius: 7px; background: #181C22; color: #C4C9D1; font: inherit">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="13" width="18" height="7" rx="2"></rect><path d="M5 13l2-8h10l2 8"></path></svg>Macintosh HD
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 9l6 6 6-6"></path></svg>
+        </button>
+        <nav aria-label="Path" style="flex: 1 1 200px; display: flex; align-items: center; gap: 2px; min-width: 0; height: 30px; padding: 0 6px; border-radius: 7px; background: #0F1216; font-family: 'JetBrains Mono', monospace; font-size: 12px; overflow: hidden">
+          <a href="#" style="padding: 3px 6px; border-radius: 5px; color: #9AA2AE; text-decoration: none">/</a>
+          <a href="#" style="padding: 3px 6px; border-radius: 5px; color: #9AA2AE; text-decoration: none">Users</a>
+          <span aria-hidden="true" style="color: #4A515C">›</span>
+          <a href="#" style="padding: 3px 6px; border-radius: 5px; color: #E6E8EB; text-decoration: none">mmarszalek</a>
+        </nav>
+        <label style="display: flex; align-items: center; gap: 6px; height: 30px; flex: 0 1 180px; padding: 0 8px; border: 1px solid #262B34; border-radius: 7px; color: #8B93A1">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" aria-hidden="true"><path d="M3 5h18l-7 8v6l-4-2v-4z"></path></svg>
+          <span style="position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0)">Filter left pane</span>
+          <input placeholder="Filter  ext:png" style="flex: 1; min-width: 0; border: 0; outline: 0; background: transparent; color: #E6E8EB; font: inherit; font-size: 12px">
+        </label>
+      </div>
+      <div style="flex: 1; min-height: 0; overflow: auto">
+        <div style="min-width: 560px">
+          <div style="position: sticky; top: 0; display: grid; grid-template-columns: 26px minmax(160px, 1fr) 56px 84px 140px; align-items: center; gap: 8px; height: 28px; padding: 0 12px; background: #14171C; border-bottom: 1px solid #232831; color: #8B93A1; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em">
+            <span></span><span style="color: #C4C9D1">Name ↑</span><span>Ext</span><span style="text-align: right">Size</span><span>Modified</span>
+          </div>
+          <sc-for list="{{left}}" as="f" hint-placeholder-count="14">
+            <button onClick="{{f.pick}}" style="display: grid; grid-template-columns: 26px minmax(160px, 1fr) 56px 84px 140px; align-items: center; gap: 8px; width: 100%; height: 28px; padding: 0 12px; border: 0; background: {{f.bg}}; box-shadow: {{f.ring}}; color: #E6E8EB; font: inherit; text-align: left">
+              <span style="display: flex; color: {{f.icon}}">
+                <sc-if value="{{f.isDir}}" hint-placeholder-val="{{true}}"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg></sc-if>
+                <sc-if value="{{f.isFile}}" hint-placeholder-val="{{false}}"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"></path><path d="M14 3v5h5"></path></svg></sc-if>
+              </span>
+              <span style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: {{f.weight}}">{{f.name}}</span>
+              <span style="color: #8B93A1; font-family: 'JetBrains Mono', monospace; font-size: 12px">{{f.ext}}</span>
+              <span style="text-align: right; color: #C4C9D1; font-family: 'JetBrains Mono', monospace; font-size: 12px">{{f.size}}</span>
+              <span style="color: #8B93A1; font-family: 'JetBrains Mono', monospace; font-size: 12px">{{f.date}}</span>
+            </button>
+          </sc-for>
+        </div>
+      </div>
+      <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 14px; min-height: 30px; padding: 0 12px; border-top: 1px solid #232831; color: #8B93A1; font-size: 12px">
+        <span>13 folders · 7 files</span>
+        <span style="color: #C4C9D1">1 selected · 3.0 MB</span>
+        <div style="flex: 1"></div>
+        <span>412 GB free of 994 GB</span>
+        <div style="width: 80px; height: 4px; border-radius: 2px; background: #232831; overflow: hidden"><div style="width: 59%; height: 4px; background: {{accent}}"></div></div>
+      </div>
+    </section>
+
+    <!-- RIGHT PANE -->
+    <section aria-label="Right pane" style="flex: 1 1 520px; min-width: 0; min-height: 0; display: flex; flex-direction: column; background: #14171C; border: 1px solid {{rightBorder}}; border-radius: 10px; overflow: hidden">
+      <div style="display: flex; align-items: flex-end; gap: 2px; height: 36px; padding: 0 6px; background: #101318; border-bottom: 1px solid #232831">
+        <button onClick="{{focusR}}" style="display: flex; align-items: center; gap: 8px; height: 30px; padding: 0 12px; border: 0; border-radius: 7px 7px 0 0; background: #14171C; color: #E6E8EB; font: inherit; font-weight: 500">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="{{accent}}" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg>Users
+        </button>
+        <button aria-label="New tab" style="width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; border: 0; background: transparent; color: #8B93A1"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"></path></svg></button>
+      </div>
+      <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 8px; padding: 8px 10px">
+        <button style="display: flex; align-items: center; gap: 6px; height: 30px; padding: 0 10px; border: 1px solid #262B34; border-radius: 7px; background: #181C22; color: #C4C9D1; font: inherit">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="13" width="18" height="7" rx="2"></rect><path d="M5 13l2-8h10l2 8"></path></svg>Macintosh HD
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 9l6 6 6-6"></path></svg>
+        </button>
+        <nav aria-label="Path" style="flex: 1 1 200px; display: flex; align-items: center; gap: 2px; min-width: 0; height: 30px; padding: 0 6px; border-radius: 7px; background: #0F1216; font-family: 'JetBrains Mono', monospace; font-size: 12px; overflow: hidden">
+          <a href="#" style="padding: 3px 6px; border-radius: 5px; color: #9AA2AE; text-decoration: none">/</a>
+          <a href="#" style="padding: 3px 6px; border-radius: 5px; color: #E6E8EB; text-decoration: none">Users</a>
+        </nav>
+        <label style="display: flex; align-items: center; gap: 6px; height: 30px; flex: 0 1 180px; padding: 0 8px; border: 1px solid #262B34; border-radius: 7px; color: #8B93A1">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" aria-hidden="true"><path d="M3 5h18l-7 8v6l-4-2v-4z"></path></svg>
+          <span style="position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0)">Filter right pane</span>
+          <input placeholder="Filter  ext:png" style="flex: 1; min-width: 0; border: 0; outline: 0; background: transparent; color: #E6E8EB; font: inherit; font-size: 12px">
+        </label>
+      </div>
+      <div style="flex: 1; min-height: 0; overflow: auto">
+        <div style="min-width: 560px">
+          <div style="position: sticky; top: 0; display: grid; grid-template-columns: 26px minmax(160px, 1fr) 56px 84px 140px; align-items: center; gap: 8px; height: 28px; padding: 0 12px; background: #14171C; border-bottom: 1px solid #232831; color: #8B93A1; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em">
+            <span></span><span style="color: #C4C9D1">Name ↑</span><span>Ext</span><span style="text-align: right">Size</span><span>Modified</span>
+          </div>
+          <sc-for list="{{right}}" as="f" hint-placeholder-count="4">
+            <button onClick="{{f.pick}}" style="display: grid; grid-template-columns: 26px minmax(160px, 1fr) 56px 84px 140px; align-items: center; gap: 8px; width: 100%; height: 28px; padding: 0 12px; border: 0; background: {{f.bg}}; box-shadow: {{f.ring}}; color: #E6E8EB; font: inherit; text-align: left">
+              <span style="display: flex; color: {{f.icon}}">
+                <sc-if value="{{f.isUp}}" hint-placeholder-val="{{false}}"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 14l-4-4 4-4"></path><path d="M5 10h9a5 5 0 0 1 5 5v4"></path></svg></sc-if>
+                <sc-if value="{{f.isDir}}" hint-placeholder-val="{{true}}"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg></sc-if>
+              </span>
+              <span style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: {{f.weight}}">{{f.name}}</span>
+              <span style="color: #8B93A1; font-family: 'JetBrains Mono', monospace; font-size: 12px">{{f.ext}}</span>
+              <span style="text-align: right; color: #C4C9D1; font-family: 'JetBrains Mono', monospace; font-size: 12px">{{f.size}}</span>
+              <span style="color: #8B93A1; font-family: 'JetBrains Mono', monospace; font-size: 12px">{{f.date}}</span>
+            </button>
+          </sc-for>
+        </div>
+      </div>
+      <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 14px; min-height: 30px; padding: 0 12px; border-top: 1px solid #232831; color: #8B93A1; font-size: 12px">
+        <span>3 folders</span>
+        <div style="flex: 1"></div>
+        <span>412 GB free of 994 GB</span>
+        <div style="width: 80px; height: 4px; border-radius: 2px; background: #232831; overflow: hidden"><div style="width: 59%; height: 4px; background: {{accent}}"></div></div>
+      </div>
+    </section>
+  </div>
+
+  <!-- Function key bar -->
+  <div style="display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 6px; padding: 0 8px 8px">
+    <button style="display: flex; align-items: center; gap: 8px; height: 34px; padding: 0 10px; border: 1px solid #232831; border-radius: 8px; background: #14171C; color: #E6E8EB; font: inherit"><span style="font-family: 'JetBrains Mono', monospace; font-size: 11px; color: {{accent}}">F3</span>View</button>
+    <button style="display: flex; align-items: center; gap: 8px; height: 34px; padding: 0 10px; border: 1px solid #232831; border-radius: 8px; background: #14171C; color: #E6E8EB; font: inherit"><span style="font-family: 'JetBrains Mono', monospace; font-size: 11px; color: {{accent}}">F4</span>Edit</button>
+    <button style="display: flex; align-items: center; gap: 8px; height: 34px; padding: 0 10px; border: 1px solid #232831; border-radius: 8px; background: #14171C; color: #E6E8EB; font: inherit"><span style="font-family: 'JetBrains Mono', monospace; font-size: 11px; color: {{accent}}">F5</span>Copy</button>
+    <button style="display: flex; align-items: center; gap: 8px; height: 34px; padding: 0 10px; border: 1px solid #232831; border-radius: 8px; background: #14171C; color: #E6E8EB; font: inherit"><span style="font-family: 'JetBrains Mono', monospace; font-size: 11px; color: {{accent}}">F6</span>Move</button>
+    <button style="display: flex; align-items: center; gap: 8px; height: 34px; padding: 0 10px; border: 1px solid #232831; border-radius: 8px; background: #14171C; color: #E6E8EB; font: inherit"><span style="font-family: 'JetBrains Mono', monospace; font-size: 11px; color: {{accent}}">F7</span>New folder</button>
+    <button style="display: flex; align-items: center; gap: 8px; height: 34px; padding: 0 10px; border: 1px solid #232831; border-radius: 8px; background: #14171C; color: #FF9B8A; font: inherit"><span style="font-family: 'JetBrains Mono', monospace; font-size: 11px; color: #FF9B8A">F8</span>Delete</button>
+    <button style="display: flex; align-items: center; gap: 8px; height: 34px; padding: 0 10px; border: 1px solid #232831; border-radius: 8px; background: #14171C; color: #E6E8EB; font: inherit"><span style="font-family: 'JetBrains Mono', monospace; font-size: 11px; color: {{accent}}">F9</span>Terminal</button>
+  </div>
+
+  <!-- Status bar -->
+  <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 12px; min-height: 28px; padding: 0 12px; background: #0B0D10; border-top: 1px solid #1E222A; color: #8B93A1; font-size: 12px">
+    <span style="display: flex; align-items: center; gap: 6px"><span style="width: 7px; height: 7px; border-radius: 4px; background: #5CCB8F"></span>Ready</span>
+    <span style="font-family: 'JetBrains Mono', monospace">/Users/mmarszalek/canopy_v1.2.0_darwin_arm64.tar.gz</span>
+    <div style="flex: 1"></div>
+    <button style="display: flex; align-items: center; gap: 6px; height: 22px; padding: 0 8px; border: 1px solid #4A2E2A; border-radius: 6px; background: #22161A; color: #FFB3A6; font: inherit; font-size: 12px">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="M12 8v5M12 16h.01"></path></svg>1 error · View log
+    </button>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"accent":{"editor":"color","default":"#5B9DFF","options":["#5B9DFF","#F0A04B","#3CC6B0","#B794F6"]},"$preview":{"width":1440,"height":900}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { active: 'L', selL: 'canopy_v1.2.0_darwin_arm64', selR: 'mmarszalek' };
+  }
+  renderVals() {
+    const a = this.props.accent ?? '#5B9DFF';
+    const s = this.state || { active: 'L', selL: '', selR: '' };
+    const extColor = { png: '#C9A2F2', gz: '#F0A04B', yaml: '#7FD1B9', json: '#7FD1B9', sql: '#8FB5FF', txt: '#A6ADB8' };
+    const D = (name, date) => ({ name, ext: '', size: '—', date, dir: true });
+    const F = (name, ext, size, date) => ({ name, ext, size, date, dir: false });
+    const leftRaw = [
+      D('Library', '2023-05-13 00:50'), D('Movies', '2023-05-13 00:50'), D('Music', '2023-05-13 00:50'),
+      D('node_modules', '2024-09-23 14:43'), D('notes', '2024-09-04 11:31'), D('Pictures', '2023-05-13 00:50'),
+      D('playground', '2024-09-03 16:32'), D('Postman', '2025-06-09 12:44'), D('Public', '2023-05-13 00:50'),
+      D('repos', '2024-09-03 11:19'), D('saska', '2025-09-27 10:37'), D('scripts', '2024-09-06 13:54'),
+      D('tmp', '2024-09-24 09:11'),
+      F('appstore_dump', 'sql', '22 KB', '2024-11-22 13:22'),
+      F('canopy_v1.2.0_darwin_arm64', 'tar.gz', '3.0 MB', '2026-10-20 16:57'),
+      F('cert-manager', 'yaml', '0 KB', '2026-01-02 08:29'),
+      F('hydrogentorch_logs', 'txt', '8 KB', '2026-07-08 12:49'),
+      F('image_1', 'png', '1.1 MB', '2024-11-27 15:45'),
+      F('image_2', 'png', '1.5 MB', '2024-11-27 15:49'),
+      F('image', 'png', '1.5 MB', '2024-11-27 15:37')
+    ];
+    const rightRaw = [
+      { name: '..', ext: '', size: '', date: '', dir: true, up: true },
+      D('h2oadmin', '2024-08-22 22:13'), D('mmarszalek', '2024-08-22 22:14'), D('Shared', '2026-06-25 04:29')
+    ];
+    const build = (list, side, sel) => list.map((f) => {
+      const isSel = f.name === sel;
+      const cur = isSel && s.active === side;
+      const last = (f.ext || '').split('.').pop();
+      return {
+        ...f,
+        isDir: f.dir && !f.up, isFile: !f.dir, isUp: !!f.up,
+        bg: cur ? a + '33' : (isSel ? '#1F242C' : 'transparent'),
+        ring: cur ? 'inset 0 0 0 1px ' + a : 'none',
+        icon: f.dir ? a : (extColor[last] || '#A6ADB8'),
+        weight: f.dir ? 500 : 400,
+        pick: () => this.setState(side === 'L' ? { active: 'L', selL: f.name } : { active: 'R', selR: f.name })
+      };
+    });
+    return {
+      accent: a,
+      left: build(leftRaw, 'L', s.selL),
+      right: build(rightRaw, 'R', s.selR),
+      leftBorder: s.active === 'L' ? a + '99' : '#232831',
+      rightBorder: s.active === 'R' ? a + '99' : '#232831',
+      focusL: () => this.setState({ active: 'L' }),
+      focusR: () => this.setState({ active: 'R' })
+    };
+  }
+}
+</script>
+</body>
+</html>

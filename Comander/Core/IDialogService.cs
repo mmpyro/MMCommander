@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using IOLib;
 using Comander.CommanderIO;
 using Comander.Dtos;
 using ZipLib;
@@ -26,7 +27,17 @@ namespace Comander.Core
         /// <returns>The entered text, or null when cancelled.</returns>
         Task<string> AskText(string message, string initialText = "");
 
-        Task<CopyOption> AskOverride(string message);
+        /// <returns>Null when cancelled.</returns>
+        Task<CopyRequest> AskCopy(CopyDialogModel model);
+
+        // Called from the transfer worker thread; implementations marshal to the UI thread.
+        Task<ConflictAnswer> AskConflict(Conflict conflict);
+
+        /// <returns>Null when cancelled.</returns>
+        Task<DeleteRequest> AskDelete(DeleteDialogModel model);
+
+        // Non-modal progress window for a queued job.
+        void ShowProgress(TransferJob job);
 
         /// <returns>Null when cancelled.</returns>
         Task<ZipParameters> AskZip(string directory);

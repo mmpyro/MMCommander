@@ -35,6 +35,7 @@ namespace Comander.ViewModel
         private readonly IDialogService _dialogs;
         private IOManager _secondManager;
         private string _filter;
+        private bool _hideHidden;
         private readonly IMessenger _messanger = WeakReferenceMessenger.Default;
         private IProxyIO _proxy;
         private ManagerType _type;
@@ -67,7 +68,10 @@ namespace Comander.ViewModel
                 if (dir != null)
                     ActualPath = dir.FullName;
             });
-            DeleteFileCommand = new AsyncRelayCommand(() => _proxy.DeleteFile(SelectedFiles()));
+            // Concurrent: F5 again while a copy runs adds another job to the queue.
+            var concurrent = AsyncRelayCommandOptions.AllowConcurrentExecutions;
+            DeleteFileCommand = new AsyncRelayCommand(() => _proxy.DeleteFile(SelectedFiles()), concurrent);
+            DeletePermanentCommand = new AsyncRelayCommand(() => _proxy.DeleteFile(SelectedFiles(), permanent: true), concurrent);
             CurrentOperation = string.Empty;
             CreateDirCommand = new AsyncRelayCommand(_proxy.CreateDirectory);
             CreateFileCommand = new AsyncRelayCommand(_proxy.CreateFile);
@@ -92,13 +96,19 @@ namespace Comander.ViewModel
                 if (items == null)
                     return;
                 foreach (IMetadataFileStructure item in items)
+                {
                     item.SelectFile();
+                    if (item.IsDirectory && item.Name != ".." && item.IsSelected() && item.MetaData.FolderSize == null && AppSettings.Current.FolderSizes)
+                        ComputeFolderSize(item);
+                }
                 CountSelectedFiles();
             });
             SelectAllCommand = new RelayCommand(SelectAllFiles);
             SelectTypeCommand = new RelayCommand(SelectByType);
-            CopyCommand = new AsyncRelayCommand(() => _proxy.CopyFile(SelectedFiles(), SeccondManagerCurrentDir));
-            MoveCommand = new AsyncRelayCommand(() => _proxy.MoveFile(SelectedFiles(), SeccondManagerCurrentDir));
+            ToggleHiddenCommand = new RelayCommand(() => HideHidden = !HideHidden);
+            CopyCommand = new AsyncRelayCommand(() => _proxy.CopyFile(SelectedFiles(), SeccondManagerCurrentDir), concurrent);
+            CopyHereCommand = new AsyncRelayCommand(() => _proxy.CopyFile(SelectedFiles(), CurrentDir, ConflictPolicy.KeepBoth), concurrent);
+            MoveCommand = new AsyncRelayCommand(() => _proxy.MoveFile(SelectedFiles(), SeccondManagerCurrentDir), concurrent);
             ShowSortcutsCommand = new AsyncRelayCommand(ShowShortcutsWindow);
             HistoryCommand = new AsyncRelayCommand(ShowHistory);
             ConsoleRunCommand = new RelayCommand(() => Shell.Run(_configReader["cmd"], ActualPath, ActualPath));
@@ -112,9 +122,10 @@ namespace Comander.ViewModel
             PasteToClipboardCommand = new AsyncRelayCommand(() => _proxy.PasteFromClipboard(CurrentDir));
 
             _messanger.Register<FocusMessage>(this, (_, msg) =>
-                _focus = msg.ManagerName.Equals(_type.ToString(), StringComparison.OrdinalIgnoreCase));
+                IsActive = msg.ManagerName.Equals(_type.ToString(), StringComparison.OrdinalIgnoreCase));
             _messanger.Register<RefreshMessage>(this, (_, _) => Refresh());
 
+            InitTabs(_actualPath);
             LoadDrivers();
             Refresh();
         }
@@ -151,6 +162,9 @@ namespace Comander.ViewModel
         public ICommand TreeWindowCommand { get; set; }
         public ICommand CopyToClipboardCommand { get; set; }
         public ICommand PasteToClipboardCommand { get; set; }
+        public ICommand ToggleHiddenCommand { get; set; }
+        public ICommand CopyHereCommand { get; set; }
+        public ICommand DeletePermanentCommand { get; set; }
         #endregion
 
     }

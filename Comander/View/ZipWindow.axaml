@@ -18,7 +18,7 @@
         <TextBox Grid.Row="3" Grid.Column="1" Grid.ColumnSpan="2" Name="PasswordBox1" PasswordChar="*"/>
         <TextBlock Grid.Row="4" Text="Type:"/>
         <ComboBox Grid.Row="4" Grid.Column="1" Name="TypeBox" HorizontalAlignment="Stretch"/>
-        <TextBlock Grid.Row="5" Grid.ColumnSpan="2" Name="StatusTextBlock" Foreground="Red" TextWrapping="Wrap"/>
+        <TextBlock Grid.Row="5" Grid.ColumnSpan="2" Name="StatusTextBlock" Classes="error" TextWrapping="Wrap"/>
         <Button Grid.Row="5" Grid.Column="1" Grid.ColumnSpan="2" HorizontalAlignment="Right" Name="ExecuteButton" Content="Execute" IsEnabled="False" Click="Execute_OnClick"/>
     </Grid>
 </Window>

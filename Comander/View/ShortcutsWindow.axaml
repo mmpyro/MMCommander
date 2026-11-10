@@ -1,10 +1,24 @@
-<Window x:Class="Comander.View.ShortcutsWindow"
-        xmlns="https://github.com/avaloniaui"
-        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="Shortcuts" Icon="/Icons/icon.png" Height="300" Width="300" WindowStartupLocation="CenterOwner">
-    <Grid RowDefinitions="*,Auto,Auto">
-        <ListBox Name="ListView" DoubleTapped="SelectButton_OnClick"/>
-        <Button Click="RemoveButton_OnClick" Content="Remove" Foreground="Red" Grid.Row="1" HorizontalAlignment="Stretch"/>
-        <Button Click="SelectButton_OnClick" Content="Select" Grid.Row="2" HorizontalAlignment="Stretch"/>
-    </Grid>
-</Window>
+<local:DialogWindow x:Class="Comander.View.ShortcutsWindow"
+                    xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:local="clr-namespace:Comander.View"
+                    Title="Bookmarks" Width="480" SizeToContent="Height">
+    <!-- Go > Bookmarks…: Enter, double-click or "Go to" returns the path; Esc returns null. -->
+    <StackPanel Margin="18" Spacing="14">
+        <StackPanel Spacing="4">
+            <TextBlock Classes="title" Text="Bookmarks"/>
+            <TextBlock Classes="muted" Text="Ctrl+D adds the current folder"/>
+        </StackPanel>
+        <Border Name="ListBorder" Classes="listbox">
+            <ListBox Name="ListView" Classes="paths" MaxHeight="360" DoubleTapped="SelectButton_OnClick"/>
+        </Border>
+        <TextBlock Name="EmptyText" Classes="muted" Text="No bookmarks yet" IsVisible="False"/>
+        <DockPanel>
+            <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" Spacing="8">
+                <Button Classes="footer" Content="Close" Click="CloseButton_OnClick"/>
+                <Button Classes="footer accent" Content="Go to" IsDefault="True" Click="SelectButton_OnClick"/>
+            </StackPanel>
+            <Button Name="RemoveButton" Classes="footer danger" Content="Remove" HorizontalAlignment="Left" Click="RemoveButton_OnClick"/>
+        </DockPanel>
+    </StackPanel>
+</local:DialogWindow>

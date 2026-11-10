@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
@@ -19,9 +19,20 @@ namespace Comander.ViewModel
     public partial class IOManager : ObservableObject, IFileNotifier, IIOManager
     {
         #region Methods
+        // Marked files, or the file under the cursor when nothing is marked (like Total Commander).
         private List<IMetadataFileStructure> SelectedFiles()
         {
-            return _files.Where(t => t.IsSelected()).ToList();
+            var marked = _files.Where(t => t.IsSelected()).ToList();
+            if (marked.Count == 0 && SelectedFile != null && SelectedFile.Name != "..")
+                marked.Add(SelectedFile);
+            return marked;
+        }
+
+        public Func<string, bool> FilterPredicate()
+        {
+            var filter = Filter;
+            if (string.IsNullOrEmpty(filter)) return null;
+            return path => _syntaxParser.Perform(filter, new IAbstractFileStructure[] { new FileStructure(path) }).Count > 0;
         }
 
         public void LoadDrivers()
@@ -60,6 +71,7 @@ namespace Comander.ViewModel
         private void CountSelectedFiles()
         {
             CurrentOperation = "Selected elements: " + Files.Count(t => t.IsSelected());
+            UpdateSummary();
         }
 
         private void ReversFileSelection()
@@ -75,7 +87,7 @@ namespace Comander.ViewModel
 
         private void SetFocus()
         {
-            if (_focus == true)
+            if (_focus)
             {
                 _messanger.Send(new SetFocusMessage
                 {
@@ -87,8 +99,8 @@ namespace Comander.ViewModel
 
         private void SwitchFocus()
         {
-            _focus = false;
-            SecondManager._focus = true;
+            IsActive = false;
+            SecondManager.IsActive = true;
             SecondManager.SetFocus();
         }
 
@@ -113,6 +125,7 @@ namespace Comander.ViewModel
             var listing = _listing = new CancellationTokenSource();
             var path = ActualPath;
             var filter = Filter;
+            var hideHidden = HideHidden;
             try
             {
                 if (delay > TimeSpan.Zero)
@@ -120,7 +133,10 @@ namespace Comander.ViewModel
                 // The path box updates ActualPath on every keystroke; ignore paths that don't exist (yet).
                 if (!System.IO.Directory.Exists(path))
                     return;
+                var space = Task.Run(() => _fileManager.GetSpace(path));
                 var files = await _fileManager.GetAllStructuresAsync(path);
+                if (hideHidden)
+                    files = files.Where(f => f.Name == ".." || !f.Name.StartsWith('.')).ToList();
                 if (!string.IsNullOrEmpty(filter))
                 {
                     try
@@ -133,7 +149,11 @@ namespace Comander.ViewModel
                     }
                 }
                 if (!listing.IsCancellationRequested)
+                {
                     Files = new ObservableCollection<IMetadataFileStructure>(files.Cast<IMetadataFileStructure>());
+                    OnListed(path);
+                    Space = await space;
+                }
             }
             catch (OperationCanceledException)
             {
@@ -267,6 +287,37 @@ namespace Comander.ViewModel
             }
         }
 
+        // Hides entries whose name starts with '.' (Ctrl+H); ".." always stays.
+        public bool HideHidden
+        {
+            get { return _hideHidden; }
+            set
+            {
+                if (SetProperty(ref _hideHidden, value))
+                {
+                    OnPropertyChanged(nameof(ShowHidden));
+                    FilterFiles();
+                }
+            }
+        }
+
+        // The toolbar eye is "show hidden", the inverse of HideHidden.
+        public bool ShowHidden
+        {
+            get => !HideHidden;
+            set => HideHidden = !value;
+        }
+
+        // "Io1" / "Io2": matches the FilePane GridName.
+        public string Name => _type.ToString();
+
+        // The panel that last had keyboard focus; the toolbar, menus and F-keys act on it.
+        public bool IsActive
+        {
+            get => _focus;
+            set => SetProperty(ref _focus, value);
+        }
+
         public string CurrentOperation
         {
             get { return _currentOperation; }
@@ -304,6 +355,7 @@ namespace Comander.ViewModel
             {
                 _files = value;
                 OnPropertyChanged();
+                UpdateSummary();
                 SetFocus();
             }
         }

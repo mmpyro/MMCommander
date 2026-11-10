@@ -1,0 +1,41 @@
+<local:DialogWindow x:Class="Comander.View.ProgressDialog"
+                    xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:local="clr-namespace:Comander.View"
+                    Width="520" SizeToContent="Height">
+    <!-- Bound to a Core.TransferJob (docs/design/CopyFlow.dc.html, step 2). Closes itself when the job ends. -->
+    <StackPanel Margin="18" Spacing="12">
+        <StackPanel Spacing="4">
+            <TextBlock Classes="title" Text="{Binding Title}"/>
+            <TextBlock Classes="muted mono" Text="{Binding Destination, StringFormat='to {0}'}" TextTrimming="CharacterEllipsis"/>
+        </StackPanel>
+        <StackPanel Spacing="6">
+            <DockPanel>
+                <TextBlock DockPanel.Dock="Right" Classes="muted mono" Text="{Binding FileText}"/>
+                <TextBlock Text="{Binding CurrentName}" TextTrimming="CharacterEllipsis"/>
+            </DockPanel>
+            <ProgressBar Classes="thin" Minimum="0" Maximum="1" Value="{Binding FileFraction}"/>
+        </StackPanel>
+        <StackPanel Spacing="6">
+            <DockPanel>
+                <TextBlock DockPanel.Dock="Right" Classes="muted mono" Text="{Binding TotalText}"/>
+                <TextBlock Text="Total"/>
+            </DockPanel>
+            <ProgressBar Name="TotalBar" Classes="thin" Minimum="0" Maximum="1" Value="{Binding TotalFraction}"/>
+        </StackPanel>
+        <Grid ColumnDefinitions="*,*,*" ColumnSpacing="8">
+            <Border Classes="tile"><StackPanel Spacing="2"><TextBlock Classes="muted" FontSize="12" Text="Speed"/><TextBlock Classes="mono" Text="{Binding SpeedText}"/></StackPanel></Border>
+            <Border Grid.Column="1" Classes="tile"><StackPanel Spacing="2"><TextBlock Classes="muted" FontSize="12" Text="Remaining"/><TextBlock Classes="mono" Text="{Binding RemainingText}"/></StackPanel></Border>
+            <Border Grid.Column="2" Classes="tile"><StackPanel Spacing="2"><TextBlock Classes="muted" FontSize="12" Text="Errors"/><TextBlock Classes="mono" Text="{Binding Errors}"/></StackPanel></Border>
+        </Grid>
+        <DockPanel Margin="0,6,0,0">
+            <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" Spacing="8">
+                <Button Name="PauseButton" Classes="footer" Command="{Binding PauseCommand}">
+                    <TextBlock Name="PauseText" Text="Pause"/>
+                </Button>
+                <Button Name="CancelButton" Classes="footer" Content="Cancel" Command="{Binding CancelCommand}"/>
+            </StackPanel>
+            <Button Name="BackgroundButton" Classes="footer" Content="Run in background" HorizontalAlignment="Left"/>
+        </DockPanel>
+    </StackPanel>
+</local:DialogWindow>

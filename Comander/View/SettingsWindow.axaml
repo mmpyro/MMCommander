@@ -1,0 +1,281 @@
+<local:DialogWindow x:Class="Comander.View.SettingsWindow"
+                    xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:local="clr-namespace:Comander.View"
+                    Width="960" Height="660">
+    <!-- docs/design/Settings.dc.html + Shortcuts.dc.html. DataContext is ViewModel.SettingsWindowVM. -->
+    <Window.Styles>
+        <Style Selector="TextBlock.label">
+            <Setter Property="FontWeight" Value="Medium"/>
+            <Setter Property="Margin" Value="0,0,0,6"/>
+        </Style>
+        <Style Selector="TextBlock.hint">
+            <Setter Property="Foreground" Value="{DynamicResource Brush.Text.Muted}"/>
+            <Setter Property="FontSize" Value="12"/>
+        </Style>
+        <Style Selector="ListBox#Nav ListBoxItem">
+            <Setter Property="CornerRadius" Value="{DynamicResource Radius.Control}"/>
+            <Setter Property="Padding" Value="10,7"/>
+        </Style>
+        <Style Selector="ListBox#Nav ListBoxItem:selected TextBlock">
+            <Setter Property="FontWeight" Value="SemiBold"/>
+        </Style>
+        <Style Selector="Button.keycap">
+            <Setter Property="Padding" Value="4"/>
+            <Setter Property="MinHeight" Value="0"/>
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="BorderBrush" Value="Transparent"/>
+            <Setter Property="HorizontalAlignment" Value="Right"/>
+        </Style>
+        <Style Selector="Button.keycap.recording">
+            <Setter Property="Background" Value="{DynamicResource Brush.Compare.LeftBg}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource Brush.Accent}"/>
+        </Style>
+        <Style Selector="Border.cap">
+            <Setter Property="Background" Value="{DynamicResource Brush.Bg.Raised}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource Brush.Border.Strong}"/>
+            <Setter Property="BorderThickness" Value="1,1,1,2"/>
+            <Setter Property="CornerRadius" Value="5"/>
+            <Setter Property="Padding" Value="7,2"/>
+        </Style>
+        <Style Selector="Border.preview.cursor">
+            <Setter Property="Background" Value="{DynamicResource Brush.Accent.Tint}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource Brush.Accent}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+        </Style>
+        <Style Selector="Button.swatch">
+            <Setter Property="Width" Value="30"/>
+            <Setter Property="Height" Value="30"/>
+            <Setter Property="CornerRadius" Value="15"/>
+            <Setter Property="Padding" Value="0"/>
+            <Setter Property="BorderThickness" Value="2"/>
+            <Setter Property="BorderBrush" Value="Transparent"/>
+        </Style>
+        <Style Selector="Button.swatch.selected">
+            <Setter Property="BorderBrush" Value="{DynamicResource Brush.Text.Primary}"/>
+        </Style>
+    </Window.Styles>
+    <DockPanel>
+        <!-- Left nav -->
+        <Border DockPanel.Dock="Left" Width="210" Padding="14" Background="{DynamicResource Brush.Bg.Toolbar}"
+                BorderBrush="{DynamicResource Brush.Border.Subtle}" BorderThickness="0,0,1,0" CornerRadius="13,0,0,13">
+            <StackPanel Spacing="12">
+                <TextBlock Classes="title" Text="Settings" Margin="6,4,0,4"/>
+                <ListBox Name="Nav" SelectedIndex="{Binding Section}" Background="Transparent">
+                    <ListBoxItem><TextBlock Text="Appearance"/></ListBoxItem>
+                    <ListBoxItem><TextBlock Text="Keyboard"/></ListBoxItem>
+                    <ListBoxItem><TextBlock Text="File operations"/></ListBoxItem>
+                </ListBox>
+            </StackPanel>
+        </Border>
+        <!-- Footer -->
+        <DockPanel DockPanel.Dock="Bottom" Margin="20,10,20,16">
+            <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" Spacing="8">
+                <Button Name="CancelButton" Classes="footer" Content="Cancel"/>
+                <Button Name="DoneButton" Classes="footer accent"><TextBlock Text="Done"/></Button>
+            </StackPanel>
+            <Button Name="ResetButton" Classes="footer" Content="Reset to defaults" Command="{Binding ResetDefaultsCommand}" IsVisible="{Binding IsAppearance}"/>
+        </DockPanel>
+
+        <Panel Margin="20,18,20,0">
+            <!-- Appearance -->
+            <Grid ColumnDefinitions="*,300" ColumnSpacing="20" IsVisible="{Binding IsAppearance}">
+                <ScrollViewer>
+                    <StackPanel Spacing="18" Margin="0,0,8,0">
+                        <TextBlock Classes="title" Text="Appearance"/>
+                        <StackPanel>
+                            <TextBlock Classes="label" Text="Theme"/>
+                            <ListBox Name="ThemeList" Classes="seg" SelectedIndex="{Binding ThemeIndex}">
+                                <ListBoxItem><TextBlock Text="Dark"/></ListBoxItem>
+                                <ListBoxItem><TextBlock Text="Black (OLED)"/></ListBoxItem>
+                            </ListBox>
+                            <TextBlock Classes="hint" Margin="0,6,0,0" Text="“Black” drops surfaces to pure black for OLED screens."/>
+                        </StackPanel>
+                        <StackPanel>
+                            <TextBlock Classes="label" Text="Accent"/>
+                            <ItemsControl Name="SwatchList" ItemsSource="{Binding Swatches}">
+                                <ItemsControl.ItemsPanel>
+                                    <ItemsPanelTemplate><StackPanel Orientation="Horizontal" Spacing="10"/></ItemsPanelTemplate>
+                                </ItemsControl.ItemsPanel>
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <Button Classes="swatch" Classes.selected="{Binding IsSelected}" ToolTip.Tip="{Binding Name}"
+                                                Command="{Binding $parent[Window].DataContext.SetAccentCommand}" CommandParameter="{Binding Hex}">
+                                            <Ellipse Width="22" Height="22" Fill="{Binding Brush}"/>
+                                        </Button>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </StackPanel>
+                        <StackPanel>
+                            <TextBlock Classes="label" Text="Row density"/>
+                            <ListBox Classes="seg" SelectedIndex="{Binding DensityIndex}">
+                                <ListBoxItem><TextBlock Text="Compact"/></ListBoxItem>
+                                <ListBoxItem><TextBlock Text="Comfortable"/></ListBoxItem>
+                            </ListBox>
+                        </StackPanel>
+                        <Grid ColumnDefinitions="*,*" ColumnSpacing="16">
+                            <StackPanel>
+                                <TextBlock Classes="label" Text="Interface font"/>
+                                <ComboBox SelectedIndex="{Binding UiFontIndex}" HorizontalAlignment="Stretch">
+                                    <ComboBoxItem Content="Inter"/>
+                                    <ComboBoxItem Content="System default"/>
+                                </ComboBox>
+                            </StackPanel>
+                            <StackPanel Grid.Column="1">
+                                <TextBlock Classes="label" Text="Monospace font"/>
+                                <ComboBox ItemsSource="{Binding MonoFonts}" SelectedItem="{Binding Settings.MonoFont}" HorizontalAlignment="Stretch"/>
+                            </StackPanel>
+                        </Grid>
+                        <Grid ColumnDefinitions="*,*" ColumnSpacing="16">
+                            <StackPanel>
+                                <TextBlock Classes="label" Text="Date format"/>
+                                <ComboBox SelectedIndex="{Binding DateIndex}" HorizontalAlignment="Stretch">
+                                    <ComboBoxItem Content="ISO · 2026-10-20 16:57"/>
+                                    <ComboBoxItem Content="Locale"/>
+                                    <ComboBoxItem Content="Relative · 3 weeks ago"/>
+                                </ComboBox>
+                            </StackPanel>
+                            <StackPanel Grid.Column="1">
+                                <TextBlock Classes="label" Text="Size units"/>
+                                <ComboBox SelectedIndex="{Binding UnitsIndex}" HorizontalAlignment="Stretch">
+                                    <ComboBoxItem Content="Auto (KB / MB / GB)"/>
+                                    <ComboBoxItem Content="Always KB"/>
+                                    <ComboBoxItem Content="Bytes"/>
+                                </ComboBox>
+                            </StackPanel>
+                        </Grid>
+                        <StackPanel Spacing="10">
+                            <DockPanel>
+                                <ToggleSwitch Name="HiddenSwitch" DockPanel.Dock="Right" OnContent="" OffContent="" IsChecked="{Binding Settings.ShowHidden}"/>
+                                <StackPanel><TextBlock Text="Show hidden files"/><TextBlock Classes="hint" Text="Dotfiles at start; Ctrl+H toggles one panel"/></StackPanel>
+                            </DockPanel>
+                            <DockPanel>
+                                <ToggleSwitch DockPanel.Dock="Right" OnContent="" OffContent="" IsChecked="{Binding Settings.FolderSizes}"/>
+                                <StackPanel><TextBlock Text="Calculate folder sizes"/><TextBlock Classes="hint" Text="In the background, when a folder is marked with Space"/></StackPanel>
+                            </DockPanel>
+                            <DockPanel>
+                                <ToggleSwitch DockPanel.Dock="Right" OnContent="" OffContent="" IsChecked="{Binding Settings.ColorIcons}"/>
+                                <StackPanel><TextBlock Text="Colour file icons by type"/><TextBlock Classes="hint" Text="Images, archives, configs, data"/></StackPanel>
+                            </DockPanel>
+                            <DockPanel>
+                                <ToggleSwitch DockPanel.Dock="Right" OnContent="" OffContent="" IsChecked="{Binding Settings.SeparateExt}"/>
+                                <StackPanel><TextBlock Text="Separate extension column"/><TextBlock Classes="hint" Text="Like Total Commander’s Ext column"/></StackPanel>
+                            </DockPanel>
+                        </StackPanel>
+                    </StackPanel>
+                </ScrollViewer>
+                <!-- Live preview -->
+                <StackPanel Grid.Column="1" Spacing="8">
+                    <TextBlock Classes="label" Text="Preview"/>
+                    <Border Background="{DynamicResource Brush.Bg.Pane}" BorderBrush="{DynamicResource Brush.Accent.Border}" BorderThickness="1"
+                            CornerRadius="{DynamicResource Radius.Pane}" ClipToBounds="True">
+                        <StackPanel>
+                            <Border Padding="12,8" Background="{DynamicResource Brush.Bg.PaneHeader}">
+                                <TextBlock Classes="mono muted" Text="/Users/ › me"/>
+                            </Border>
+                            <ItemsControl Name="PreviewList" ItemsSource="{Binding Preview}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <Border Height="{Binding $parent[Window].DataContext.PreviewRowHeight}" Padding="12,0" Classes="preview" Classes.cursor="{Binding IsCursor}">
+                                            <DockPanel>
+                                                <TextBlock DockPanel.Dock="Right" Classes="mono secondary" VerticalAlignment="Center" Text="{Binding Size}"/>
+                                                <Path DockPanel.Dock="Left" Classes="icon" Margin="0,0,10,0" Data="{Binding Icon}" Stroke="{Binding IconBrush}"/>
+                                                <TextBlock VerticalAlignment="Center" TextTrimming="CharacterEllipsis" Text="{Binding Name}"/>
+                                            </DockPanel>
+                                        </Border>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </StackPanel>
+                    </Border>
+                </StackPanel>
+            </Grid>
+
+            <!-- Keyboard -->
+            <DockPanel IsVisible="{Binding IsKeyboard}">
+                <StackPanel DockPanel.Dock="Top" Spacing="10" Margin="0,0,0,10">
+                    <TextBlock Classes="title" Text="Keyboard"/>
+                    <TextBlock Classes="hint" Text="Click a shortcut to record a new one. Backspace while recording clears it, Esc cancels."/>
+                    <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="10">
+                        <ComboBox Name="PresetBox" SelectedIndex="{Binding Preset}" MinWidth="230">
+                            <ComboBoxItem Content="Total Commander (modified)"/>
+                            <ComboBoxItem Content="Total Commander"/>
+                            <ComboBoxItem Content="Finder-like"/>
+                        </ComboBox>
+                        <TextBox Grid.Column="1" Name="KeySearch" PlaceholderText="Search commands or keys" Text="{Binding Search}"/>
+                        <ToggleButton Grid.Column="2" IsChecked="{Binding ChangedOnly}" Content="{Binding ChangedText}"/>
+                    </Grid>
+                    <Border Background="{DynamicResource Brush.Warning.Bg}" CornerRadius="{DynamicResource Radius.Button}" Padding="12,8" IsVisible="{Binding HasConflict}">
+                        <DockPanel>
+                            <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" Spacing="8">
+                                <Button Name="ReassignButton" Content="Reassign" Command="{Binding ReassignCommand}"/>
+                                <Button Content="Cancel" Command="{Binding CancelConflictCommand}"/>
+                            </StackPanel>
+                            <TextBlock Classes="warn" VerticalAlignment="Center" Text="{Binding ConflictText}"/>
+                        </DockPanel>
+                    </Border>
+                </StackPanel>
+                <StackPanel DockPanel.Dock="Bottom" Orientation="Horizontal" Spacing="8" Margin="0,10,0,0">
+                    <Button Name="ExportButton" Content="Export…"/>
+                    <Button Content="Reset preset" Command="{Binding ResetPresetCommand}"/>
+                </StackPanel>
+                <ScrollViewer>
+                    <ItemsControl Name="KeyGroups" ItemsSource="{Binding Groups}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <StackPanel Margin="0,0,0,14">
+                                    <TextBlock Classes="muted" FontSize="11" FontWeight="SemiBold" Margin="0,0,0,4" Text="{Binding Name}"/>
+                                    <ItemsControl ItemsSource="{Binding Rows}">
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate>
+                                                <DockPanel Height="34">
+                                                    <Button DockPanel.Dock="Right" Classes="keycap" Classes.recording="{Binding IsRecording}"
+                                                            Command="{Binding $parent[Window].DataContext.RecordCommand}" CommandParameter="{Binding}">
+                                                        <Panel>
+                                                            <TextBlock Classes="muted" FontSize="12" Text="press keys…" IsVisible="{Binding IsRecording}" Margin="6,0"/>
+                                                            <TextBlock Classes="muted" FontSize="12" Text="—" IsVisible="{Binding HasNoKeys}" Margin="6,0"/>
+                                                            <ItemsControl ItemsSource="{Binding Keys}" IsVisible="{Binding !IsRecording}">
+                                                                <ItemsControl.ItemsPanel>
+                                                                    <ItemsPanelTemplate><StackPanel Orientation="Horizontal" Spacing="4"/></ItemsPanelTemplate>
+                                                                </ItemsControl.ItemsPanel>
+                                                                <ItemsControl.ItemTemplate>
+                                                                    <DataTemplate>
+                                                                        <Border Classes="cap"><TextBlock Classes="mono" FontSize="11" Text="{Binding}"/></Border>
+                                                                    </DataTemplate>
+                                                                </ItemsControl.ItemTemplate>
+                                                            </ItemsControl>
+                                                        </Panel>
+                                                    </Button>
+                                                    <TextBlock DockPanel.Dock="Right" Classes="warn" FontSize="11" Margin="0,0,10,0" VerticalAlignment="Center"
+                                                               Text="Changed" IsVisible="{Binding IsChanged}"/>
+                                                    <TextBlock VerticalAlignment="Center" Text="{Binding Label}"/>
+                                                </DockPanel>
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
+                                </StackPanel>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </ScrollViewer>
+            </DockPanel>
+
+            <!-- File operations -->
+            <StackPanel Spacing="18" IsVisible="{Binding IsFileOps}">
+                <TextBlock Classes="title" Text="File operations"/>
+                <StackPanel>
+                    <TextBlock Classes="label" Text="If a file already exists (default in the F5 / F6 dialog)"/>
+                    <ListBox Classes="seg" SelectedIndex="{Binding PolicyIndex}">
+                        <ListBoxItem><TextBlock Text="Ask"/></ListBoxItem>
+                        <ListBoxItem><TextBlock Text="Overwrite older"/></ListBoxItem>
+                        <ListBoxItem><TextBlock Text="Skip"/></ListBoxItem>
+                        <ListBoxItem><TextBlock Text="Keep both"/></ListBoxItem>
+                    </ListBox>
+                </StackPanel>
+                <CheckBox Content="Ask before moving files to the Trash (F8)" IsChecked="{Binding AskBeforeTrash}"/>
+            </StackPanel>
+        </Panel>
+    </DockPanel>
+</local:DialogWindow>

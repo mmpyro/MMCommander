@@ -1,3 +1,4 @@
+using IOLib;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -11,19 +12,41 @@ namespace ComanderTest
 {
     public class FakeDialogs : IDialogService
     {
-        public CopyOption OverrideAnswer { get; set; } = CopyOption.None;
-        public int OverrideQuestions { get; private set; }
+        // Answer for conflicts; Skip unless a test says otherwise.
+        public ConflictAnswer ConflictAnswer { get; set; } = new ConflictAnswer(ConflictDecision.Skip);
+        public int ConflictQuestions { get; private set; }
+        // Null = accept the dialog's defaults; set to change the policy etc.
+        public Func<CopyDialogModel, CopyRequest> CopyAnswer { get; set; }
+        public CopyDialogModel LastCopy { get; private set; }
+        // Tests never touch the real Trash: delete permanently unless told otherwise.
+        public DeleteRequest DeleteAnswer { get; set; } = new DeleteRequest { Permanent = true };
+        public DeleteDialogModel LastDelete { get; private set; }
 
         public Task<bool> Confirm(string message) => Task.FromResult(true);
         public string TextAnswer { get; set; }
         public UnZipRequest UnzipAnswer { get; set; }
 
         public Task<string> AskText(string message, string initialText = "") => Task.FromResult(TextAnswer);
-        public Task<CopyOption> AskOverride(string message)
+        public Task<CopyRequest> AskCopy(CopyDialogModel model)
         {
-            OverrideQuestions++;
-            return Task.FromResult(OverrideAnswer);
+            LastCopy = model;
+            return Task.FromResult(CopyAnswer != null ? CopyAnswer(model)
+                : new CopyRequest { Destination = model.Destination, Options = new TransferOptions { Policy = model.Policy } });
         }
+
+        public Task<ConflictAnswer> AskConflict(Conflict conflict)
+        {
+            ConflictQuestions++;
+            return Task.FromResult(ConflictAnswer);
+        }
+
+        public Task<DeleteRequest> AskDelete(DeleteDialogModel model)
+        {
+            LastDelete = model;
+            return Task.FromResult(DeleteAnswer);
+        }
+
+        public void ShowProgress(TransferJob job) { }
         public Task<ZipParameters> AskZip(string directory) => Task.FromResult<ZipParameters>(null);
         public Task<UnZipRequest> AskUnzip(IMetadataFileStructure archive) => Task.FromResult(UnzipAnswer);
         public Task<IReadOnlyList<string>> GetClipboardFiles() => Task.FromResult<IReadOnlyList<string>>(new List<string>());
@@ -47,5 +70,7 @@ namespace ComanderTest
         public void SetBusyApp() { }
         public void UnsetBusyApp() => OnUnsetBusy?.Invoke();
         public void FilterFiles() { }
+        public Func<string, bool> Filter { get; set; }
+        public Func<string, bool> FilterPredicate() => Filter;
     }
 }

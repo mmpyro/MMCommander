@@ -1,0 +1,153 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Direction C · Inspector and Transfer Queue</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#0B0F10}
+a{color:#7FE0CF}a:hover{color:#B3F0E5}
+</style>
+</helmet>
+<div style="height: 900px; display: flex; flex-direction: column; background: #0B0F10; color: #E3E9E8; font-family: Inter, system-ui, sans-serif; font-size: 13px; overflow: hidden">
+
+  <!-- Top bar -->
+  <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 6px; min-height: 44px; padding: 0 12px; border-bottom: 1px solid #1B2324">
+    <span style="font-weight: 600; margin-right: 10px">Commander</span>
+    <button aria-label="Back" style="width: 34px; height: 34px; display: flex; align-items: center; justify-content: center; border: 0; border-radius: 8px; background: transparent; color: #C2CCCB"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"></path></svg></button>
+    <button aria-label="Parent folder" style="width: 34px; height: 34px; display: flex; align-items: center; justify-content: center; border: 0; border-radius: 8px; background: transparent; color: #C2CCCB"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 19V5M5 12l7-7 7 7"></path></svg></button>
+    <button aria-label="Copy to other pane" style="width: 34px; height: 34px; display: flex; align-items: center; justify-content: center; border: 0; border-radius: 8px; background: transparent; color: #C2CCCB"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="12" height="12" rx="2"></rect><path d="M5 15V5a2 2 0 0 1 2-2h10"></path></svg></button>
+    <button aria-label="Delete" style="width: 34px; height: 34px; display: flex; align-items: center; justify-content: center; border: 0; border-radius: 8px; background: transparent; color: #C2CCCB"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"></path></svg></button>
+    <div style="flex: 1 1 20px"></div>
+    <label style="display: flex; align-items: center; gap: 8px; height: 32px; flex: 0 1 340px; padding: 0 10px; border: 1px solid #243031; border-radius: 8px; background: #111718; color: #93A19F">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="M20 20l-3.5-3.5"></path></svg>
+      <span style="position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0)">Search</span>
+      <input placeholder="Search in ~/mmarszalek (recursive)" style="flex: 1; min-width: 0; border: 0; outline: 0; background: transparent; color: #E3E9E8; font: inherit">
+    </label>
+    <button style="display: flex; align-items: center; gap: 8px; height: 32px; padding: 0 12px; border: 1px solid {{accent}}; border-radius: 8px; background: transparent; color: {{accent}}; font: inherit; font-weight: 500">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"></rect><path d="M15 4v16"></path></svg>Inspector
+    </button>
+  </div>
+
+  <div style="flex: 1; min-height: 0; display: flex; flex-wrap: wrap">
+    <!-- Panes -->
+    <div style="flex: 999 1 640px; min-width: 0; min-height: 0; display: flex; flex-wrap: wrap; gap: 8px; padding: 8px">
+      <sc-for list="{{panes}}" as="p" hint-placeholder-count="2">
+        <section aria-label="{{p.label}}" style="flex: 1 1 380px; min-width: 0; min-height: 0; display: flex; flex-direction: column; border: 1px solid {{p.border}}; border-radius: 10px; background: #111718; overflow: hidden">
+          <div style="display: flex; align-items: center; gap: 6px; min-height: 38px; padding: 0 12px; border-bottom: 1px solid #1B2324; font-family: 'JetBrains Mono', monospace; font-size: 12px">
+            <span style="color: #93A19F">{{p.parent}}</span><span style="color: #E3E9E8">{{p.leaf}}</span>
+          </div>
+          <div style="flex: 1; min-height: 0; overflow: auto">
+            <div style="min-width: 360px">
+              <sc-for list="{{p.rows}}" as="f" hint-placeholder-count="10">
+                <button style="display: grid; grid-template-columns: 22px minmax(120px, 1fr) 72px; gap: 10px; align-items: center; width: 100%; height: 30px; padding: 0 12px; border: 0; background: {{f.bg}}; box-shadow: {{f.ring}}; color: #E3E9E8; font: inherit; text-align: left">
+                  <span style="display: flex; color: {{f.icon}}">
+                    <sc-if value="{{f.dir}}" hint-placeholder-val="{{true}}"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" aria-hidden="true"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg></sc-if>
+                    <sc-if value="{{f.file}}" hint-placeholder-val="{{false}}"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" aria-hidden="true"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"></path><path d="M14 3v5h5"></path></svg></sc-if>
+                  </span>
+                  <span style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap">{{f.name}}</span>
+                  <span style="text-align: right; font-family: 'JetBrains Mono', monospace; font-size: 12px; color: #A9B5B3">{{f.size}}</span>
+                </button>
+              </sc-for>
+            </div>
+          </div>
+        </section>
+      </sc-for>
+    </div>
+
+    <!-- Inspector -->
+    <aside aria-label="Inspector" style="flex: 1 1 300px; max-width: 360px; min-height: 0; display: flex; flex-direction: column; gap: 14px; padding: 14px; border-left: 1px solid #1B2324; background: #0F1415; overflow: auto">
+      <div style="display: flex; align-items: center; justify-content: center; height: 200px; border: 1px dashed #2C3A3B; border-radius: 10px; background: #131A1B; color: #93A19F; font-size: 12px">[Image preview · image.png]</div>
+      <div style="display: flex; flex-direction: column; gap: 2px">
+        <span style="font-size: 15px; font-weight: 600">image.png</span>
+        <span style="color: #93A19F; font-size: 12px">PNG image · 1.5 MB</span>
+      </div>
+      <dl style="display: grid; grid-template-columns: 96px minmax(0, 1fr); gap: 8px 12px; margin: 0; font-size: 12px">
+        <dt style="color: #93A19F">Location</dt><dd style="margin: 0; font-family: 'JetBrains Mono', monospace; overflow-wrap: anywhere">/Users/mmarszalek</dd>
+        <dt style="color: #93A19F">Created</dt><dd style="margin: 0; font-family: 'JetBrains Mono', monospace">2024-11-27 15:37</dd>
+        <dt style="color: #93A19F">Modified</dt><dd style="margin: 0; font-family: 'JetBrains Mono', monospace">2024-11-27 15:37</dd>
+        <dt style="color: #93A19F">Dimensions</dt><dd style="margin: 0; font-family: 'JetBrains Mono', monospace">[W × H]</dd>
+        <dt style="color: #93A19F">Permissions</dt><dd style="margin: 0; font-family: 'JetBrains Mono', monospace">-rw-r--r--</dd>
+      </dl>
+      <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px">
+        <button style="height: 34px; border: 0; border-radius: 8px; background: {{accent}}; color: #062A24; font: inherit; font-weight: 600">Open</button>
+        <button style="height: 34px; border: 1px solid #2C3A3B; border-radius: 8px; background: transparent; color: #E3E9E8; font: inherit">Reveal in Finder</button>
+        <button style="height: 34px; border: 1px solid #2C3A3B; border-radius: 8px; background: transparent; color: #E3E9E8; font: inherit">Copy path</button>
+        <button style="height: 34px; border: 1px solid #2C3A3B; border-radius: 8px; background: transparent; color: #E3E9E8; font: inherit">Hash (SHA-256)</button>
+      </div>
+    </aside>
+  </div>
+
+  <!-- Transfer queue -->
+  <section aria-label="Transfer queue" style="display: flex; flex-direction: column; border-top: 1px solid #1B2324; background: #0F1415">
+    <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 12px; min-height: 36px; padding: 0 14px">
+      <span style="font-weight: 600">Transfers</span>
+      <span style="padding: 1px 8px; border-radius: 10px; background: #173330; color: {{accent}}; font-size: 12px">1 running</span>
+      <span style="color: #93A19F; font-size: 12px">2 queued · 1 failed</span>
+      <div style="flex: 1"></div>
+      <button style="height: 28px; padding: 0 10px; border: 0; border-radius: 6px; background: transparent; color: #C2CCCB; font: inherit; font-size: 12px">Pause all</button>
+      <button aria-label="Collapse transfers" style="width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; border: 0; border-radius: 6px; background: transparent; color: #C2CCCB"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 9l6 6 6-6"></path></svg></button>
+    </div>
+    <div style="display: flex; flex-direction: column; gap: 4px; padding: 0 8px 10px">
+      <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 12px; min-height: 40px; padding: 0 10px; border-radius: 8px; background: #131A1B">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="{{accent}}" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="12" height="12" rx="2"></rect><path d="M5 15V5a2 2 0 0 1 2-2h10"></path></svg>
+        <span style="flex: 0 1 300px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap">canopy_v1.2.0_darwin_arm64.tar.gz</span>
+        <span style="color: #93A19F; font-family: 'JetBrains Mono', monospace; font-size: 12px">→ /Users/Shared</span>
+        <div style="flex: 1 1 160px; height: 6px; border-radius: 3px; background: #1E2829; overflow: hidden"><div style="width: 62%; height: 6px; background: {{accent}}"></div></div>
+        <span style="font-family: 'JetBrains Mono', monospace; font-size: 12px; color: #C2CCCB">62%</span>
+        <button style="height: 28px; padding: 0 10px; border: 0; border-radius: 6px; background: transparent; color: #C2CCCB; font: inherit; font-size: 12px">Cancel</button>
+      </div>
+      <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 12px; min-height: 40px; padding: 0 10px; border-radius: 8px">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#93A19F" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="M12 7v5l3 2"></path></svg>
+        <span style="flex: 0 1 300px">image_1.png, image_2.png</span>
+        <span style="color: #93A19F; font-family: 'JetBrains Mono', monospace; font-size: 12px">→ /Users/Shared</span>
+        <div style="flex: 1"></div>
+        <span style="color: #93A19F; font-size: 12px">Queued · 2.6 MB</span>
+      </div>
+      <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 12px; min-height: 40px; padding: 0 10px; border-radius: 8px; background: #1E1416">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#FF9B8A" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="M12 8v5M12 16h.01"></path></svg>
+        <span style="flex: 0 1 300px">Move hydrogentorch_logs.txt</span>
+        <span style="color: #FFB3A6; font-size: 12px">Index was out of range</span>
+        <div style="flex: 1"></div>
+        <button style="height: 28px; padding: 0 10px; border: 1px solid #4A2E2A; border-radius: 6px; background: transparent; color: #FFB3A6; font: inherit; font-size: 12px">Retry</button>
+        <button style="height: 28px; padding: 0 10px; border: 0; border-radius: 6px; background: transparent; color: #C2CCCB; font: inherit; font-size: 12px">Details</button>
+      </div>
+    </div>
+  </section>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"accent":{"editor":"color","default":"#3CC6B0","options":["#3CC6B0","#5B9DFF","#F0A04B","#B794F6"]},"$preview":{"width":1440,"height":900}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const a = this.props.accent ?? '#3CC6B0';
+    const D = (name) => ({ name, size: '—', dir: true, file: false });
+    const F = (name, size) => ({ name, size, dir: false, file: true });
+    const mark = (list, sel) => list.map((f) => ({
+      ...f,
+      bg: f.name === sel ? a + '2B' : 'transparent',
+      ring: f.name === sel ? 'inset 0 0 0 1px ' + a + 'AA' : 'none',
+      icon: f.dir ? a : '#93A19F'
+    }));
+    const L = [D('Library'), D('Movies'), D('Music'), D('node_modules'), D('notes'), D('Pictures'), D('playground'),
+      D('Postman'), D('Public'), D('repos'), D('saska'), D('scripts'), D('tmp'),
+      F('appstore_dump.sql', '22 KB'), F('canopy_v1.2.0_darwin_arm64.tar.gz', '3.0 MB'), F('cert-manager.yaml', '0 KB'),
+      F('hydrogentorch_logs.txt', '8 KB'), F('image_1.png', '1.1 MB'), F('image_2.png', '1.5 MB'), F('image.png', '1.5 MB')];
+    const R = [D('..'), D('h2oadmin'), D('mmarszalek'), D('Shared')];
+    return {
+      accent: a,
+      panes: [
+        { label: 'Left pane', parent: '/Users/', leaf: 'mmarszalek', rows: mark(L, 'image.png'), border: a + '88' },
+        { label: 'Right pane', parent: '/', leaf: 'Users', rows: mark(R, ''), border: '#1F2A2B' }
+      ]
+    };
+  }
+}
+</script>
+</body>
+</html>

@@ -7,6 +7,8 @@ namespace Comander.Core
         public LogInfo Info { get; set; }
         public string Message { get; set; }
         public string Time { get; set; }
+        public bool IsError => Info == LogInfo.Error;
+        public bool IsWarning => Info == LogInfo.Warrning;
 
         public LogMsg(LogInfo info, string message)
         {

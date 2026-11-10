@@ -23,6 +23,7 @@
   </ItemGroup>
   <ItemGroup>
     <AvaloniaResource Include="Icons/**" />
+    <AvaloniaResource Include="Fonts/*.ttf" />
     <None Update="Config.xml;Commands.xml" CopyToOutputDirectory="PreserveNewest" />
     <None Include="Manuals/**" CopyToOutputDirectory="PreserveNewest" />
     <None Include="Plugins/**" CopyToOutputDirectory="PreserveNewest" />

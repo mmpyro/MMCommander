@@ -4,16 +4,32 @@
              xmlns:converters="clr-namespace:Comander.Converters"
              RequestedThemeVariant="Dark">
     <Application.Resources>
-        <converters:FileNameConverter x:Key="FileNameConverter"/>
-        <converters:FileTypeConverter x:Key="FileTypeConverter"/>
-        <converters:FileSizeConverter x:Key="SizeConverter"/>
-        <converters:SelectedConverter x:Key="SelectedConverter"/>
-        <converters:LogIconConverter x:Key="LogIconConverter"/>
-        <converters:LogMessageConverter x:Key="LogMessageConverter"/>
-        <converters:TreeViewConverter x:Key="TreeViewConverter"/>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceInclude Source="avares://Comander/Themes/Dark.axaml"/>
+                <ResourceInclude Source="avares://Comander/Themes/Icons.axaml"/>
+            </ResourceDictionary.MergedDictionaries>
+            <converters:FileSizeConverter x:Key="SizeConverter"/>
+            <converters:DateConverter x:Key="DateConverter"/>
+            <converters:FileKindBrushConverter x:Key="FileKindBrushConverter"/>
+            <converters:FileIconConverter x:Key="FileIconConverter"/>
+            <converters:ExtConverter x:Key="ExtConverter"/>
+            <converters:DisplayNameConverter x:Key="DisplayNameConverter"/>
+            <converters:GestureTextConverter x:Key="GestureTextConverter"/>
+            <converters:LogIconConverter x:Key="LogIconConverter"/>
+            <converters:TreeViewConverter x:Key="TreeViewConverter"/>
+        </ResourceDictionary>
     </Application.Resources>
     <Application.Styles>
-        <FluentTheme/>
+        <FluentTheme DensityStyle="Compact">
+            <FluentTheme.Palettes>
+                <!-- Graphite Classic surfaces for every Fluent control; Themes/Dark.axaml refines the rest. -->
+                <ColorPaletteResources x:Key="Dark" Accent="#5B9DFF" RegionColor="#0E1014" ErrorText="#FF9B8A"
+                                       BaseHigh="#E6E8EB" BaseMediumHigh="#C4C9D1" BaseMedium="#9AA2AE" BaseMediumLow="#343B46" BaseLow="#2A303A"
+                                       ChromeLow="#12151A" ChromeMediumLow="#14171C" ChromeMedium="#1A1E25" ChromeHigh="#343B46"
+                                       AltHigh="#0E1014" ListLow="#1A1E25" ListMedium="#232831"/>
+            </FluentTheme.Palettes>
+        </FluentTheme>
         <StyleInclude Source="avares://Avalonia.Controls.DataGrid/Themes/Fluent.xaml"/>
         <StyleInclude Source="avares://Comander/Themes/Theme.axaml"/>
     </Application.Styles>

@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Tokens and components</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#0E1014}
+a{color:#8AB8FF}a:hover{color:#B5D1FF}
+</style>
+</helmet>
+<div style="min-height: 900px; box-sizing: border-box; padding: 40px 48px; background: #0E1014; color: #E6E8EB; font-family: Inter, system-ui, sans-serif; font-size: 13px">
+  <div style="max-width: 1344px; margin: 0 auto; display: flex; flex-direction: column; gap: 32px">
+    <div style="display: flex; flex-direction: column; gap: 6px">
+      <h1 style="margin: 0; font-family: 'Space Grotesk', Inter, sans-serif; font-size: 28px; font-weight: 600; letter-spacing: -0.02em">Commander · dark tokens</h1>
+      <p style="margin: 0; color: #9AA2AE; max-width: 720px">One palette shared by all three directions; only the accent changes. Keys are the names to use in an Avalonia <span style="font-family: 'JetBrains Mono', monospace; color: #C4C9D1">ResourceDictionary</span> with <span style="font-family: 'JetBrains Mono', monospace; color: #C4C9D1">ThemeVariant="Dark"</span>.</p>
+    </div>
+
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 24px">
+      <!-- Colors -->
+      <section style="display: flex; flex-direction: column; gap: 12px; padding: 20px; border: 1px solid #232831; border-radius: 12px; background: #14171C">
+        <h2 style="margin: 0; font-size: 14px; font-weight: 600">Surfaces &amp; text</h2>
+        <sc-for list="{{colors}}" as="c" hint-placeholder-count="9">
+          <div style="display: flex; align-items: center; gap: 12px">
+            <span style="width: 36px; height: 36px; border-radius: 8px; border: 1px solid #2C323C; background: {{c.hex}}"></span>
+            <span style="flex: 1; font-family: 'JetBrains Mono', monospace; font-size: 12px">{{c.key}}</span>
+            <span style="color: #9AA2AE; font-family: 'JetBrains Mono', monospace; font-size: 12px">{{c.hex}}</span>
+          </div>
+        </sc-for>
+      </section>
+
+      <section style="display: flex; flex-direction: column; gap: 12px; padding: 20px; border: 1px solid #232831; border-radius: 12px; background: #14171C">
+        <h2 style="margin: 0; font-size: 14px; font-weight: 600">Accents &amp; file types</h2>
+        <sc-for list="{{accents}}" as="c" hint-placeholder-count="9">
+          <div style="display: flex; align-items: center; gap: 12px">
+            <span style="width: 36px; height: 36px; border-radius: 8px; background: {{c.hex}}"></span>
+            <span style="flex: 1; font-family: 'JetBrains Mono', monospace; font-size: 12px">{{c.key}}</span>
+            <span style="color: #9AA2AE; font-family: 'JetBrains Mono', monospace; font-size: 12px">{{c.hex}}</span>
+          </div>
+        </sc-for>
+      </section>
+
+      <!-- Type -->
+      <section style="display: flex; flex-direction: column; gap: 14px; padding: 20px; border: 1px solid #232831; border-radius: 12px; background: #14171C">
+        <h2 style="margin: 0; font-size: 14px; font-weight: 600">Type</h2>
+        <div style="display: flex; flex-direction: column; gap: 2px"><span style="font-size: 18px; font-weight: 600">Dialog title · Inter 18/600</span><span style="color: #9AA2AE; font-size: 12px">Copy / Move / Delete dialogs</span></div>
+        <div style="display: flex; flex-direction: column; gap: 2px"><span style="font-size: 13px; font-weight: 500">File row · Inter 13/400–500</span><span style="color: #9AA2AE; font-size: 12px">Folders 500, files 400; row height 28 (compact) / 32 (comfortable)</span></div>
+        <div style="display: flex; flex-direction: column; gap: 2px"><span style="font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: #9AA2AE">Column header · 11/600 caps</span></div>
+        <div style="display: flex; flex-direction: column; gap: 2px"><span style="font-family: 'JetBrains Mono', monospace; font-size: 12px">/Users/mmarszalek · 3.0 MB · 2026-10-20 16:57</span><span style="color: #9AA2AE; font-size: 12px">JetBrains Mono 12 for paths, sizes, dates, shortcuts (tabular digits)</span></div>
+        <div style="display: flex; flex-wrap: wrap; gap: 8px; margin-top: 4px">
+          <span style="padding: 4px 8px; border-radius: 6px; background: #1A1E25; font-size: 12px">Radius 6 · controls</span>
+          <span style="padding: 4px 8px; border-radius: 6px; background: #1A1E25; font-size: 12px">8 · buttons</span>
+          <span style="padding: 4px 8px; border-radius: 6px; background: #1A1E25; font-size: 12px">10 · panes</span>
+          <span style="padding: 4px 8px; border-radius: 6px; background: #1A1E25; font-size: 12px">14 · dialogs</span>
+          <span style="padding: 4px 8px; border-radius: 6px; background: #1A1E25; font-size: 12px">Spacing 4 / 8 / 12 / 16 / 24</span>
+        </div>
+      </section>
+    </div>
+
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(420px, 1fr)); gap: 24px">
+      <!-- Row states -->
+      <section style="display: flex; flex-direction: column; gap: 10px; padding: 20px; border: 1px solid #232831; border-radius: 12px; background: #14171C">
+        <h2 style="margin: 0 0 4px; font-size: 14px; font-weight: 600">File row states</h2>
+        <sc-for list="{{states}}" as="r" hint-placeholder-count="5">
+          <div style="display: grid; grid-template-columns: minmax(0, 1fr) 150px; gap: 12px; align-items: center">
+            <div style="display: flex; align-items: center; gap: 10px; height: 28px; padding: 0 12px; border-radius: 4px; background: {{r.bg}}; box-shadow: {{r.ring}}; color: {{r.fg}}">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" aria-hidden="true"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"></path><path d="M14 3v5h5"></path></svg>
+              <span>image_1.png</span>
+            </div>
+            <span style="color: #9AA2AE; font-size: 12px">{{r.label}}</span>
+          </div>
+        </sc-for>
+        <p style="margin: 4px 0 0; color: #9AA2AE; font-size: 12px">Cursor and marked are independent: marked = accent text/tint, cursor = accent ring. The inactive pane keeps a neutral cursor so focus is always obvious.</p>
+      </section>
+
+      <!-- Avalonia snippet -->
+      <section style="display: flex; flex-direction: column; gap: 10px; padding: 20px; border: 1px solid #232831; border-radius: 12px; background: #14171C; min-width: 0">
+        <h2 style="margin: 0 0 4px; font-size: 14px; font-weight: 600">Avalonia mapping</h2>
+        <div style="overflow-x: auto; border-radius: 8px; background: #0B0D10; border: 1px solid #1E222A">
+          <pre style="margin: 0; padding: 14px 16px; font-family: 'JetBrains Mono', monospace; font-size: 12px; line-height: 1.6; color: #C4C9D1">&lt;ResourceDictionary.ThemeDictionaries&gt;
+  &lt;ResourceDictionary x:Key="Dark"&gt;
+    &lt;Color x:Key="Bg.Base"&gt;#0E1014&lt;/Color&gt;
+    &lt;Color x:Key="Bg.Pane"&gt;#14171C&lt;/Color&gt;
+    &lt;Color x:Key="Border.Subtle"&gt;#232831&lt;/Color&gt;
+    &lt;Color x:Key="Text.Primary"&gt;#E6E8EB&lt;/Color&gt;
+    &lt;Color x:Key="Text.Muted"&gt;#9AA2AE&lt;/Color&gt;
+    &lt;Color x:Key="Accent"&gt;#5B9DFF&lt;/Color&gt;
+  &lt;/ResourceDictionary&gt;
+&lt;/ResourceDictionary.ThemeDictionaries&gt;
+
+&lt;Style Selector="DataGridRow:selected /template/ Rectangle#BackgroundRectangle"&gt;
+  &lt;Setter Property="Fill" Value="{DynamicResource Accent.Tint}"/&gt;
+&lt;/Style&gt;</pre>
+        </div>
+        <p style="margin: 0; color: #9AA2AE; font-size: 12px">Base on FluentTheme (DensityStyle="Compact"); file lists as a virtualized ListBox or TreeDataGrid with GridView-style columns; Ctrl+K palette as an OverlayLayer Popup.</p>
+      </section>
+    </div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":900}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const a = '#5B9DFF';
+    return {
+      colors: [
+        { key: 'Bg.Chrome', hex: '#0B0D10' },
+        { key: 'Bg.Base', hex: '#0E1014' },
+        { key: 'Bg.Toolbar', hex: '#12151A' },
+        { key: 'Bg.Pane', hex: '#14171C' },
+        { key: 'Bg.Raised', hex: '#1A1E25' },
+        { key: 'Border.Subtle', hex: '#232831' },
+        { key: 'Text.Primary', hex: '#E6E8EB' },
+        { key: 'Text.Secondary', hex: '#C4C9D1' },
+        { key: 'Text.Muted', hex: '#9AA2AE' }
+      ],
+      accents: [
+        { key: 'Accent · A Graphite', hex: '#5B9DFF' },
+        { key: 'Accent · B Amber', hex: '#F0A04B' },
+        { key: 'Accent · C Teal', hex: '#3CC6B0' },
+        { key: 'Danger', hex: '#FF9B8A' },
+        { key: 'Success', hex: '#5CCB8F' },
+        { key: 'File.Image', hex: '#C9A2F2' },
+        { key: 'File.Archive', hex: '#F0A04B' },
+        { key: 'File.Config', hex: '#7FD1B9' },
+        { key: 'File.Data', hex: '#8FB5FF' }
+      ],
+      states: [
+        { label: 'Default', bg: 'transparent', ring: 'none', fg: '#E6E8EB' },
+        { label: 'Hover', bg: '#1A1E25', ring: 'none', fg: '#E6E8EB' },
+        { label: 'Cursor · active pane', bg: a + '33', ring: 'inset 0 0 0 1px ' + a, fg: '#E6E8EB' },
+        { label: 'Cursor · inactive pane', bg: '#1F242C', ring: 'none', fg: '#E6E8EB' },
+        { label: 'Marked (Space / Ins)', bg: a + '14', ring: 'none', fg: '#8AB8FF' }
+      ]
+    };
+  }
+}
+</script>
+</body>
+</html>

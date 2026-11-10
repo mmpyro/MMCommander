@@ -42,18 +42,18 @@ namespace ComanderTest
             (IMetadataFileStructure)_factory.GetDirectoryFromPath(_target));
 
         [Test]
-        public async Task Copy_OntoExistingFile_AnsweredDontOverride_KeepsTarget()
+        public async Task Copy_OntoExistingFile_AnsweredSkip_KeepsTarget()
         {
-            _dialogs.OverrideAnswer = CopyOption.None;
+            _dialogs.ConflictAnswer = new ConflictAnswer(ConflictDecision.Skip);
             await Copy();
-            Assert.That(_dialogs.OverrideQuestions, Is.EqualTo(1));
+            Assert.That(_dialogs.ConflictQuestions, Is.EqualTo(1));
             Assert.That(File.ReadAllText(Path.Combine(_target, "a.txt")), Is.EqualTo("old"));
         }
 
         [Test]
-        public async Task Copy_OntoExistingFile_AnsweredOverride_ReplacesTarget()
+        public async Task Copy_OntoExistingFile_AnsweredReplace_ReplacesTarget()
         {
-            _dialogs.OverrideAnswer = CopyOption.OverrideSingle;
+            _dialogs.ConflictAnswer = new ConflictAnswer(ConflictDecision.Replace);
             await Copy();
             Assert.That(File.ReadAllText(Path.Combine(_target, "a.txt")), Is.EqualTo("new"));
         }
@@ -65,7 +65,7 @@ namespace ComanderTest
             await Assert.ThatAsync(Copy, Throws.InstanceOf<InvalidOperationException>());
 
             _panel.OnUnsetBusy = null;
-            _dialogs.OverrideAnswer = CopyOption.OverrideSingle;
+            _dialogs.ConflictAnswer = new ConflictAnswer(ConflictDecision.Replace);
             await Copy();
             Assert.That(_panel.Errors, Has.None.Contains("in progress"));
             Assert.That(File.ReadAllText(Path.Combine(_target, "a.txt")), Is.EqualTo("new"));
@@ -97,7 +97,7 @@ namespace ComanderTest
 
         // BUG-17: one failing item must not stop the batch, and the result is summarised.
         [Test]
-        public async Task Move_BatchWithOneFailure_MovesTheRest_AndLogsSummary()
+        public async Task Move_WithConflict_SkipsIt_AndMovesTheRest()
         {
             File.WriteAllText(Path.Combine(_source, "b.txt"), "b");
             File.WriteAllText(Path.Combine(_source, "c.txt"), "c");
@@ -106,8 +106,56 @@ namespace ComanderTest
             await _proxy.MoveFile(files, Msg(_target));
 
             Assert.That(File.Exists(Path.Combine(_target, "b.txt")) && File.Exists(Path.Combine(_target, "c.txt")), Is.True);
+            Assert.That(File.ReadAllText(Path.Combine(_target, "a.txt")), Is.EqualTo("old"), "the skipped conflict keeps the target");
+            Assert.That(File.Exists(Path.Combine(_source, "a.txt")), Is.True, "and the source");
+            Assert.That(_panel.Errors, Is.Empty, "a conflict no longer fails the move");
+            Assert.That(_panel.Infos, Has.Some.Contains("2 moved"));
+        }
+
+        [Test]
+        public async Task Copy_DialogPolicyKeepBoth_WritesSecondFile_AndAsksNothing()
+        {
+            _dialogs.CopyAnswer = m => new CopyRequest { Destination = m.Destination, Options = new TransferOptions { Policy = ConflictPolicy.KeepBoth } };
+            await Copy();
+            Assert.That(_dialogs.LastCopy.Names, Is.EqualTo(new[] { "a.txt" }));
+            Assert.That(_dialogs.ConflictQuestions, Is.Zero);
+            Assert.That(File.ReadAllText(Path.Combine(_target, "a (1).txt")), Is.EqualTo("new"));
+        }
+
+        [Test]
+        public async Task Copy_CancelledDialog_DoesNothing()
+        {
+            _dialogs.CopyAnswer = _ => null;
+            await Copy();
             Assert.That(File.ReadAllText(Path.Combine(_target, "a.txt")), Is.EqualTo("old"));
-            Assert.That(_panel.Errors, Has.Some.Contains("2 moved, 1 failed"));
+            Assert.That(_dialogs.ConflictQuestions, Is.Zero);
+        }
+
+        [Test]
+        public async Task Copy_ToMissingDestination_LogsError()
+        {
+            _dialogs.CopyAnswer = _ => new CopyRequest { Destination = Path.Combine(_root, "nope") };
+            await Copy();
+            Assert.That(_panel.Errors, Has.Some.Contains("doesn't exist"));
+        }
+
+        [Test]
+        public async Task DeletePermanent_RemovesFile_AndDialogListsSizes()
+        {
+            var a = Path.Combine(_source, "a.txt");
+            await _proxy.DeleteFile(new[] { Msg(a) }, permanent: true);
+            Assert.That(File.Exists(a), Is.False);
+            Assert.That(_dialogs.LastDelete.Permanent, Is.True);
+            Assert.That(_dialogs.LastDelete.Items.Single().SizeText, Is.EqualTo("0 KB"));
+        }
+
+        [Test]
+        public async Task Delete_Cancelled_KeepsFile()
+        {
+            var a = Path.Combine(_source, "a.txt");
+            _dialogs.DeleteAnswer = null;
+            await _proxy.DeleteFile(new[] { Msg(a) });
+            Assert.That(File.Exists(a), Is.True);
         }
 
         // BUG-06 regression: "extract to folder" goes to <panel>/<archive name>.

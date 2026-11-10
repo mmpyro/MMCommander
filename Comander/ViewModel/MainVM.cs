@@ -30,20 +30,28 @@ namespace Comander.ViewModel
         private ObservableCollection<LogMsg> _logsCollection = new ObservableCollection<LogMsg>();
         private LogMsg _currentLogMsg;
         private readonly ILogger _logger;
-        private int _current = 0;
-        private string _logCount;
+        private int _errorCount;
+        private readonly IDialogService _dialogs;
+        private IOManager _activePanel;
         private bool _isBusy;
         private IEnumerable<MenuItem> _exts;
         private IEnumerable<MenuItem> _programs;
 
-        public MainVM(IOManager io1, IOManager io2, IConfigReader configReader, ILogger logger, IGenericCommandManager genericCommandManager ,IAssemblyVersionResolver assemblyVersionResolver)
+        public MainVM(IOManager io1, IOManager io2, IConfigReader configReader, ILogger logger, IGenericCommandManager genericCommandManager ,IAssemblyVersionResolver assemblyVersionResolver,
+            JobQueue jobs = null, IDialogService dialogs = null)
         {
+            Jobs = jobs ?? new JobQueue(new StateMonitor());
+            _dialogs = dialogs;
+            // The status bar job chip reopens the progress window of a job running in the background.
+            ShowJobCommand = new RelayCommand(() => { if (Jobs.Current != null) dialogs?.ShowProgress(Jobs.Current); });
             _configReader = configReader;
             _logger = logger;
             _assemblyVersionResolver = assemblyVersionResolver;
             _logger.NotifyEvent += AddLogInfo;
             _io1 = io1;
             _io2 = io2;
+            KeyMap = new KeyMap(configReader.KeyBindings);
+            Palette = new PaletteVM(this);
             string keymapPath = Path.Combine(AppContext.BaseDirectory, "Manuals", "keymap.html");
             string syntaxPath = Path.Combine(AppContext.BaseDirectory, "Manuals", "syntax.html");
 
@@ -53,9 +61,9 @@ namespace Comander.ViewModel
             JoinFileCommand = new AsyncRelayCommand(JoinFile);
             ReadLogsCommand = new RelayCommand(() => Shell.Open(Path.Combine(Path.GetTempPath(), "mmcommander")));
             ClearLogCommand = new RelayCommand(ClearLog);
-            NextLogCommand = new RelayCommand(NextLog);
-            PreviusLogCommand = new RelayCommand(BackLog);
-            CompareDirCommand = new RelayCommand(CompareDirectories);
+            CompareDirCommand = new RelayCommand(() => CompareDirectories(false));
+            SettingsCommand = new AsyncRelayCommand(() => WindowHost.ShowDialog(() => new SettingsWindow(new SettingsWindowVM(KeyMap, _configReader))));
+            SyncDirsCommand = new RelayCommand(() => CompareDirectories(true));
             AboutCommand = new AsyncRelayCommand(() => WindowHost.ShowDialog(() => new AboutWindow(string.Format("Product version: {0}\nCreated by Michał Marszałek.",
                 _assemblyVersionResolver.GetProductVersion(GetType())))));
             KeyMapCommand = new RelayCommand(() => Shell.Open(keymapPath));
@@ -67,6 +75,12 @@ namespace Comander.ViewModel
             messanger.Register<WindowCloseEventArgs>(this, (_, _) => OnClose());
             messanger.Register<PulseMessage>(this, (_, _) => Dispatcher.UIThread.Post(() => IsBusy = true));
             messanger.Register<WaitMessage>(this, (_, _) => Dispatcher.UIThread.Post(() => IsBusy = false));
+            // Toolbar, menus and the F-key bar act on the panel that last had focus.
+            messanger.Register<FocusMessage>(this, (_, msg) =>
+                ActivePanel = msg.ManagerName.Equals(ManagerType.Io2.ToString(), StringComparison.OrdinalIgnoreCase) ? _io2 : _io1);
+            ActivePanel = _io1;
+            _io1.PropertyChanged += OnPanelChanged;
+            _io2.PropertyChanged += OnPanelChanged;
 
             Exts = genericCommandManager.GetCommands().Select(t => new MenuItem
             {
@@ -81,10 +95,10 @@ namespace Comander.ViewModel
             }).ToList();
         }
 
-        private void CompareDirectories()
+        private void CompareDirectories(bool sync)
         {
-            var fileMarker = new FileMarker(_io1.Files, _io2.Files, new FileParametersComparer());
-            _io1.Files = new ObservableCollection<IMetadataFileStructure>(fileMarker.Mark());
+            var vm = new CompareVM(_io1.ActualPath, _io2.ActualPath, Jobs, _dialogs, _logger, () => { _io1.FilterFiles(); _io2.FilterFiles(); });
+            WindowHost.Show(() => new CompareDirsWindow(vm, sync));
         }
 
         // Loggers raise this from any thread; the collection is bound to the UI.
@@ -92,8 +106,11 @@ namespace Comander.ViewModel
         {
             Dispatcher.UIThread.Post(() =>
             {
-                LogsCollection.Add(new LogMsg(info, message));
-                NextLog();
+                var msg = new LogMsg(info, message);
+                LogsCollection.Add(msg);
+                CurrentLogMsg = msg;
+                if (msg.IsError)
+                    ErrorCount++;
             });
         }
 
@@ -101,7 +118,7 @@ namespace Comander.ViewModel
         {
             try
             {
-                _configReader.SavePaths(_io1.ActualPath, _io2.ActualPath);
+                _configReader.SavePaths(_io1.ActualPath, _io2.ActualPath, _io1.TabPaths.ToArray(), _io2.TabPaths.ToArray());
             }
             catch (Exception e)
             {
@@ -157,35 +174,20 @@ namespace Comander.ViewModel
             }
         }
 
-        private void NextLog()
+        private void OnPanelChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
         {
-            if (_current < _logsCollection.Count - 1)
-                CurrentLogMsg = _logsCollection[++_current];
-            else
-                CurrentLogMsg = _logsCollection[_current];
-            PerformLogCountMessage();
+            if (e.PropertyName == nameof(IOManager.CurrentOperation) && sender is IOManager panel && !string.IsNullOrEmpty(panel.CurrentOperation))
+                Operation = panel.CurrentOperation;
         }
 
-        private void BackLog()
-        {
-            if (_current > 0)
-            {
-                CurrentLogMsg = _logsCollection[--_current];
-                PerformLogCountMessage();
-            }
-        }
-
-        private void PerformLogCountMessage()
-        {
-            LogCount = string.Format("{0} of {1}",_current+1, _logsCollection.Count);
-        }
+        // The log panel was opened: the error chip goes back to a plain "View log" button.
+        public void MarkLogsSeen() => ErrorCount = 0;
 
         private void ClearLog()
         {
             LogsCollection.Clear();
             CurrentLogMsg = null;
-            LogCount = string.Empty;
-            _current = 0;
+            ErrorCount = 0;
         }
 
 
@@ -195,9 +197,9 @@ namespace Comander.ViewModel
         public ICommand ClearLogCommand { get; set; }
         public ICommand SplitFileCommand { get; set; }
         public ICommand JoinFileCommand { get; set; }
-        public ICommand NextLogCommand { get; set; }
-        public ICommand PreviusLogCommand { get; set; }
         public ICommand CompareDirCommand { get; set; }
+        public ICommand SyncDirsCommand { get; set; }
+        public ICommand SettingsCommand { get; set; }
         public ICommand AboutCommand { get; set; }
         public ICommand KeyMapCommand { get; set; }
         public ICommand SearchCommand { get; set; }
@@ -249,21 +251,68 @@ namespace Comander.ViewModel
             }
         }
 
-        public string LogCount
+        public KeyMap KeyMap { get; }
+        public JobQueue Jobs { get; }
+        public ICommand ShowJobCommand { get; }
+        public PaletteVM Palette { get; }
+
+        public IOManager ActivePanel
         {
-            get { return _logCount; }
+            get => _activePanel;
             set
             {
-                if (value == _logCount) return;
-                _logCount = value;
+                if (_activePanel == value) return;
+                if (_activePanel != null) _activePanel.IsActive = false;
+                _activePanel = value;
+                if (_activePanel != null) _activePanel.IsActive = true;
                 OnPropertyChanged();
             }
         }
 
+        public int ErrorCount
+        {
+            get => _errorCount;
+            set
+            {
+                if (SetProperty(ref _errorCount, value))
+                {
+                    OnPropertyChanged(nameof(HasErrors));
+                    OnPropertyChanged(nameof(LogButtonText));
+                }
+            }
+        }
+
+        public bool HasErrors => _errorCount > 0;
+
+        public string LogButtonText => _errorCount switch
+        {
+            0 => "View log",
+            1 => "1 error · View log",
+            _ => _errorCount + " errors · View log"
+        };
+
+        private string _operation = string.Empty;
+        // Last progress line from either panel (shown in the status bar while busy).
+        public string Operation
+        {
+            get => _operation;
+            set
+            {
+                if (SetProperty(ref _operation, value))
+                    OnPropertyChanged(nameof(StatusText));
+            }
+        }
+
+        public string StatusText => IsBusy ? "Busy · " + Operation : "Ready";
+
         public bool IsBusy
         {
             get { return _isBusy; }
-            set { SetProperty(ref _isBusy, value); }
+            set
+            {
+                if (SetProperty(ref _isBusy, value))
+                    OnPropertyChanged(nameof(StatusText));
+            }
         }
 
         public IEnumerable<MenuItem> Exts

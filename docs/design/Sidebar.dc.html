@@ -1,0 +1,207 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Direction B · Sidebar and Command Palette</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#0C0D0F}
+a{color:#F5B871}a:hover{color:#FFD3A1}
+</style>
+</helmet>
+<div style="position: relative; height: 900px; display: flex; flex-direction: column; background: #0C0D0F; color: #E8E6E3; font-family: Inter, system-ui, sans-serif; font-size: 13px; overflow: hidden">
+
+  <!-- Title row -->
+  <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 10px; min-height: 44px; padding: 0 12px; border-bottom: 1px solid #1F2124">
+    <button aria-label="Menu" style="width: 34px; height: 34px; display: flex; align-items: center; justify-content: center; border: 0; border-radius: 8px; background: transparent; color: #C9C6C1"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"></path></svg></button>
+    <span style="font-weight: 600">Commander</span>
+    <div style="flex: 1 1 40px"></div>
+    <button onClick="{{togglePalette}}" style="display: flex; align-items: center; gap: 10px; height: 32px; flex: 0 1 460px; padding: 0 12px; border: 1px solid #2A2D31; border-radius: 9px; background: #141518; color: #9C9893; font: inherit; text-align: left">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="M20 20l-3.5-3.5"></path></svg>
+      <span style="flex: 1">Go to folder, find file, run command…</span>
+      <span style="font-family: 'JetBrains Mono', monospace; font-size: 11px; padding: 2px 6px; border: 1px solid #33363B; border-radius: 4px">⌘K</span>
+    </button>
+    <div style="flex: 1 1 40px"></div>
+    <button aria-label="Settings" style="width: 34px; height: 34px; display: flex; align-items: center; justify-content: center; border: 0; border-radius: 8px; background: transparent; color: #C9C6C1"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"></path></svg></button>
+  </div>
+
+  <div style="flex: 1; min-height: 0; display: flex; flex-wrap: wrap">
+    <!-- Sidebar -->
+    <aside aria-label="Places" style="flex: 0 0 220px; display: flex; flex-direction: column; gap: 18px; padding: 14px 10px; background: #111214; border-right: 1px solid #1F2124; overflow: auto">
+      <div style="display: flex; flex-direction: column; gap: 2px">
+        <span style="padding: 0 8px 6px; color: #9C9893; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em">Favorites</span>
+        <a href="#" style="display: flex; align-items: center; gap: 10px; height: 32px; padding: 0 8px; border-radius: 7px; background: #1F1A14; color: #F3E7D7; text-decoration: none"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="{{accent}}" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1z"></path></svg>mmarszalek</a>
+        <a href="#" style="display: flex; align-items: center; gap: 10px; height: 32px; padding: 0 8px; border-radius: 7px; color: #C9C6C1; text-decoration: none"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="12" rx="2"></rect><path d="M8 20h8M12 16v4"></path></svg>Desktop</a>
+        <a href="#" style="display: flex; align-items: center; gap: 10px; height: 32px; padding: 0 8px; border-radius: 7px; color: #C9C6C1; text-decoration: none"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11M7 10l5 5 5-5M5 20h14"></path></svg>Downloads</a>
+        <a href="#" style="display: flex; align-items: center; gap: 10px; height: 32px; padding: 0 8px; border-radius: 7px; color: #C9C6C1; text-decoration: none"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg>repos</a>
+        <a href="#" style="display: flex; align-items: center; gap: 10px; height: 32px; padding: 0 8px; border-radius: 7px; color: #C9C6C1; text-decoration: none"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg>scripts</a>
+      </div>
+      <div style="display: flex; flex-direction: column; gap: 6px">
+        <span style="padding: 0 8px; color: #9C9893; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em">Drives</span>
+        <a href="#" style="display: flex; flex-direction: column; gap: 6px; padding: 8px; border-radius: 7px; color: #C9C6C1; text-decoration: none">
+          <span style="display: flex; align-items: center; gap: 10px"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="13" width="18" height="7" rx="2"></rect><path d="M5 13l2-8h10l2 8"></path></svg>Macintosh HD</span>
+          <span style="height: 4px; border-radius: 2px; background: #26282C; overflow: hidden"><span style="display: block; width: 59%; height: 4px; background: {{accent}}"></span></span>
+          <span style="color: #9C9893; font-size: 11px">412 GB free of 994 GB</span>
+        </a>
+      </div>
+      <div style="display: flex; flex-direction: column; gap: 2px">
+        <span style="padding: 0 8px 6px; color: #9C9893; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em">Recent</span>
+        <a href="#" style="height: 28px; display: flex; align-items: center; padding: 0 8px; border-radius: 7px; color: #ADA9A3; text-decoration: none; font-family: 'JetBrains Mono', monospace; font-size: 11px">~/repos</a>
+        <a href="#" style="height: 28px; display: flex; align-items: center; padding: 0 8px; border-radius: 7px; color: #ADA9A3; text-decoration: none; font-family: 'JetBrains Mono', monospace; font-size: 11px">~/tmp</a>
+        <a href="#" style="height: 28px; display: flex; align-items: center; padding: 0 8px; border-radius: 7px; color: #ADA9A3; text-decoration: none; font-family: 'JetBrains Mono', monospace; font-size: 11px">/Users/Shared</a>
+      </div>
+    </aside>
+
+    <!-- Panes (flush split) -->
+    <div style="flex: 999 1 560px; min-width: 0; min-height: 0; display: flex; flex-direction: column">
+      <div style="flex: 1; min-height: 0; display: flex; flex-wrap: wrap">
+        <sc-for list="{{panes}}" as="p" hint-placeholder-count="2">
+          <section aria-label="{{p.label}}" style="flex: 1 1 440px; min-width: 0; min-height: 0; display: flex; flex-direction: column; border-right: 1px solid #1F2124; background: {{p.bg}}">
+            <div style="display: flex; align-items: center; gap: 8px; min-height: 40px; padding: 0 12px; border-bottom: 1px solid #1F2124">
+              <span style="width: 6px; height: 6px; border-radius: 3px; background: {{p.dot}}"></span>
+              <span style="font-family: 'JetBrains Mono', monospace; font-size: 12px; color: #9C9893">{{p.parent}}</span>
+              <span style="font-family: 'JetBrains Mono', monospace; font-size: 12px; color: #F3EFEA; font-weight: 500">{{p.leaf}}</span>
+              <div style="flex: 1"></div>
+              <span style="color: #9C9893; font-size: 12px">{{p.summary}}</span>
+            </div>
+            <div style="flex: 1; min-height: 0; overflow: auto">
+              <div style="min-width: 420px">
+                <div style="display: grid; grid-template-columns: 22px minmax(140px, 1fr) 76px 120px; gap: 10px; align-items: center; height: 28px; padding: 0 12px; color: #9C9893; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em">
+                  <span></span><span>Name</span><span style="text-align: right">Size</span><span>Modified</span>
+                </div>
+                <sc-for list="{{p.rows}}" as="f" hint-placeholder-count="10">
+                  <button onClick="{{f.pick}}" style="display: grid; grid-template-columns: 22px minmax(140px, 1fr) 76px 120px; gap: 10px; align-items: center; width: 100%; height: 30px; padding: 0 12px; border: 0; background: {{f.bg}}; box-shadow: {{f.ring}}; color: {{f.fg}}; font: inherit; text-align: left">
+                    <span style="display: flex; color: {{f.icon}}">
+                      <sc-if value="{{f.marked}}" hint-placeholder-val="{{false}}"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="4"></rect><path d="M8 12l3 3 5-6"></path></svg></sc-if>
+                      <sc-if value="{{f.showDir}}" hint-placeholder-val="{{true}}"><svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" fill-opacity="0.18" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" aria-hidden="true"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg></sc-if>
+                      <sc-if value="{{f.showFile}}" hint-placeholder-val="{{false}}"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" aria-hidden="true"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"></path><path d="M14 3v5h5"></path></svg></sc-if>
+                    </span>
+                    <span style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap">{{f.name}}<span style="color: #9C9893">{{f.dotExt}}</span></span>
+                    <span style="text-align: right; font-family: 'JetBrains Mono', monospace; font-size: 12px; color: #C9C6C1">{{f.size}}</span>
+                    <span style="font-family: 'JetBrains Mono', monospace; font-size: 12px; color: #9C9893">{{f.date}}</span>
+                  </button>
+                </sc-for>
+              </div>
+            </div>
+          </section>
+        </sc-for>
+      </div>
+
+      <!-- Command line -->
+      <label style="display: flex; align-items: center; gap: 10px; min-height: 40px; padding: 0 12px; border-top: 1px solid #1F2124; background: #111214; font-family: 'JetBrains Mono', monospace; font-size: 12px">
+        <span style="color: {{accent}}">~/mmarszalek</span><span style="color: #9C9893">❯</span>
+        <input aria-label="Command line" placeholder="Type a shell command, or press ⌘K for app commands" style="flex: 1; min-width: 0; border: 0; outline: 0; background: transparent; color: #E8E6E3; font: inherit">
+      </label>
+      <div style="display: flex; flex-wrap: wrap; gap: 4px 16px; align-items: center; min-height: 30px; padding: 0 12px; background: #0C0D0F; color: #9C9893; font-size: 12px">
+        <span><b style="color: {{accent}}; font-family: 'JetBrains Mono', monospace; font-weight: 500">F5</b> Copy</span>
+        <span><b style="color: {{accent}}; font-family: 'JetBrains Mono', monospace; font-weight: 500">F6</b> Move</span>
+        <span><b style="color: {{accent}}; font-family: 'JetBrains Mono', monospace; font-weight: 500">F7</b> New folder</span>
+        <span><b style="color: {{accent}}; font-family: 'JetBrains Mono', monospace; font-weight: 500">F8</b> Delete</span>
+        <span><b style="color: {{accent}}; font-family: 'JetBrains Mono', monospace; font-weight: 500">Space</b> Mark</span>
+        <span><b style="color: {{accent}}; font-family: 'JetBrains Mono', monospace; font-weight: 500">Tab</b> Switch pane</span>
+        <div style="flex: 1"></div>
+        <span>3 marked · 4.1 MB</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Command palette overlay -->
+  <sc-if value="{{paletteOpen}}" hint-placeholder-val="{{true}}">
+    <div style="position: absolute; inset: 0; display: flex; justify-content: center; align-items: flex-start; padding: 110px 16px 0; background: rgba(6, 7, 8, 0.62)">
+      <div role="dialog" aria-label="Command palette" style="width: 100%; max-width: 640px; background: #17181B; border: 1px solid #2E3135; border-radius: 14px; box-shadow: 0 24px 64px rgba(0,0,0,0.55); overflow: hidden">
+        <label style="display: flex; align-items: center; gap: 12px; height: 54px; padding: 0 18px; border-bottom: 1px solid #26292D">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="{{accent}}" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="M20 20l-3.5-3.5"></path></svg>
+          <input aria-label="Search commands" value="cop" style="flex: 1; min-width: 0; border: 0; outline: 0; background: transparent; color: #F3EFEA; font: inherit; font-size: 16px">
+          <button onClick="{{togglePalette}}" style="height: 24px; padding: 0 8px; border: 1px solid #33363B; border-radius: 5px; background: transparent; color: #9C9893; font-family: 'JetBrains Mono', monospace; font-size: 11px">Esc</button>
+        </label>
+        <div style="padding: 8px">
+          <div style="padding: 8px 10px 4px; color: #9C9893; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em">Actions on 3 marked files</div>
+          <sc-for list="{{commands}}" as="c" hint-placeholder-count="4">
+            <button style="display: flex; align-items: center; gap: 12px; width: 100%; height: 40px; padding: 0 10px; border: 0; border-radius: 8px; background: {{c.bg}}; color: #F3EFEA; font: inherit; text-align: left">
+              <span style="flex: 1">{{c.label}}</span>
+              <span style="color: #9C9893; font-size: 12px">{{c.hint}}</span>
+              <span style="min-width: 44px; text-align: center; padding: 2px 6px; border: 1px solid #33363B; border-radius: 4px; color: #C9C6C1; font-family: 'JetBrains Mono', monospace; font-size: 11px">{{c.key}}</span>
+            </button>
+          </sc-for>
+          <div style="padding: 12px 10px 4px; color: #9C9893; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em">Folders</div>
+          <button style="display: flex; align-items: center; gap: 12px; width: 100%; height: 40px; padding: 0 10px; border: 0; border-radius: 8px; background: transparent; color: #F3EFEA; font: inherit; text-align: left">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="{{accent}}" stroke-width="1.8" stroke-linejoin="round" aria-hidden="true"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg>
+            <span style="flex: 1; font-family: 'JetBrains Mono', monospace; font-size: 12px">~/repos/canopy</span>
+            <span style="color: #9C9893; font-size: 12px">Go to folder</span>
+          </button>
+        </div>
+        <div style="display: flex; gap: 16px; padding: 10px 18px; border-top: 1px solid #26292D; color: #9C9893; font-size: 12px">
+          <span>↑↓ Navigate</span><span>↵ Run</span><span>⇥ Target other pane</span>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"accent":{"editor":"color","default":"#F0A04B","options":["#F0A04B","#5B9DFF","#3CC6B0","#B794F6"]},"$preview":{"width":1440,"height":900}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { open: true, active: 'L', cur: { L: 'image', R: 'mmarszalek' } };
+  }
+  renderVals() {
+    const a = this.props.accent ?? '#F0A04B';
+    const s = this.state || { open: true, active: 'L', cur: { L: '', R: '' } };
+    const marked = { image_1: true, image_2: true, image: true };
+    const D = (name, date) => ({ name, ext: '', size: '—', date, dir: true });
+    const F = (name, ext, size, date) => ({ name, ext, size, date, dir: false });
+    const L = [
+      D('..', ''), D('Library', '2023-05-13'), D('Movies', '2023-05-13'), D('Music', '2023-05-13'),
+      D('node_modules', '2024-09-23'), D('notes', '2024-09-04'), D('Pictures', '2023-05-13'),
+      D('playground', '2024-09-03'), D('Postman', '2025-06-09'), D('Public', '2023-05-13'),
+      D('repos', '2024-09-03'), D('saska', '2025-09-27'), D('scripts', '2024-09-06'), D('tmp', '2024-09-24'),
+      F('appstore_dump', 'sql', '22 KB', '2024-11-22'),
+      F('canopy_v1.2.0_darwin_arm64', 'tar.gz', '3.0 MB', '2026-10-20'),
+      F('cert-manager', 'yaml', '0 KB', '2026-01-02'),
+      F('hydrogentorch_logs', 'txt', '8 KB', '2026-07-08'),
+      F('image_1', 'png', '1.1 MB', '2024-11-27'),
+      F('image_2', 'png', '1.5 MB', '2024-11-27'),
+      F('image', 'png', '1.5 MB', '2024-11-27')
+    ];
+    const R = [D('..', ''), D('h2oadmin', '2024-08-22'), D('mmarszalek', '2024-08-22'), D('Shared', '2026-06-25')];
+    const rows = (list, side) => list.map((f) => {
+      const m = side === 'L' && marked[f.name] && !f.dir;
+      const cur = s.cur[side] === f.name && s.active === side;
+      return {
+        ...f,
+        marked: !!m, showDir: f.dir && !m, showFile: !f.dir && !m,
+        dotExt: f.ext ? '.' + f.ext : '',
+        fg: m ? a : '#E8E6E3',
+        icon: m ? a : (f.dir ? '#D7B98A' : '#9C9893'),
+        bg: cur ? a + '2B' : (m ? a + '12' : 'transparent'),
+        ring: cur ? 'inset 0 0 0 1px ' + a + 'AA' : 'none',
+        pick: () => this.setState({ active: side, cur: { ...s.cur, [side]: f.name } })
+      };
+    });
+    const paneBg = (side) => (s.active === side ? '#131416' : '#0F1012');
+    return {
+      accent: a,
+      paletteOpen: s.open,
+      togglePalette: () => this.setState({ open: !s.open }),
+      panes: [
+        { label: 'Left pane', parent: '/Users/', leaf: 'mmarszalek', summary: '13 folders · 7 files', rows: rows(L, 'L'), bg: paneBg('L'), dot: s.active === 'L' ? a : '#3A3D42' },
+        { label: 'Right pane', parent: '/', leaf: 'Users', summary: '3 folders', rows: rows(R, 'R'), bg: paneBg('R'), dot: s.active === 'R' ? a : '#3A3D42' }
+      ],
+      commands: [
+        { label: 'Copy to other pane', hint: '→ /Users', key: 'F5', bg: '#24201A' },
+        { label: 'Copy path to clipboard', hint: '3 paths', key: '⌥⌘C', bg: 'transparent' },
+        { label: 'Copy names only', hint: '', key: '⇧⌘C', bg: 'transparent' },
+        { label: 'Compare by content', hint: 'binary diff', key: '⌘=', bg: 'transparent' }
+      ]
+    };
+  }
+}
+</script>
+</body>
+</html>

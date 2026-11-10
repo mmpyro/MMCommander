@@ -17,6 +17,7 @@ namespace IOLib
         void Join(string sourcePath, string fileName, string destinationFileName);
         IAbstractFileStructure GetDirFromPath(string path);
         IEnumerable<DriveStruct> GetDrives();
+        DriveSpace GetSpace(string path);
     }
 
     public class FileSystemManager : IFileSystemManager
@@ -100,6 +101,11 @@ namespace IOLib
         public IEnumerable<DriveStruct> GetDrives()
         {
             return _driveManager.GetDrives();
+        }
+
+        public DriveSpace GetSpace(string path)
+        {
+            return _driveManager.GetSpace(path);
         }
     }
 }

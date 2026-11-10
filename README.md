@@ -38,21 +38,44 @@ The keys work in the focused file panel.
 | Key | Action | Key | Action |
 |---|---|---|---|
 | Enter | Open folder | Tab | Switch panel |
-| Escape | Parent folder | Home | Drive root |
-| C | Copy to other panel | M | Move to other panel |
-| Delete | Delete (asks first) | Ctrl+R | Rename |
-| F1 | New folder | F2 | New file |
-| F5 | Refresh | Ctrl+T | Folder tree |
-| S | Select / unselect file | A | Select all |
-| R | Reverse selection | T | Select all of this type |
-| E | Open with default app | Ctrl+E | Run as admin (Windows) |
-| N | Open in editor | Shift+C | Terminal here |
+| Backspace / Esc | Parent folder | Home | Drive root |
+| F3 / E | Open with default app | F4 / N | Open in editor |
+| F5 / C | Copy to other panel | F6 / M | Move to other panel |
+| F7 / F1 | New folder | Shift+F4 | New file |
+| F8 / Delete | Move to Trash (asks first) | Shift+F6 / F2 | Rename |
+| Shift+F8 | Delete permanently | Shift+F5 | Copy within this panel |
+| F9 / Shift+C | Terminal here | Ctrl+R | Refresh |
+| Space / Insert / S | Mark / unmark file | Ctrl+A / A | Mark all |
+| R | Invert marks | T | Mark all of this type |
 | Ctrl+Z | Zip selection | Ctrl+U | Extract archive |
 | Ctrl+C | Copy files to clipboard | Ctrl+V | Paste files from clipboard |
-| Ctrl+I | File info | Ctrl+D | Add folder shortcut |
-| F3 | Plugins | | |
+| Ctrl+I | File info | Ctrl+D | Add folder bookmark |
+| Ctrl+P | Plugins | Ctrl+Shift+T | Folder tree |
+| Ctrl+E | Run as admin (Windows) | Ctrl+H | Hide / show dot files and folders |
+| Ctrl+T | New tab | Ctrl+W | Close tab |
+| Alt+Left | Back | Alt+Right | Forward |
+| Ctrl+Tab | Next tab | Ctrl+L | Type a path |
+| Ctrl+K | Command palette | Shift+F2 | Compare directories |
 
-The menu also has Switch, Source = Target, Compare Dir, Split, Join, Search, logs and the manuals.
+The toolbar, the menus and the F-key bar at the bottom act on the panel that last had focus; that panel has the blue border. Each panel has folder tabs with their own back/forward history, and the open tabs are saved on exit. Click a part of the path to jump there, or click the empty part of the path bar to type a path.
+
+F5 and F6 open an options dialog: destination, what to do when a file exists (ask, overwrite older, skip, keep both), timestamps, SHA-256 verify, symlinks. The copy then runs as a job with a progress window (pause, cancel, run in background); **Add to queue** runs it after the current one. With nothing marked, the file under the cursor is used. F8 moves to the Trash (Windows Recycle Bin, macOS `~/.Trash`, Linux freedesktop Trash); files on another volume can only be deleted permanently.
+
+The toolbar's view switch (list / grid icons) shows the active panel as thumbnails: images get a preview, everything else a large icon. Keys, marking and the cursor work the same in both views.
+
+**Settings** (View → Settings…, Ctrl+, / ⌘,): theme (Dark or Black for OLED), accent colour, row density, fonts, date and size formats, hidden files, folder sizes on Space, coloured icons, a separate Ext column, the default conflict policy, and every keyboard shortcut (record, presets, conflicts, export). Changes show immediately; **Done** saves them to the user `Config.xml`, Cancel undoes them.
+
+**Ctrl+K** (⌘K on macOS) opens the command palette: type part of a command name, a file name in the active panel, or a full folder path, then press Enter. On macOS every Ctrl shortcut also works with ⌘, except Ctrl+H and Ctrl+Tab.
+
+All shortcuts are defined in one place, `Comander/Core/CommandRegistry.cs`. To change one, add it to the user `Config.xml`:
+
+```xml
+<KeyBindings>
+  <Binding command="copy" keys="F5;Ctrl+Shift+C" />
+</KeyBindings>
+```
+
+The status bar shows the latest message: errors in red, warnings in orange. Hover it for the full text, or click **View log** for every message of this session. While there are errors you haven't looked at, the button turns into a red "N errors · View log" chip. Full stack traces go to the log file (Help → Open log folder).
 
 ## Filter language
 

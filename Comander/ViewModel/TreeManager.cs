@@ -31,8 +31,9 @@ namespace Comander.ViewModel
         {
             try
             {
-                return Directory.GetDirectories(folder).Select(d => new File { Path = d, IsDir = true })
-                    .Concat(Directory.GetFiles(folder).Select(f => new File { Path = f, IsDir = false }))
+                // Folders first, each group by name (the OS returns them unsorted).
+                return Directory.GetDirectories(folder).Order(StringComparer.OrdinalIgnoreCase).Select(d => new File { Path = d, IsDir = true })
+                    .Concat(Directory.GetFiles(folder).Order(StringComparer.OrdinalIgnoreCase).Select(f => new File { Path = f, IsDir = false }))
                     .ToList();
             }
             catch (Exception e) when (e is UnauthorizedAccessException || e is IOException)

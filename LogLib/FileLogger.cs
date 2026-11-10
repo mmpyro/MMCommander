@@ -1,8 +1,9 @@
-﻿using System;
+using System;
 using NLog;
 
 namespace LogLib
 {
+    // Exceptions are passed as NLog's exception argument so the layout (NLog.config) writes the full stack trace.
     public class FileLogger : ILogger
     {
         private readonly Logger _logger;
@@ -34,17 +35,17 @@ namespace LogLib
 
         public void Info(Exception ex)
         {
-            _logger.Info(ex);
+            _logger.Info(ex, ex.Message);
         }
 
         public void Warn(Exception ex)
         {
-            _logger.Warn(ex);
+            _logger.Warn(ex, ex.Message);
         }
 
         public void Error(Exception ex)
         {
-            _logger.Error(ex);
+            _logger.Error(ex, ex.Message);
         }
 
         public void Info(string message, Exception ex)
@@ -64,7 +65,7 @@ namespace LogLib
 
         public void Fatal(Exception ex)
         {
-            _logger.Fatal(ex);
+            _logger.Fatal(ex, ex.Message);
         }
 
         public event Notify NotifyEvent;

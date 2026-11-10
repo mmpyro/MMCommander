@@ -62,16 +62,24 @@ namespace Comander
             IPathResolver pathResolver = new PathResolver();
             var shortcutManager = new ShortcutManager();
             var configReader = new ConfigReader(shortcutManager);
+            var settings = AppSettings.Load(configReader);
+            settings.Apply(Current);
+            // Settings > Appearance applies live: every change rewrites the token brushes.
+            settings.PropertyChanged += (_, _) => settings.Apply(Current);
             var fileFactory = new MetaDataFileFactory();
             var fileSystemManager = new FileSystemManager(new FileManager(fileFactory), new DriveManager(), new DirectoryManager(fileFactory), new FileNameComparer());
             var syntaxParser = new SyntaxParser(fileFactory);
             var monitor = new StateMonitor();
-            var dialogs = new DialogService();
-            var io1 = new IOManager(ManagerType.Io1, configReader.Io1, fileSystemManager, syntaxParser, new HistoryManager(), configReader, pluginManager, logger, pathResolver, new ProxyIO(fileSystemManager, monitor, dialogs), dialogs);
-            var io2 = new IOManager(ManagerType.Io2, configReader.Io2, fileSystemManager, syntaxParser, new HistoryManager(), configReader, pluginManager, logger, pathResolver, new ProxyIO(fileSystemManager, monitor, dialogs), dialogs);
+            var dialogs = new DialogService(configReader);
+            var jobs = new JobQueue(monitor);
+            var io1 = new IOManager(ManagerType.Io1, configReader.Io1, fileSystemManager, syntaxParser, new HistoryManager(), configReader, pluginManager, logger, pathResolver, new ProxyIO(fileSystemManager, monitor, dialogs, jobs), dialogs);
+            var io2 = new IOManager(ManagerType.Io2, configReader.Io2, fileSystemManager, syntaxParser, new HistoryManager(), configReader, pluginManager, logger, pathResolver, new ProxyIO(fileSystemManager, monitor, dialogs, jobs), dialogs);
             io1.SecondManager = io2;
             io2.SecondManager = io1;
-            return new MainVM(io1, io2, configReader, logger, new GenericCommandManager(io1, io2, logger), new AssemblyVersionResolver());
+            io1.HideHidden = io2.HideHidden = !settings.ShowHidden;
+            io1.RestoreTabs(configReader.Io1Tabs);
+            io2.RestoreTabs(configReader.Io2Tabs);
+            return new MainVM(io1, io2, configReader, logger, new GenericCommandManager(io1, io2, logger), new AssemblyVersionResolver(), jobs, dialogs);
         }
 
         private static IPluginManager CreatePluginManager(ILogger logger)

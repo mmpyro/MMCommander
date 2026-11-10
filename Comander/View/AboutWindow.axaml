@@ -5,6 +5,6 @@
         Title="About" Height="150" Width="330">
     <Grid ColumnDefinitions="*,Auto" Margin="10">
         <TextBlock Name="InformationTb" TextWrapping="Wrap" FontSize="16" VerticalAlignment="Center"/>
-        <Button Grid.Column="1" VerticalAlignment="Top" Content="X" Foreground="{StaticResource MainBorderBrush}" Click="Close_OnClick"/>
+        <Button Grid.Column="1" VerticalAlignment="Top" Content="X" Click="Close_OnClick"/>
     </Grid>
 </local:DialogWindow>

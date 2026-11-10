@@ -1,16 +1,35 @@
-<Window x:Class="Comander.View.TreeWindow"
-        xmlns="https://github.com/avaloniaui"
-        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:vm="clr-namespace:Comander.ViewModel"
-        Icon="/Icons/tree.png" Height="400" Width="300" WindowStartupLocation="CenterOwner" Title="TreeView">
-    <TreeView Name="Tree" ItemsSource="{Binding Folders}" DoubleTapped="TreeView_DoubleTapped">
-        <TreeView.ItemTemplate>
-            <TreeDataTemplate DataType="vm:File" ItemsSource="{Binding Files}">
-                <StackPanel Orientation="Horizontal" Spacing="6">
-                    <Image Width="20" Height="20" Source="{Binding Converter={StaticResource TreeViewConverter}}"/>
-                    <TextBlock VerticalAlignment="Center" Text="{Binding Name, Mode=OneWay}"/>
-                </StackPanel>
-            </TreeDataTemplate>
-        </TreeView.ItemTemplate>
-    </TreeView>
-</Window>
+<local:DialogWindow x:Class="Comander.View.TreeWindow"
+                    xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:vm="clr-namespace:Comander.ViewModel"
+                    xmlns:local="clr-namespace:Comander.View"
+                    Title="Folder tree" Width="460" Height="560">
+    <!-- Ctrl+Shift+T. Double-click, Enter or "Go to" opens the node in the panel; the window stays open. Esc closes. -->
+    <DockPanel Margin="18">
+        <StackPanel DockPanel.Dock="Top" Spacing="4" Margin="0,0,0,14">
+            <TextBlock Classes="title" Text="Folder tree"/>
+            <TextBlock Name="PathText" Classes="mono muted" TextTrimming="PrefixCharacterEllipsis"/>
+        </StackPanel>
+        <DockPanel DockPanel.Dock="Bottom" Margin="0,14,0,0">
+            <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" Spacing="8">
+                <Button Name="CloseButton" Classes="footer" Content="Close" Click="CloseButton_OnClick"/>
+                <Button Name="GoButton" Classes="footer accent" Content="Go to" Click="GoButton_OnClick"/>
+            </StackPanel>
+            <TextBlock Classes="muted" FontSize="12" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" Text="Enter or double-click opens it"/>
+        </DockPanel>
+        <Border Classes="listbox">
+            <TreeView Name="Tree" ScrollViewer.HorizontalScrollBarVisibility="Disabled" ItemsSource="{Binding Folders}" DoubleTapped="TreeView_DoubleTapped">
+                <TreeView.ItemTemplate>
+                    <TreeDataTemplate DataType="vm:File" ItemsSource="{Binding Files}">
+                        <Grid ColumnDefinitions="Auto,*" ColumnSpacing="8">
+                            <Path Classes="icon" Data="{Binding Converter={StaticResource TreeViewConverter}}"
+                                  Stroke="{Binding Converter={StaticResource FileKindBrushConverter}}"/>
+                            <TextBlock Grid.Column="1" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" Text="{Binding Name, Mode=OneWay}"
+                                       Classes.dir="{Binding IsDir}" ToolTip.Tip="{Binding Path}"/>
+                        </Grid>
+                    </TreeDataTemplate>
+                </TreeView.ItemTemplate>
+            </TreeView>
+        </Border>
+    </DockPanel>
+</local:DialogWindow>

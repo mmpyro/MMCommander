@@ -1,0 +1,95 @@
+<local:DialogWindow x:Class="Comander.View.CompareDirsWindow"
+                    xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:local="clr-namespace:Comander.View"
+                    Width="980" Height="640">
+    <!-- docs/design/CompareDirs.dc.html. DataContext is a ViewModel.CompareVM. -->
+    <Window.Styles>
+        <Style Selector="Border.status">
+            <Setter Property="Width" Value="30"/>
+            <Setter Property="Height" Value="22"/>
+            <Setter Property="CornerRadius" Value="6"/>
+            <Setter Property="HorizontalAlignment" Value="Center"/>
+        </Style>
+        <Style Selector="Border.status.toRight"><Setter Property="Background" Value="{DynamicResource Brush.Compare.LeftBg}"/></Style>
+        <Style Selector="Border.status.toLeft"><Setter Property="Background" Value="{DynamicResource Brush.Compare.RightBg}"/></Style>
+        <Style Selector="Border.status.diff"><Setter Property="Background" Value="{DynamicResource Brush.Compare.DiffBg}"/></Style>
+        <Style Selector="Border.status.toRight TextBlock"><Setter Property="Foreground" Value="{DynamicResource Brush.Text.Marked}"/></Style>
+        <Style Selector="Border.status.toLeft TextBlock"><Setter Property="Foreground" Value="{DynamicResource Brush.Compare.RightText}"/></Style>
+        <Style Selector="Border.status.same TextBlock"><Setter Property="Foreground" Value="{DynamicResource Brush.Text.Muted}"/></Style>
+        <Style Selector="Grid.row.onlyLeft"><Setter Property="Background" Value="{DynamicResource Brush.Compare.LeftRow}"/></Style>
+        <Style Selector="Grid.row.onlyRight"><Setter Property="Background" Value="{DynamicResource Brush.Compare.RightRow}"/></Style>
+        <Style Selector="Grid.row.same TextBlock.name"><Setter Property="Foreground" Value="{DynamicResource Brush.Text.Muted}"/></Style>
+        <Style Selector="ListBox#RowList ListBoxItem">
+            <Setter Property="Padding" Value="0"/>
+            <Setter Property="MinHeight" Value="0"/>
+        </Style>
+    </Window.Styles>
+    <DockPanel Margin="18">
+        <!-- Title + options -->
+        <DockPanel DockPanel.Dock="Top" Margin="0,0,0,12">
+            <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" Spacing="10" VerticalAlignment="Center">
+                <TextBlock Classes="muted" Text="Compare by" VerticalAlignment="Center"/>
+                <ComboBox Name="ModeBox" SelectedIndex="{Binding ModeIndex}" MinWidth="200">
+                    <ComboBoxItem Content="Name, size and date"/>
+                    <ComboBoxItem Content="Content (byte by byte)"/>
+                    <ComboBoxItem Content="Name only"/>
+                </ComboBox>
+                <CheckBox Content="Include subfolders" IsChecked="{Binding Recursive}"/>
+                <Button Content="Rescan" Command="{Binding RescanCommand}"/>
+            </StackPanel>
+            <TextBlock Classes="title" Text="Compare directories" VerticalAlignment="Center"/>
+        </DockPanel>
+        <!-- Filter chips -->
+        <ListBox Name="ChipList" DockPanel.Dock="Top" Classes="seg" Margin="0,0,0,12" ItemsSource="{Binding Chips}" SelectedIndex="{Binding FilterIndex}">
+            <ListBox.ItemTemplate>
+                <DataTemplate>
+                    <StackPanel Orientation="Horizontal" Spacing="6">
+                        <TextBlock Text="{Binding Label}"/>
+                        <TextBlock Classes="mono" FontSize="11" Text="{Binding Count}" VerticalAlignment="Center"/>
+                    </StackPanel>
+                </DataTemplate>
+            </ListBox.ItemTemplate>
+        </ListBox>
+        <!-- Footer -->
+        <DockPanel DockPanel.Dock="Bottom" Margin="0,12,0,0">
+            <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" Spacing="8">
+                <Button Name="CloseButton" Classes="footer" Content="Close"/>
+                <Button Name="SyncButton" Classes="footer accent" Command="{Binding SyncCommand}"><TextBlock Text="Synchronize…"/></Button>
+            </StackPanel>
+            <StackPanel Spacing="4" VerticalAlignment="Center">
+                <TextBlock Classes="muted" FontSize="12" Text="→ copy to right   ← copy to left   ≠ same date, different content   = identical"/>
+                <TextBlock Name="PlanText" Classes="secondary" Text="{Binding PlanText}"/>
+            </StackPanel>
+        </DockPanel>
+        <!-- Paths header -->
+        <Grid DockPanel.Dock="Top" ColumnDefinitions="*,48,*" Margin="0,0,0,6">
+            <DockPanel><TextBlock DockPanel.Dock="Left" Classes="muted" FontSize="11" FontWeight="SemiBold" Margin="12,0,8,0" Text="LEFT" VerticalAlignment="Center"/><TextBlock Classes="mono secondary" Text="{Binding LeftPath}" TextTrimming="PrefixCharacterEllipsis" ToolTip.Tip="{Binding LeftPath}"/></DockPanel>
+            <DockPanel Grid.Column="2"><TextBlock DockPanel.Dock="Left" Classes="muted" FontSize="11" FontWeight="SemiBold" Margin="12,0,8,0" Text="RIGHT" VerticalAlignment="Center"/><TextBlock Classes="mono secondary" Text="{Binding RightPath}" TextTrimming="PrefixCharacterEllipsis" ToolTip.Tip="{Binding RightPath}"/></DockPanel>
+        </Grid>
+        <Border Background="{DynamicResource Brush.Bg.Pane}" BorderBrush="{DynamicResource Brush.Border.Subtle}" BorderThickness="1" CornerRadius="{DynamicResource Radius.Pane}" ClipToBounds="True">
+            <Panel>
+                <ListBox Name="RowList" ItemsSource="{Binding Rows}" Background="Transparent">
+                    <ListBox.ItemTemplate>
+                        <DataTemplate>
+                            <Grid Classes="row" Classes.onlyLeft="{Binding OnlyLeft}" Classes.onlyRight="{Binding OnlyRight}" Classes.same="{Binding IsIdentical}"
+                                  ColumnDefinitions="*,76,142,48,*,76,142" Height="28" ToolTip.Tip="{Binding StatusLabel}">
+                                <TextBlock Classes="name" Margin="12,0,8,0" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" Text="{Binding LeftName}"/>
+                                <TextBlock Grid.Column="1" Classes="mono secondary" VerticalAlignment="Center" HorizontalAlignment="Right" Text="{Binding LeftSize}"/>
+                                <TextBlock Grid.Column="2" Classes="mono muted" Margin="12,0,0,0" VerticalAlignment="Center" Text="{Binding LeftDate}"/>
+                                <Border Grid.Column="3" Classes="status" Classes.toRight="{Binding ToRight}" Classes.toLeft="{Binding ToLeft}"
+                                        Classes.diff="{Binding IsDifferent}" Classes.same="{Binding IsIdentical}">
+                                    <TextBlock Text="{Binding Symbol}" FontWeight="SemiBold" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                </Border>
+                                <TextBlock Grid.Column="4" Classes="name" Margin="12,0,8,0" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" Text="{Binding RightName}"/>
+                                <TextBlock Grid.Column="5" Classes="mono secondary" VerticalAlignment="Center" HorizontalAlignment="Right" Text="{Binding RightSize}"/>
+                                <TextBlock Grid.Column="6" Classes="mono muted" Margin="12,0,12,0" VerticalAlignment="Center" Text="{Binding RightDate}"/>
+                            </Grid>
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+                </ListBox>
+                <TextBlock Classes="muted" Text="Scanning…" HorizontalAlignment="Center" VerticalAlignment="Center" IsVisible="{Binding IsScanning}"/>
+            </Panel>
+        </Border>
+    </DockPanel>
+</local:DialogWindow>

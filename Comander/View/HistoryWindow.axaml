@@ -1,9 +1,21 @@
-<Window x:Class="Comander.View.HistoryWindow"
-        xmlns="https://github.com/avaloniaui"
-        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="History" Icon="/Icons/icon.png" Height="300" Width="300" WindowStartupLocation="CenterOwner">
-    <Grid RowDefinitions="*,Auto">
-        <ListBox Name="ListView" DoubleTapped="SelectButton_OnClick"/>
-        <Button Click="SelectButton_OnClick" Content="Select" Grid.Row="1" HorizontalAlignment="Stretch"/>
-    </Grid>
-</Window>
+<local:DialogWindow x:Class="Comander.View.HistoryWindow"
+                    xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:local="clr-namespace:Comander.View"
+                    Title="History" Width="480" SizeToContent="Height">
+    <!-- Go > History…: Enter, double-click or "Go to" returns the path; Esc returns null. -->
+    <StackPanel Margin="18" Spacing="14">
+        <StackPanel Spacing="4">
+            <TextBlock Classes="title" Text="History"/>
+            <TextBlock Classes="muted" Text="Recent folders in this panel"/>
+        </StackPanel>
+        <Border Name="ListBorder" Classes="listbox">
+            <ListBox Name="ListView" Classes="paths" MaxHeight="360" DoubleTapped="SelectButton_OnClick"/>
+        </Border>
+        <TextBlock Name="EmptyText" Classes="muted" Text="No history yet" IsVisible="False"/>
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Spacing="8">
+            <Button Classes="footer" Content="Close" Click="CloseButton_OnClick"/>
+            <Button Classes="footer accent" Content="Go to" IsDefault="True" Click="SelectButton_OnClick"/>
+        </StackPanel>
+    </StackPanel>
+</local:DialogWindow>

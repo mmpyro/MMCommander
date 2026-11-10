@@ -1,0 +1,60 @@
+<local:DialogWindow x:Class="Comander.View.ConflictDialog"
+                    xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:local="clr-namespace:Comander.View"
+                    Width="560" SizeToContent="Height">
+    <!-- docs/design/CopyFlow.dc.html, step 3. Enter = Replace, Esc = Skip this file. -->
+    <Window.Styles>
+        <Style Selector="Border.card">
+            <Setter Property="Background" Value="{DynamicResource Brush.Bg.Raised}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource Brush.Border.Control}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="CornerRadius" Value="{DynamicResource Radius.Pane}"/>
+            <Setter Property="Padding" Value="12"/>
+        </Style>
+        <Style Selector="Border.card.incoming">
+            <Setter Property="BorderBrush" Value="{DynamicResource Brush.Accent.Border}"/>
+            <Setter Property="Background" Value="{DynamicResource Brush.Accent.Marked}"/>
+        </Style>
+    </Window.Styles>
+    <StackPanel Margin="18" Spacing="14">
+        <StackPanel Spacing="4">
+            <TextBlock Name="TitleText" Classes="title" TextTrimming="CharacterEllipsis"/>
+            <TextBlock Name="SubtitleText" Classes="muted" TextTrimming="CharacterEllipsis"/>
+        </StackPanel>
+        <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
+            <Border Classes="card">
+                <StackPanel Spacing="8">
+                    <TextBlock Classes="muted" FontSize="12" Text="Existing"/>
+                    <Panel Height="96">
+                        <Image Name="ExistingImage" Stretch="Uniform"/>
+                        <Path Name="ExistingIcon" Classes="icon" Width="40" Height="40" StrokeThickness="1.4" Data="{StaticResource Icon.File}"/>
+                    </Panel>
+                    <TextBlock Name="ExistingText" Classes="mono secondary"/>
+                </StackPanel>
+            </Border>
+            <Border Grid.Column="1" Classes="card incoming">
+                <StackPanel Spacing="8">
+                    <TextBlock Name="IncomingLabel" Classes="muted" FontSize="12" Text="Incoming"/>
+                    <Panel Height="96">
+                        <Image Name="IncomingImage" Stretch="Uniform"/>
+                        <Path Name="IncomingIcon" Classes="icon" Width="40" Height="40" StrokeThickness="1.4" Stroke="{DynamicResource Brush.Accent}" Data="{StaticResource Icon.File}"/>
+                    </Panel>
+                    <TextBlock Name="IncomingText" Classes="mono"/>
+                </StackPanel>
+            </Border>
+        </Grid>
+        <CheckBox Name="AllBox" Content="Do this for all remaining conflicts"/>
+        <DockPanel Margin="0,6,0,0">
+            <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" Spacing="8">
+                <Button Name="SkipButton" Classes="footer" Content="Skip"/>
+                <Button Name="KeepBothButton" Classes="footer" Content="Keep both"/>
+                <Button Name="ReplaceButton" Classes="footer accent" IsDefault="True"><TextBlock Text="Replace  ↵"/></Button>
+            </StackPanel>
+            <StackPanel Orientation="Horizontal" Spacing="10">
+                <Button Name="CompareButton" Classes="footer" Content="Compare"/>
+                <TextBlock Name="CompareText" Classes="muted" VerticalAlignment="Center"/>
+            </StackPanel>
+        </DockPanel>
+    </StackPanel>
+</local:DialogWindow>

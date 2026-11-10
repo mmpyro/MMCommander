@@ -1,48 +1,368 @@
 <Window x:Class="Comander.MainWindow"
         xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:local="clr-namespace:Comander.View"
-        xmlns:controls="clr-namespace:Comander.Controls"
-        Title="MMCommander" Icon="/Icons/main.ico" Height="600" Width="1000">
-    <Grid RowDefinitions="Auto,Auto,*,35">
-        <Menu Grid.Row="0">
-            <MenuItem Header="Options">
-                <MenuItem Header="Switch" Command="{Binding SwitchCommand}"/>
-                <MenuItem Header="Source = Target" Command="{Binding DuplicateCommand}"/>
-                <MenuItem Header="Reload drives" Command="{Binding RefreshCommand}"/>
-                <MenuItem Header="Open logs" Command="{Binding ReadLogsCommand}"/>
-                <MenuItem Header="Clear logs" Command="{Binding ClearLogCommand}"/>
-            </MenuItem>
-            <MenuItem Header="Run" ItemsSource="{Binding Programs}"/>
-            <MenuItem Header="Ext" ItemsSource="{Binding Exts}"/>
-            <MenuItem Header="Tools">
-                <MenuItem Header="Compare Dir" Command="{Binding CompareDirCommand}"/>
-                <MenuItem Header="Split" Command="{Binding SplitFileCommand}"/>
-                <MenuItem Header="Join" Command="{Binding JoinFileCommand}"/>
-                <MenuItem Header="Search" Command="{Binding SearchCommand}"/>
-            </MenuItem>
-            <MenuItem Header="Help">
-                <MenuItem Header="Keymap" Command="{Binding KeyMapCommand}"/>
-                <MenuItem Header="Syntax" Command="{Binding SyntaxCommand}"/>
-                <MenuItem Header="About" Command="{Binding AboutCommand}"/>
-            </MenuItem>
-        </Menu>
-        <Grid Grid.Row="1" ColumnDefinitions="*,10,*">
-            <local:CommandWindow Grid.Column="0" DataContext="{Binding Io1}"/>
-            <local:CommandWindow Grid.Column="2" DataContext="{Binding Io2}"/>
+                xmlns:controls="clr-namespace:Comander.Controls"
+        Title="MMCommander" Icon="/Icons/main.ico" Height="700" Width="1200">
+    <Window.Styles>
+        <!-- Toolbar: 36px icon buttons and icon+text buttons, transparent until hovered. -->
+        <Style Selector="Button.tb, ToggleButton.tb">
+            <Setter Property="Height" Value="36"/>
+            <Setter Property="MinWidth" Value="36"/>
+            <Setter Property="Padding" Value="10,0"/>
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Foreground" Value="{DynamicResource Brush.Text.Secondary}"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="HorizontalContentAlignment" Value="Center"/>
+        </Style>
+        <Style Selector="Button.tb Path.icon, ToggleButton.tb Path.icon">
+            <Setter Property="Width" Value="17"/>
+            <Setter Property="Height" Value="17"/>
+        </Style>
+        <Style Selector="Button.tb TextBlock">
+            <Setter Property="Foreground" Value="{DynamicResource Brush.Text.Secondary}"/>
+        </Style>
+        <Style Selector="Button.tb:disabled /template/ ContentPresenter">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Foreground" Value="{DynamicResource Brush.Glyph.Dim}"/>
+        </Style>
+        <Style Selector="Button.tb:disabled TextBlock">
+            <Setter Property="Foreground" Value="{DynamicResource Brush.Glyph.Dim}"/>
+        </Style>
+        <Style Selector="ToggleButton.tb:checked /template/ ContentPresenter">
+            <Setter Property="Background" Value="{DynamicResource Brush.Accent.Tint}"/>
+        </Style>
+        <!-- Fluent caps flyouts at 456px; the log panel needs more room. -->
+        <Style Selector="FlyoutPresenter.wide">
+            <Setter Property="MaxWidth" Value="760"/>
+        </Style>
+        <!-- F-key bar -->
+        <Style Selector="Button.fkey">
+            <Setter Property="Height" Value="34"/>
+            <Setter Property="Padding" Value="10,0"/>
+            <Setter Property="HorizontalAlignment" Value="Stretch"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="Background" Value="{DynamicResource Brush.Bg.Pane}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource Brush.Border.Subtle}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+        </Style>
+        <Style Selector="Button.fkey TextBlock.key">
+            <Setter Property="FontFamily" Value="{DynamicResource Font.Mono}"/>
+            <Setter Property="FontSize" Value="11"/>
+            <Setter Property="Foreground" Value="{DynamicResource Brush.Accent}"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+        </Style>
+        <Style Selector="Button.fkey.danger TextBlock">
+            <Setter Property="Foreground" Value="{DynamicResource Brush.Danger}"/>
+        </Style>
+        <!-- Status bar log button; turns into the danger chip while there are unseen errors. -->
+        <Style Selector="Button#LogsButton">
+            <Setter Property="Height" Value="22"/>
+            <Setter Property="Padding" Value="8,0"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="CornerRadius" Value="{DynamicResource Radius.Control}"/>
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="BorderBrush" Value="Transparent"/>
+            <Setter Property="Foreground" Value="{DynamicResource Brush.Text.Muted}"/>
+        </Style>
+        <Style Selector="Button#LogsButton TextBlock">
+            <Setter Property="Foreground" Value="{DynamicResource Brush.Text.Muted}"/>
+        </Style>
+        <Style Selector="Button#LogsButton.errors">
+            <Setter Property="Background" Value="{DynamicResource Brush.Danger.Bg}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource Brush.Danger.Border}"/>
+            <Setter Property="Foreground" Value="{DynamicResource Brush.Danger.Text}"/>
+        </Style>
+        <Style Selector="Button#LogsButton.errors TextBlock">
+            <Setter Property="Foreground" Value="{DynamicResource Brush.Danger.Text}"/>
+        </Style>
+    </Window.Styles>
+
+    <Grid RowDefinitions="40,Auto,*,Auto,28">
+        <!-- Menu bar -->
+        <Border Grid.Row="0" BorderBrush="{DynamicResource Brush.Border.Subtle}" BorderThickness="0,0,0,1" Padding="12,0">
+            <DockPanel>
+                <StackPanel DockPanel.Dock="Left" Orientation="Horizontal" Spacing="8" Margin="0,0,12,0" VerticalAlignment="Center">
+                    <Border Width="22" Height="22" CornerRadius="{DynamicResource Radius.Control}" Background="{DynamicResource Brush.Accent}">
+                        <Path Classes="icon" Width="14" Height="14" StrokeThickness="2.4" Stroke="{DynamicResource Brush.Bg.Base}"
+                              Data="{StaticResource Icon.AppMark}"/>
+                    </Border>
+                    <TextBlock Text="Commander" FontWeight="SemiBold" VerticalAlignment="Center"/>
+                </StackPanel>
+                <Button Name="PaletteButton" DockPanel.Dock="Right" MinWidth="300" Height="30" Padding="10,0" VerticalAlignment="Center"
+                        Background="{DynamicResource Brush.Bg.Pane}" BorderBrush="{DynamicResource Brush.Border.Control}" BorderThickness="1"
+                        HorizontalContentAlignment="Stretch" VerticalContentAlignment="Center" Command="{Binding Palette.OpenCommand}">
+                    <DockPanel>
+                        <Border DockPanel.Dock="Right" Padding="6,1" CornerRadius="4" BorderBrush="{DynamicResource Brush.Border.Strong}" BorderThickness="1">
+                            <TextBlock Classes="muted mono" FontSize="11" Text="{Binding KeyMap[palette], Converter={StaticResource GestureTextConverter}}"/>
+                        </Border>
+                        <Path DockPanel.Dock="Left" Classes="icon" Width="15" Height="15" Margin="0,0,10,0" Stroke="{DynamicResource Brush.Text.Muted}"
+                              Data="{StaticResource Icon.Search}"/>
+                        <TextBlock Classes="muted" Text="Search files or run a command" VerticalAlignment="Center"/>
+                    </DockPanel>
+                </Button>
+                <Menu Name="MainMenu" VerticalAlignment="Center">
+                    <MenuItem Header="File">
+                        <MenuItem Header="New folder" InputGesture="{Binding KeyMap[newFolder]}" Command="{Binding ActivePanel.CreateDirCommand}"/>
+                        <MenuItem Header="New file" InputGesture="{Binding KeyMap[newFile]}" Command="{Binding ActivePanel.CreateFileCommand}"/>
+                        <MenuItem Header="Rename" InputGesture="{Binding KeyMap[rename]}" Command="{Binding ActivePanel.RenameCommand}"/>
+                        <MenuItem Header="Copy to other pane" InputGesture="{Binding KeyMap[copy]}" Command="{Binding ActivePanel.CopyCommand}"/>
+                        <MenuItem Header="Copy within this pane" InputGesture="{Binding KeyMap[copyHere]}" Command="{Binding ActivePanel.CopyHereCommand}"/>
+                        <MenuItem Header="Move to other pane" InputGesture="{Binding KeyMap[move]}" Command="{Binding ActivePanel.MoveCommand}"/>
+                        <MenuItem Header="Move to Trash" InputGesture="{Binding KeyMap[delete]}" Command="{Binding ActivePanel.DeleteFileCommand}"/>
+                        <MenuItem Header="Delete permanently" InputGesture="{Binding KeyMap[deletePermanent]}" Command="{Binding ActivePanel.DeletePermanentCommand}"/>
+                        <Separator/>
+                        <MenuItem Header="Zip…" InputGesture="{Binding KeyMap[zip]}" Command="{Binding ActivePanel.ZipCommand}"/>
+                        <MenuItem Header="Unzip…" InputGesture="{Binding KeyMap[unzip]}" Command="{Binding ActivePanel.UnZipCommand}"/>
+                        <MenuItem Header="Split file…" Command="{Binding SplitFileCommand}"/>
+                        <MenuItem Header="Join files…" Command="{Binding JoinFileCommand}"/>
+                        <Separator/>
+                        <MenuItem Header="Properties" InputGesture="{Binding KeyMap[info]}" Command="{Binding ActivePanel.InfoCommand}"/>
+                        <MenuItem Header="Run as administrator" InputGesture="{Binding KeyMap[runAsAdmin]}" Command="{Binding ActivePanel.RunAsAdminCommand}"/>
+                    </MenuItem>
+                    <MenuItem Header="Edit">
+                        <MenuItem Header="Mark all" InputGesture="{Binding KeyMap[markAll]}" Command="{Binding ActivePanel.SelectAllCommand}"/>
+                        <MenuItem Header="Invert marks" InputGesture="{Binding KeyMap[invert]}" Command="{Binding ActivePanel.ReverseSelectionCommand}"/>
+                        <MenuItem Header="Mark same type" InputGesture="{Binding KeyMap[markType]}" Command="{Binding ActivePanel.SelectTypeCommand}"/>
+                        <Separator/>
+                        <MenuItem Header="Copy paths to clipboard" InputGesture="{Binding KeyMap[copyPaths]}" Command="{Binding ActivePanel.CopyToClipboardCommand}"/>
+                        <MenuItem Header="Paste files" InputGesture="{Binding KeyMap[paste]}" Command="{Binding ActivePanel.PasteToClipboardCommand}"/>
+                    </MenuItem>
+                    <MenuItem Header="View">
+                        <MenuItem Header="Show hidden files" InputGesture="{Binding KeyMap[toggleHidden]}" ToggleType="CheckBox"
+                                  IsChecked="{Binding ActivePanel.ShowHidden}"/>
+                        <MenuItem Header="Refresh" InputGesture="{Binding KeyMap[refresh]}" Command="{Binding ActivePanel.RefreshCommand}"/>
+                        <MenuItem Header="Reload drives" Command="{Binding RefreshCommand}"/>
+                        <Separator/>
+                        <MenuItem Header="Settings…" InputGesture="{Binding KeyMap[settings]}" Command="{Binding SettingsCommand}"/>
+                    </MenuItem>
+                    <MenuItem Header="Go">
+                        <MenuItem Header="Back" InputGesture="{Binding KeyMap[back]}" Command="{Binding ActivePanel.BackCommand}"/>
+                        <MenuItem Header="Forward" InputGesture="{Binding KeyMap[forward]}" Command="{Binding ActivePanel.ForwardCommand}"/>
+                        <MenuItem Header="Parent folder" InputGesture="{Binding KeyMap[parent]}" Command="{Binding ActivePanel.ParentDirCommand}"/>
+                        <MenuItem Header="Root folder" InputGesture="{Binding KeyMap[root]}" Command="{Binding ActivePanel.RootDirCommand}"/>
+                        <MenuItem Header="Choose folder…" Command="{Binding ActivePanel.ChooseDirCommand}"/>
+                        <MenuItem Header="History…" Command="{Binding ActivePanel.HistoryCommand}"/>
+                        <MenuItem Header="Bookmarks…" Command="{Binding ActivePanel.ShowSortcutsCommand}"/>
+                        <MenuItem Header="Add bookmark" InputGesture="{Binding KeyMap[addBookmark]}" Command="{Binding ActivePanel.AddShortCutsCommand}"/>
+                        <Separator/>
+                        <MenuItem Header="New tab" InputGesture="{Binding KeyMap[newTab]}" Command="{Binding ActivePanel.NewTabCommand}"/>
+                        <MenuItem Header="Close tab" InputGesture="{Binding KeyMap[closeTab]}" Command="{Binding ActivePanel.CloseTabCommand}"/>
+                        <MenuItem Header="Next tab" InputGesture="{Binding KeyMap[nextTab]}" Command="{Binding ActivePanel.NextTabCommand}"/>
+                        <Separator/>
+                        <MenuItem Header="Switch pane" InputGesture="{Binding KeyMap[switchPane]}" Command="{Binding ActivePanel.SwitchFocusCommand}"/>
+                        <MenuItem Header="Swap panes" Command="{Binding SwitchCommand}"/>
+                        <MenuItem Header="Same folder in other pane" Command="{Binding DuplicateCommand}"/>
+                        <MenuItem Header="Folder tree…" InputGesture="{Binding KeyMap[tree]}" Command="{Binding ActivePanel.TreeWindowCommand}"/>
+                    </MenuItem>
+                    <MenuItem Header="Tools">
+                        <MenuItem Header="Command palette…" InputGesture="{Binding KeyMap[palette]}" Command="{Binding Palette.OpenCommand}"/>
+                        <MenuItem Header="Search…" Command="{Binding SearchCommand}"/>
+                        <MenuItem Header="Compare directories" InputGesture="{Binding KeyMap[compare]}" Command="{Binding CompareDirCommand}"/>
+                        <MenuItem Header="Synchronize directories…" Command="{Binding SyncDirsCommand}"/>
+                        <MenuItem Header="Terminal here" InputGesture="{Binding KeyMap[terminal]}" Command="{Binding ActivePanel.ConsoleRunCommand}"/>
+                        <MenuItem Header="Open" InputGesture="{Binding KeyMap[open]}" Command="{Binding ActivePanel.RunFileCommand}"/>
+                        <MenuItem Header="Edit" InputGesture="{Binding KeyMap[edit]}" Command="{Binding ActivePanel.NotepadCommand}"/>
+                        <Separator/>
+                        <MenuItem Header="Run" ItemsSource="{Binding Programs}"/>
+                        <MenuItem Header="Open with" ItemsSource="{Binding Exts}"/>
+                    </MenuItem>
+                    <MenuItem Header="Plugins">
+                        <MenuItem Header="Plugins…" InputGesture="{Binding KeyMap[plugins]}" Command="{Binding ActivePanel.PluginCommand}"/>
+                    </MenuItem>
+                    <MenuItem Header="Help">
+                        <MenuItem Header="Keymap" Command="{Binding KeyMapCommand}"/>
+                        <MenuItem Header="Filter syntax" Command="{Binding SyntaxCommand}"/>
+                        <MenuItem Header="Open log folder" Command="{Binding ReadLogsCommand}"/>
+                        <Separator/>
+                        <MenuItem Header="About" Command="{Binding AboutCommand}"/>
+                    </MenuItem>
+                </Menu>
+            </DockPanel>
+        </Border>
+
+        <!-- Toolbar: acts on the active pane. -->
+        <Border Grid.Row="1" MinHeight="48" Padding="12,6" Background="{DynamicResource Brush.Bg.Toolbar}"
+                BorderBrush="{DynamicResource Brush.Border.Subtle}" BorderThickness="0,0,0,1">
+            <DockPanel>
+                <!-- Details / thumbnails, per active pane. -->
+                <ListBox Name="ViewToggle" DockPanel.Dock="Right" Classes="seg" Margin="0,0,8,0" VerticalAlignment="Center"
+                         SelectedIndex="{Binding ActivePanel.ViewIndex}">
+                    <ListBoxItem ToolTip.Tip="Details view" Padding="9,5"><Path Classes="icon" Width="15" Height="15" Data="{StaticResource Icon.List}"/></ListBoxItem>
+                    <ListBoxItem ToolTip.Tip="Thumbnail view" Padding="9,5"><Path Classes="icon" Width="15" Height="15" Data="{StaticResource Icon.Grid}"/></ListBoxItem>
+                </ListBox>
+                <ToggleButton Name="ShowHiddenToggle" DockPanel.Dock="Right" Classes="tb" IsChecked="{Binding ActivePanel.ShowHidden}"
+                              ToolTip.Tip="Show hidden files (Ctrl+H)">
+                    <Path Classes="icon" Data="{StaticResource Icon.Eye}"/>
+                </ToggleButton>
+                <StackPanel Orientation="Horizontal" Spacing="4">
+                    <Button Classes="tb" ToolTip.Tip="Back (Alt+Left)" Command="{Binding ActivePanel.BackCommand}">
+                        <Path Classes="icon" Data="{StaticResource Icon.Back}"/>
+                    </Button>
+                    <Button Classes="tb" ToolTip.Tip="Forward (Alt+Right)" Command="{Binding ActivePanel.ForwardCommand}">
+                        <Path Classes="icon" Data="{StaticResource Icon.Forward}"/>
+                    </Button>
+                    <Button Classes="tb" ToolTip.Tip="Parent folder (Backspace)" Command="{Binding ActivePanel.ParentDirCommand}">
+                        <Path Classes="icon" Data="{StaticResource Icon.Up}"/>
+                    </Button>
+                    <Button Classes="tb" ToolTip.Tip="Refresh (Ctrl+R)" Command="{Binding ActivePanel.RefreshCommand}">
+                        <Path Classes="icon" Data="{StaticResource Icon.Refresh}"/>
+                    </Button>
+                    <Border Width="1" Height="22" Margin="8,0" Background="{DynamicResource Brush.Border.Control}"/>
+                    <Button Classes="tb" ToolTip.Tip="F7" Command="{Binding ActivePanel.CreateDirCommand}">
+                        <StackPanel Orientation="Horizontal" Spacing="8">
+                            <Path Classes="icon" Data="{StaticResource Icon.FolderPlus}"/>
+                            <TextBlock Text="New folder" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Button>
+                    <Button Classes="tb" ToolTip.Tip="Shift+F6" Command="{Binding ActivePanel.RenameCommand}">
+                        <StackPanel Orientation="Horizontal" Spacing="8">
+                            <Path Classes="icon" Data="{StaticResource Icon.Rename}"/>
+                            <TextBlock Text="Rename" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Button>
+                    <Button Classes="tb" ToolTip.Tip="F9" Command="{Binding ActivePanel.ConsoleRunCommand}">
+                        <StackPanel Orientation="Horizontal" Spacing="8">
+                            <Path Classes="icon" Data="{StaticResource Icon.Terminal}"/>
+                            <TextBlock Text="Terminal here" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Button>
+                    <Button Classes="tb" ToolTip.Tip="Shift+F2" Command="{Binding CompareDirCommand}">
+                        <StackPanel Orientation="Horizontal" Spacing="8">
+                            <Path Classes="icon" Data="{StaticResource Icon.Compare}"/>
+                            <TextBlock Text="Compare" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Button>
+                    <Button Classes="tb" Command="{Binding SyncDirsCommand}">
+                        <StackPanel Orientation="Horizontal" Spacing="8">
+                            <Path Classes="icon" Data="{StaticResource Icon.Sync}"/>
+                            <TextBlock Text="Sync dirs" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Button>
+                </StackPanel>
+            </DockPanel>
+        </Border>
+
+        <!-- Two panes -->
+        <Grid Grid.Row="2" ColumnDefinitions="*,8,*" Margin="8">
+            <controls:FilePane DataContext="{Binding Io1}" GridName="Io1"/>
+            <GridSplitter Grid.Column="1" ResizeDirection="Columns" Background="Transparent"/>
+            <controls:FilePane DataContext="{Binding Io2}" GridName="Io2" Grid.Column="2"/>
         </Grid>
-        <Grid Grid.Row="2" ColumnDefinitions="*,10,*">
-            <controls:IOGrid DataContext="{Binding Io1}" GridName="Io1"/>
-            <GridSplitter Grid.Column="1" ResizeDirection="Columns"/>
-            <controls:IOGrid DataContext="{Binding Io2}" GridName="Io2" Grid.Column="2"/>
+
+        <!-- Function key bar -->
+        <Grid Grid.Row="3" ColumnDefinitions="*,*,*,*,*,*,*" ColumnSpacing="6" Margin="8,0,8,8">
+            <Button Grid.Column="0" Classes="fkey" Command="{Binding ActivePanel.RunFileCommand}">
+                <StackPanel Orientation="Horizontal" Spacing="8"><TextBlock Classes="key" Text="F3"/><TextBlock Text="View"/></StackPanel>
+            </Button>
+            <Button Grid.Column="1" Classes="fkey" Command="{Binding ActivePanel.NotepadCommand}">
+                <StackPanel Orientation="Horizontal" Spacing="8"><TextBlock Classes="key" Text="F4"/><TextBlock Text="Edit"/></StackPanel>
+            </Button>
+            <Button Grid.Column="2" Classes="fkey" Command="{Binding ActivePanel.CopyCommand}">
+                <StackPanel Orientation="Horizontal" Spacing="8"><TextBlock Classes="key" Text="F5"/><TextBlock Text="Copy"/></StackPanel>
+            </Button>
+            <Button Grid.Column="3" Classes="fkey" Command="{Binding ActivePanel.MoveCommand}">
+                <StackPanel Orientation="Horizontal" Spacing="8"><TextBlock Classes="key" Text="F6"/><TextBlock Text="Move"/></StackPanel>
+            </Button>
+            <Button Grid.Column="4" Classes="fkey" Command="{Binding ActivePanel.CreateDirCommand}">
+                <StackPanel Orientation="Horizontal" Spacing="8"><TextBlock Classes="key" Text="F7"/><TextBlock Text="New folder"/></StackPanel>
+            </Button>
+            <Button Grid.Column="5" Classes="fkey danger" Command="{Binding ActivePanel.DeleteFileCommand}">
+                <StackPanel Orientation="Horizontal" Spacing="8"><TextBlock Classes="key" Text="F8"/><TextBlock Text="Delete"/></StackPanel>
+            </Button>
+            <Button Grid.Column="6" Classes="fkey" Command="{Binding ActivePanel.ConsoleRunCommand}">
+                <StackPanel Orientation="Horizontal" Spacing="8"><TextBlock Classes="key" Text="F9"/><TextBlock Text="Terminal"/></StackPanel>
+            </Button>
         </Grid>
-        <Grid Grid.Row="3" ColumnDefinitions="30,30,Auto,*,40,40">
-            <ProgressBar Grid.Column="0" Width="24" MinWidth="24" IsIndeterminate="True" IsVisible="{Binding IsBusy}" Foreground="{StaticResource MainBorderBrush}"/>
-            <Image Width="20" Height="20" Grid.Column="1" Source="{Binding CurrentLogMsg, Converter={StaticResource LogIconConverter}}"/>
-            <TextBlock Padding="5,10,0,0" Text="{Binding LogCount}" Grid.Column="2"/>
-            <TextBlock Padding="5,10,0,0" Text="{Binding CurrentLogMsg, Converter={StaticResource LogMessageConverter}}" Grid.Column="3"/>
-            <Button FontWeight="ExtraBold" Grid.Column="4" Content="&lt;" Command="{Binding PreviusLogCommand}"/>
-            <Button FontWeight="ExtraBold" Grid.Column="5" Content="&gt;" Command="{Binding NextLogCommand}"/>
-        </Grid>
+
+        <!-- Command palette (Ctrl+K), over the dimmed window -->
+        <Panel Name="PaletteOverlay" Grid.Row="0" Grid.RowSpan="5" ZIndex="10" IsVisible="{Binding Palette.IsOpen}" Background="{DynamicResource Brush.Overlay}">
+            <Border Width="560" VerticalAlignment="Top" Margin="0,64,0,0" Padding="8" Background="{DynamicResource Brush.Bg.Dialog}"
+                    BorderBrush="{DynamicResource Brush.Border.Control}" BorderThickness="1" CornerRadius="{DynamicResource Radius.Dialog}"
+                    BoxShadow="0 16 48 0 #66000000">
+                <DockPanel>
+                    <Border DockPanel.Dock="Top" Height="38" Padding="10,0" Margin="0,0,0,6" CornerRadius="{DynamicResource Radius.Button}"
+                            Background="{DynamicResource Brush.Bg.Input}" BorderBrush="{DynamicResource Brush.Border.Control}" BorderThickness="1">
+                        <DockPanel>
+                            <Path DockPanel.Dock="Left" Classes="icon" Margin="0,0,8,0" Stroke="{DynamicResource Brush.Text.Muted}" Data="{StaticResource Icon.Search}"/>
+                            <TextBox Name="PaletteBox" Classes="bare" FontSize="14" PlaceholderText="Search files or run a command"
+                                     Text="{Binding Palette.Query}"/>
+                        </DockPanel>
+                    </Border>
+                    <ListBox Name="PaletteList" ItemsSource="{Binding Palette.Results}" SelectedItem="{Binding Palette.Selected}"
+                             MaxHeight="360" Background="Transparent">
+                        <ListBox.ItemTemplate>
+                            <DataTemplate>
+                                <DockPanel>
+                                    <TextBlock DockPanel.Dock="Right" Classes="muted mono" FontSize="11" VerticalAlignment="Center" Text="{Binding Hint}"/>
+                                    <TextBlock Text="{Binding Label}" TextTrimming="CharacterEllipsis" Margin="0,0,12,0"/>
+                                </DockPanel>
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
+                    </ListBox>
+                </DockPanel>
+            </Border>
+        </Panel>
+
+        <!-- Behind modal dialogs -->
+        <Panel Name="DimOverlay" Grid.Row="0" Grid.RowSpan="5" ZIndex="20" IsVisible="False" Background="{DynamicResource Brush.Overlay}"/>
+
+        <!-- Status bar -->
+        <Border Grid.Row="4" Background="{DynamicResource Brush.Bg.Chrome}" BorderBrush="{DynamicResource Brush.Border.Subtle}"
+                BorderThickness="0,1,0,0" Padding="12,0">
+            <Grid ColumnDefinitions="Auto,Auto,*,Auto,Auto">
+                <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="6" VerticalAlignment="Center" Margin="0,0,12,0">
+                    <Ellipse Width="7" Height="7" Fill="{DynamicResource Brush.Success}" IsVisible="{Binding !IsBusy}"/>
+                    <Ellipse Width="7" Height="7" Fill="{DynamicResource Brush.Warning}" IsVisible="{Binding IsBusy}"/>
+                    <TextBlock Name="StatusState" Classes="muted" FontSize="12" Text="{Binding StatusText}"/>
+                </StackPanel>
+                <TextBlock Grid.Column="1" Name="CursorPath" Classes="muted mono" VerticalAlignment="Center" TextTrimming="CharacterEllipsis"
+                           MaxWidth="560" Text="{Binding ActivePanel.SelectedFile.FullName}"/>
+                <TextBlock Grid.Column="2" Name="StatusMessage" Classes="muted" FontSize="12" Margin="16,0" VerticalAlignment="Center"
+                           HorizontalAlignment="Right" TextTrimming="CharacterEllipsis"
+                           Classes.error="{Binding CurrentLogMsg.IsError}" Classes.warn="{Binding CurrentLogMsg.IsWarning}"
+                           ToolTip.Tip="{Binding CurrentLogMsg.Message}" Text="{Binding CurrentLogMsg.Message}"/>
+                <!-- A copy/move/delete running in the background; click to show its progress window. -->
+                <Button Grid.Column="3" Name="JobChip" Height="22" Padding="8,0" Margin="0,0,8,0" FontSize="12" VerticalAlignment="Center"
+                        Background="Transparent" BorderThickness="0"
+                        IsVisible="{Binding Jobs.HasJob}" Command="{Binding ShowJobCommand}" ToolTip.Tip="Show progress">
+                    <StackPanel Orientation="Horizontal" Spacing="6">
+                        <ProgressBar Classes="thin" Width="60" MinWidth="60" Minimum="0" Maximum="1" Value="{Binding Jobs.Current.TotalFraction}" VerticalAlignment="Center"/>
+                        <TextBlock Classes="secondary" FontSize="12" Text="{Binding Jobs.Current.ChipText}" VerticalAlignment="Center"/>
+                    </StackPanel>
+                </Button>
+                <Button Grid.Column="4" Name="LogsButton" Classes.errors="{Binding HasErrors}" VerticalAlignment="Center"
+                        ToolTip.Tip="Show all messages">
+                    <StackPanel Orientation="Horizontal" Spacing="6">
+                        <Path Classes="icon" Width="13" Height="13" StrokeThickness="2" Data="{StaticResource Icon.Alert}" IsVisible="{Binding HasErrors}"/>
+                        <TextBlock Text="{Binding LogButtonText}" FontSize="12" VerticalAlignment="Center"/>
+                    </StackPanel>
+                    <Button.Flyout>
+                        <Flyout Placement="TopEdgeAlignedRight" FlyoutPresenterClasses="wide">
+                            <DockPanel Width="700">
+                                <DockPanel DockPanel.Dock="Top" Margin="4,0,0,6">
+                                    <Button DockPanel.Dock="Right" Content="Clear" Command="{Binding ClearLogCommand}"/>
+                                    <TextBlock Text="Log" FontWeight="SemiBold" VerticalAlignment="Center"/>
+                                </DockPanel>
+                                <ListBox Name="LogList" ItemsSource="{Binding LogsCollection}" MaxHeight="300" Background="Transparent">
+                                    <ListBox.ItemTemplate>
+                                        <DataTemplate>
+                                            <Grid ColumnDefinitions="64,24,*">
+                                                <TextBlock Classes="muted mono" Text="{Binding Time}" VerticalAlignment="Top"/>
+                                                <Image Grid.Column="1" Width="16" Height="16" VerticalAlignment="Top"
+                                                       Source="{Binding Converter={StaticResource LogIconConverter}}"/>
+                                                <SelectableTextBlock Grid.Column="2" Text="{Binding Message}" TextWrapping="Wrap"
+                                                                     Classes.error="{Binding IsError}" Classes.warn="{Binding IsWarning}"/>
+                                            </Grid>
+                                        </DataTemplate>
+                                    </ListBox.ItemTemplate>
+                                </ListBox>
+                            </DockPanel>
+                        </Flyout>
+                    </Button.Flyout>
+                </Button>
+            </Grid>
+        </Border>
     </Grid>
 </Window>

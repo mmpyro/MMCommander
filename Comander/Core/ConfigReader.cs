@@ -11,9 +11,18 @@ namespace Comander.Core
         ConfigurationProgram this[string key] { get; set; }
         IEnumerable<ConfigurationProgram> GetPrograms();
         IShortcutManager ShortcutManager { get; }
-        void SavePaths(string source, string target);
+        void SavePaths(string source, string target, string[] sourceTabs = null, string[] targetTabs = null);
         string Io2 { get; }
         string Io1 { get; }
+        // Extra folder tabs per panel; empty for configs written before tabs existed.
+        string[] Io1Tabs { get; }
+        string[] Io2Tabs { get; }
+        // User key bindings: command id -> "F5;C" (Core/CommandRegistry.cs). Empty means all defaults.
+        IDictionary<string, string> KeyBindings { get; }
+        // Small app settings (appearance, confirmations); null when not set.
+        string GetSetting(string key);
+        void SaveSetting(string key, string value);
+        void SaveKeyBindings(IDictionary<string, string> bindings);
     }
 
     public class ConfigReader : IConfigReader
@@ -41,6 +50,10 @@ namespace Comander.Core
             var home = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
             Io1 = Directory.Exists(_configuration.Source) ? _configuration.Source : home;
             Io2 = Directory.Exists(_configuration.Target) ? _configuration.Target : home;
+            Io1Tabs = _configuration.SourceTabs ?? new string[0];
+            Io2Tabs = _configuration.TargetTabs ?? new string[0];
+            KeyBindings = (_configuration.KeyBindings ?? new ConfigurationKeyBinding[0])
+                .Where(k => !string.IsNullOrEmpty(k.Command)).GroupBy(k => k.Command).ToDictionary(g => g.Key, g => g.Last().Keys ?? string.Empty);
             ReadShortCuts();
             ReadApplications();
         }
@@ -89,11 +102,35 @@ namespace Comander.Core
 
         public string Io2 { get; protected set; }
         public string Io1 { get; protected set; }
+        public string[] Io1Tabs { get; protected set; }
+        public string[] Io2Tabs { get; protected set; }
+        public IDictionary<string, string> KeyBindings { get; protected set; }
 
-        public void SavePaths(string source, string target)
+        public void SavePaths(string source, string target, string[] sourceTabs = null, string[] targetTabs = null)
         {
             _configuration.Source = source;
             _configuration.Target = target;
+            _configuration.SourceTabs = sourceTabs;
+            _configuration.TargetTabs = targetTabs;
+            SaveConfig();
+        }
+
+        public string GetSetting(string key) =>
+            _configuration.Settings?.FirstOrDefault(s => s.Key == key)?.Value;
+
+        public void SaveSetting(string key, string value)
+        {
+            var list = (_configuration.Settings ?? new ConfigurationSetting[0]).Where(s => s.Key != key).ToList();
+            if (value != null)
+                list.Add(new ConfigurationSetting { Key = key, Value = value });
+            _configuration.Settings = list.ToArray();
+            SaveConfig();
+        }
+
+        public void SaveKeyBindings(IDictionary<string, string> bindings)
+        {
+            KeyBindings = new Dictionary<string, string>(bindings);
+            _configuration.KeyBindings = bindings.Select(b => new ConfigurationKeyBinding { Command = b.Key, Keys = b.Value }).ToArray();
             SaveConfig();
         }
 
@@ -117,6 +154,39 @@ namespace Comander.Core
 
         public string Source { get; set; }
         public string Target { get; set; }
+
+        [XmlArrayItem("Tab", IsNullable = false)]
+        public string[] SourceTabs { get; set; }
+
+        [XmlArrayItem("Tab", IsNullable = false)]
+        public string[] TargetTabs { get; set; }
+
+        [XmlArrayItem("Binding", IsNullable = false)]
+        public ConfigurationKeyBinding[] KeyBindings { get; set; }
+
+        [XmlArrayItem("Setting", IsNullable = false)]
+        public ConfigurationSetting[] Settings { get; set; }
+    }
+
+    [XmlType(AnonymousType = true)]
+    public partial class ConfigurationSetting
+    {
+        [XmlAttribute("key")]
+        public string Key { get; set; }
+
+        [XmlAttribute("value")]
+        public string Value { get; set; }
+    }
+
+    [XmlType(AnonymousType = true)]
+    public partial class ConfigurationKeyBinding
+    {
+        [XmlAttribute("command")]
+        public string Command { get; set; }
+
+        // Avalonia gestures separated by ';', e.g. "F5;C". Empty unbinds the command.
+        [XmlAttribute("keys")]
+        public string Keys { get; set; }
     }
 
     [XmlType(AnonymousType = true)]

@@ -5,7 +5,7 @@
         Title="Input" Height="150" Width="300">
     <StackPanel Margin="15" Spacing="10">
         <TextBlock Name="InfoTextBlock" TextAlignment="Center" FontWeight="Bold" FontStyle="Italic"/>
-        <TextBox Name="InputTextBox" BorderBrush="{StaticResource MainBorderBrush}" BorderThickness="2"/>
+        <TextBox Name="InputTextBox"/>
         <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Spacing="40">
             <Button IsDefault="True" Click="AcceptButton_OnClick"><Image Width="24" Height="24" Source="/Icons/appbar.check.png"/></Button>
             <Button IsCancel="True" Click="CancelButton_OnClick"><Image Width="24" Height="24" Source="/Icons/Cancel.png"/></Button>

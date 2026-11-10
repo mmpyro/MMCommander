@@ -3,7 +3,7 @@ using Avalonia.Input;
 
 namespace Comander.View
 {
-    // Borderless popup: drag anywhere to move, Esc closes (result = default).
+    // Borderless popup card: drag anywhere to move, Esc closes (result = default).
     public class DialogWindow : Window
     {
         public DialogWindow()
@@ -11,9 +11,10 @@ namespace Comander.View
             WindowDecorations = Avalonia.Controls.WindowDecorations.None;
             WindowStartupLocation = WindowStartupLocation.CenterOwner;
             CanResize = false;
-            BorderThickness = new Avalonia.Thickness(2);
-            if (Avalonia.Application.Current.TryFindResource("MainBorderBrush", out var brush))
-                BorderBrush = (Avalonia.Media.IBrush)brush;
+            // Rounded card look (Themes/Theme.axaml DialogWindow template): transparent window, the card draws the corners.
+            TransparencyLevelHint = new[] { WindowTransparencyLevel.Transparent };
+            Background = Avalonia.Media.Brushes.Transparent;
+            Classes.Add("dialog");
         }
 
         protected override void OnPointerPressed(PointerPressedEventArgs e)

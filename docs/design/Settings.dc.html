@@ -1,0 +1,168 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>A · Settings, Appearance</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#0E1014}
+a{color:#8AB8FF}a:hover{color:#B5D1FF}
+</style>
+</helmet>
+<div style="height: 900px; display: flex; flex-direction: column; background: #0E1014; color: #E6E8EB; font-family: Inter, system-ui, sans-serif; font-size: 13px; overflow: hidden">
+  <div style="display: flex; align-items: center; gap: 12px; min-height: 48px; padding: 0 20px; border-bottom: 1px solid #1E222A">
+    <span style="font-size: 15px; font-weight: 600">Settings</span>
+    <div style="flex: 1"></div>
+    <label style="display: flex; align-items: center; gap: 8px; height: 32px; flex: 0 1 280px; padding: 0 10px; border: 1px solid #262B34; border-radius: 8px; background: #14171C; color: #9AA2AE">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="M20 20l-3.5-3.5"></path></svg>
+      <span style="position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0)">Search settings</span>
+      <input placeholder="Search settings" style="flex: 1; min-width: 0; border: 0; outline: 0; background: transparent; color: #E6E8EB; font: inherit">
+    </label>
+  </div>
+
+  <div style="flex: 1; min-height: 0; display: flex; flex-wrap: wrap">
+    <nav aria-label="Settings sections" style="flex: 0 0 220px; display: flex; flex-direction: column; gap: 2px; padding: 14px 10px; border-right: 1px solid #1E222A; background: #101318">
+      <sc-for list="{{sections}}" as="n" hint-placeholder-count="8">
+        <a href="#" style="display: flex; align-items: center; height: 34px; padding: 0 12px; border-radius: 7px; background: {{n.bg}}; color: {{n.fg}}; text-decoration: none; font-weight: {{n.weight}}">{{n.label}}</a>
+      </sc-for>
+    </nav>
+
+    <main style="flex: 999 1 560px; min-width: 0; overflow: auto; padding: 28px 32px">
+      <div style="max-width: 920px; display: flex; flex-wrap: wrap; gap: 32px">
+        <div style="flex: 1 1 440px; min-width: 0; display: flex; flex-direction: column; gap: 26px">
+          <h1 style="margin: 0; font-size: 20px; font-weight: 600">Appearance</h1>
+
+          <div style="display: flex; flex-direction: column; gap: 8px">
+            <span style="font-weight: 500">Theme</span>
+            <div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 2px; padding: 3px; border: 1px solid #262B34; border-radius: 9px; background: #0F1216">
+              <sc-for list="{{themes}}" as="t" hint-placeholder-count="3">
+                <button onClick="{{t.pick}}" style="height: 32px; border: 0; border-radius: 6px; background: {{t.bg}}; color: {{t.fg}}; font: inherit; font-weight: 500">{{t.label}}</button>
+              </sc-for>
+            </div>
+            <span style="color: #9AA2AE; font-size: 12px">“Black” drops surfaces to pure black for OLED screens.</span>
+          </div>
+
+          <div style="display: flex; flex-direction: column; gap: 8px">
+            <span style="font-weight: 500">Accent</span>
+            <div style="display: flex; gap: 10px">
+              <sc-for list="{{swatches}}" as="w" hint-placeholder-count="5">
+                <button aria-label="{{w.name}}" onClick="{{w.pick}}" style="width: 36px; height: 36px; border-radius: 18px; border: 2px solid {{w.ring}}; background: {{w.hex}}; padding: 0"></button>
+              </sc-for>
+            </div>
+          </div>
+
+          <div style="display: flex; flex-direction: column; gap: 8px">
+            <span style="font-weight: 500">Row density</span>
+            <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 2px; padding: 3px; border: 1px solid #262B34; border-radius: 9px; background: #0F1216">
+              <sc-for list="{{densities}}" as="d" hint-placeholder-count="2">
+                <button onClick="{{d.pick}}" style="height: 32px; border: 0; border-radius: 6px; background: {{d.bg}}; color: {{d.fg}}; font: inherit; font-weight: 500">{{d.label}}</button>
+              </sc-for>
+            </div>
+          </div>
+
+          <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px">
+            <label style="display: flex; flex-direction: column; gap: 6px"><span style="font-weight: 500">Interface font</span>
+              <select style="height: 36px; padding: 0 10px; border: 1px solid #2A303A; border-radius: 8px; background: #14171C; color: #E6E8EB; font: inherit"><option>Inter</option><option>System default</option></select></label>
+            <label style="display: flex; flex-direction: column; gap: 6px"><span style="font-weight: 500">Monospace font</span>
+              <select style="height: 36px; padding: 0 10px; border: 1px solid #2A303A; border-radius: 8px; background: #14171C; color: #E6E8EB; font: inherit"><option>JetBrains Mono</option><option>Cascadia Code</option><option>SF Mono</option></select></label>
+            <label style="display: flex; flex-direction: column; gap: 6px"><span style="font-weight: 500">Date format</span>
+              <select style="height: 36px; padding: 0 10px; border: 1px solid #2A303A; border-radius: 8px; background: #14171C; color: #E6E8EB; font: inherit"><option>ISO · 2026-10-20 16:57</option><option>Locale · 10/20/2026 4:57 PM</option><option>Relative · 3 weeks ago</option></select></label>
+            <label style="display: flex; flex-direction: column; gap: 6px"><span style="font-weight: 500">Size units</span>
+              <select style="height: 36px; padding: 0 10px; border: 1px solid #2A303A; border-radius: 8px; background: #14171C; color: #E6E8EB; font: inherit"><option>Auto (KB / MB / GB)</option><option>Always KB</option><option>Bytes</option></select></label>
+          </div>
+
+          <div style="display: flex; flex-direction: column; border: 1px solid #232831; border-radius: 10px; background: #14171C">
+            <sc-for list="{{toggles}}" as="g" hint-placeholder-count="4">
+              <label style="display: flex; align-items: center; gap: 12px; min-height: 52px; padding: 0 16px; border-bottom: 1px solid #1E222A">
+                <span style="flex: 1; display: flex; flex-direction: column; gap: 2px"><span>{{g.label}}</span><span style="color: #9AA2AE; font-size: 12px">{{g.hint}}</span></span>
+                <input type="checkbox" checked="{{g.on}}" onChange="{{g.flip}}" style="width: 18px; height: 18px; accent-color: {{accent}}">
+              </label>
+            </sc-for>
+          </div>
+        </div>
+
+        <!-- Live preview -->
+        <aside aria-label="Preview" style="flex: 1 1 320px; min-width: 0; display: flex; flex-direction: column; gap: 10px">
+          <span style="color: #9AA2AE; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em">Preview</span>
+          <div style="border: 1px solid {{accent}}; border-radius: 10px; background: {{paneBg}}; overflow: hidden">
+            <div style="height: 32px; display: flex; align-items: center; padding: 0 12px; border-bottom: 1px solid #232831; font-family: 'JetBrains Mono', monospace; font-size: 12px; color: #9AA2AE">/Users/<span style="color: #E6E8EB">mmarszalek</span></div>
+            <sc-for list="{{preview}}" as="f" hint-placeholder-count="6">
+              <div style="display: grid; grid-template-columns: 22px minmax(0, 1fr) 64px; gap: 8px; align-items: center; height: {{rowH}}; padding: 0 12px; background: {{f.bg}}; box-shadow: {{f.ring}}">
+                <span style="display: flex; color: {{f.icon}}"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" aria-hidden="true"><path d="{{f.path}}"></path></svg></span>
+                <span style="font-weight: {{f.weight}}">{{f.name}}</span>
+                <span style="text-align: right; font-family: 'JetBrains Mono', monospace; font-size: 12px; color: #C4C9D1">{{f.size}}</span>
+              </div>
+            </sc-for>
+          </div>
+        </aside>
+      </div>
+    </main>
+  </div>
+
+  <div style="display: flex; justify-content: flex-end; gap: 8px; padding: 12px 20px; border-top: 1px solid #1E222A">
+    <button style="height: 36px; padding: 0 14px; border: 1px solid #2A303A; border-radius: 8px; background: transparent; color: #E6E8EB; font: inherit">Reset to defaults</button>
+    <button style="height: 36px; padding: 0 16px; border: 0; border-radius: 8px; background: {{accent}}; color: #08111F; font: inherit; font-weight: 600">Done</button>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":900}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { theme: 'Dark', accent: '#5B9DFF', density: 'Compact', hidden: false, sizes: true, icons: true, ext: true };
+  }
+  renderVals() {
+    const s = this.state || {};
+    const a = s.accent || '#5B9DFF';
+    const seg = (list, key) => list.map((label) => ({
+      label, pick: () => this.setState({ [key]: label }),
+      bg: s[key] === label ? '#262B34' : 'transparent', fg: s[key] === label ? '#E6E8EB' : '#9AA2AE'
+    }));
+    const dir = 'M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z';
+    const file = 'M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8zM14 3v5h5';
+    const rows = [
+      ['repos', '—', true], ['scripts', '—', true], ['tmp', '—', true],
+      ['canopy_v1.2.0_darwin_arm64.tar.gz', '3.0 MB', false, '#F0A04B'],
+      ['cert-manager.yaml', '0 KB', false, '#7FD1B9'], ['image.png', '1.5 MB', false, '#C9A2F2']
+    ];
+    const hiddenRow = ['.zshrc', '4 KB', false, '#A6ADB8'];
+    const list = s.hidden ? [rows[0], rows[1], rows[2], hiddenRow, rows[3], rows[4], rows[5]] : rows;
+    return {
+      accent: a,
+      paneBg: s.theme === 'Black' ? '#000000' : '#14171C',
+      rowH: s.density === 'Compact' ? '28px' : '34px',
+      sections: ['General', 'Appearance', 'Panes &amp; columns', 'Keyboard', 'File operations', 'File types', 'Plugins', 'Advanced'].map((label) => ({
+        label: label.replace('&amp;', '&'),
+        bg: label === 'Appearance' ? '#1F242C' : 'transparent',
+        fg: label === 'Appearance' ? '#E6E8EB' : '#C4C9D1',
+        weight: label === 'Appearance' ? 600 : 400
+      })),
+      themes: seg(['Dark', 'Black', 'Follow system'], 'theme'),
+      densities: seg(['Compact', 'Comfortable'], 'density'),
+      swatches: [['Blue', '#5B9DFF'], ['Amber', '#F0A04B'], ['Teal', '#3CC6B0'], ['Violet', '#B794F6'], ['Rose', '#F38BA8']].map(([name, hex]) => ({
+        name, hex, ring: hex === a ? '#E6E8EB' : 'transparent', pick: () => this.setState({ accent: hex })
+      })),
+      toggles: [
+        ['hidden', 'Show hidden files', 'Dotfiles and system items, dimmed'],
+        ['sizes', 'Calculate folder sizes', 'In the background, on Space'],
+        ['icons', 'Colour file icons by type', 'Images, archives, configs, data'],
+        ['ext', 'Separate extension column', 'Like Total Commander’s Ext column']
+      ].map(([k, label, hint]) => ({ label, hint, on: !!s[k], flip: () => this.setState({ [k]: !s[k] }) })),
+      preview: list.map((r, i) => ({
+        name: r[0], size: r[1], path: r[2] ? dir : file, weight: r[2] ? 500 : 400,
+        icon: r[2] ? a : (s.icons ? r[3] : '#A6ADB8'),
+        bg: i === 3 ? a + '33' : 'transparent',
+        ring: i === 3 ? 'inset 0 0 0 1px ' + a : 'none'
+      }))
+    };
+  }
+}
+</script>
+</body>
+</html>

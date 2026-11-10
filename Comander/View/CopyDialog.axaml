@@ -1,0 +1,46 @@
+<local:DialogWindow x:Class="Comander.View.CopyDialog"
+                    xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:local="clr-namespace:Comander.View"
+                    Width="560" SizeToContent="Height">
+    <!-- F5 / F6 options (docs/design/CopyFlow.dc.html, step 1). Enter = Copy, Esc = Cancel. -->
+    <StackPanel Margin="18" Spacing="14">
+        <StackPanel Spacing="4">
+            <TextBlock Name="TitleText" Classes="title"/>
+            <TextBlock Name="SummaryText" Classes="muted" TextTrimming="CharacterEllipsis"/>
+        </StackPanel>
+        <StackPanel Spacing="6">
+            <TextBlock Classes="muted" FontSize="12" Text="Destination"/>
+            <Grid ColumnDefinitions="*,Auto" ColumnSpacing="6">
+                <TextBox Name="DestinationBox" FontFamily="{DynamicResource Font.Mono}" FontSize="12"/>
+                <Button Name="BrowseButton" Grid.Column="1" Content="Browse…"/>
+            </Grid>
+            <TextBlock Name="FreeText" Classes="muted" FontSize="12"/>
+        </StackPanel>
+        <StackPanel Spacing="6">
+            <TextBlock Classes="muted" FontSize="12" Text="If a file already exists"/>
+            <ListBox Name="PolicyList" Classes="seg" SelectedIndex="0">
+                <ListBoxItem><TextBlock Text="Ask"/></ListBoxItem>
+                <ListBoxItem><TextBlock Text="Overwrite older"/></ListBoxItem>
+                <ListBoxItem><TextBlock Text="Skip"/></ListBoxItem>
+                <ListBoxItem><TextBlock Text="Keep both"/></ListBoxItem>
+            </ListBox>
+        </StackPanel>
+        <WrapPanel ItemSpacing="18" LineSpacing="6">
+            <CheckBox Name="PreserveBox" Content="Preserve timestamps" IsChecked="True"/>
+            <CheckBox Name="VerifyBox" Content="Verify after copy (SHA-256)"/>
+            <CheckBox Name="SymlinkBox" Content="Follow symlinks"/>
+            <CheckBox Name="FilterBox" Content="Only matching filter"/>
+        </WrapPanel>
+        <DockPanel Margin="0,6,0,0">
+            <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" Spacing="8">
+                <Button Name="CancelButton" Classes="footer" Content="Cancel"/>
+                <Button Name="QueueButton" Classes="footer" Content="Add to queue"/>
+                <Button Name="OkButton" Classes="footer accent" IsDefault="True">
+                    <TextBlock Name="OkText"/>
+                </Button>
+            </StackPanel>
+            <TextBlock Name="HintText" Classes="muted" FontSize="12" VerticalAlignment="Center"/>
+        </DockPanel>
+    </StackPanel>
+</local:DialogWindow>

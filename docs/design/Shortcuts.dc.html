@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>A · Settings, Keyboard</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#0E1014}
+a{color:#8AB8FF}a:hover{color:#B5D1FF}
+</style>
+</helmet>
+<div style="height: 900px; display: flex; flex-direction: column; background: #0E1014; color: #E6E8EB; font-family: Inter, system-ui, sans-serif; font-size: 13px; overflow: hidden">
+  <div style="display: flex; align-items: center; gap: 12px; min-height: 48px; padding: 0 20px; border-bottom: 1px solid #1E222A">
+    <span style="font-size: 15px; font-weight: 600">Settings</span>
+  </div>
+
+  <div style="flex: 1; min-height: 0; display: flex; flex-wrap: wrap">
+    <nav aria-label="Settings sections" style="flex: 0 0 220px; display: flex; flex-direction: column; gap: 2px; padding: 14px 10px; border-right: 1px solid #1E222A; background: #101318">
+      <sc-for list="{{sections}}" as="n" hint-placeholder-count="8">
+        <a href="#" style="display: flex; align-items: center; height: 34px; padding: 0 12px; border-radius: 7px; background: {{n.bg}}; color: {{n.fg}}; text-decoration: none; font-weight: {{n.weight}}">{{n.label}}</a>
+      </sc-for>
+    </nav>
+
+    <main style="flex: 999 1 560px; min-width: 0; display: flex; flex-direction: column; gap: 18px; padding: 28px 32px; overflow: auto">
+      <div style="display: flex; flex-wrap: wrap; align-items: flex-end; gap: 16px">
+        <div style="flex: 1 1 260px; display: flex; flex-direction: column; gap: 4px">
+          <h1 style="margin: 0; font-size: 20px; font-weight: 600">Keyboard</h1>
+          <span style="color: #9AA2AE; font-size: 12px">Click a shortcut to record a new one. Press Backspace while recording to clear it.</span>
+        </div>
+        <label style="display: flex; flex-direction: column; gap: 6px"><span style="color: #C4C9D1; font-size: 12px; font-weight: 500">Preset</span>
+          <select style="height: 36px; min-width: 240px; padding: 0 10px; border: 1px solid #2A303A; border-radius: 8px; background: #14171C; color: #E6E8EB; font: inherit"><option>Total Commander (modified)</option><option>Total Commander</option><option>Finder-like</option></select>
+        </label>
+      </div>
+
+      <div style="display: flex; flex-wrap: wrap; gap: 8px">
+        <label style="display: flex; align-items: center; gap: 8px; flex: 1 1 280px; height: 36px; padding: 0 10px; border: 1px solid #2A303A; border-radius: 8px; background: #14171C; color: #9AA2AE">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="M20 20l-3.5-3.5"></path></svg>
+          <span style="position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0)">Search commands or keys</span>
+          <input placeholder="Search commands or press keys" style="flex: 1; min-width: 0; border: 0; outline: 0; background: transparent; color: #E6E8EB; font: inherit">
+        </label>
+        <button onClick="{{toggleCustom}}" style="height: 36px; padding: 0 14px; border: 1px solid {{customBorder}}; border-radius: 8px; background: {{customBg}}; color: #E6E8EB; font: inherit">Changed only · 2</button>
+      </div>
+
+      <div style="border: 1px solid #232831; border-radius: 10px; background: #14171C; overflow: hidden">
+        <sc-for list="{{groups}}" as="g" hint-placeholder-count="4">
+          <div>
+            <div style="padding: 12px 16px 6px; background: #101318; color: #9AA2AE; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em">{{g.name}}</div>
+            <sc-for list="{{g.items}}" as="it" hint-placeholder-count="4">
+              <div style="display: flex; flex-direction: column; border-top: 1px solid #1E222A; background: {{it.rowBg}}">
+                <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 12px; min-height: 44px; padding: 0 16px">
+                  <span style="flex: 1 1 220px">{{it.label}}</span>
+                  <sc-if value="{{it.custom}}" hint-placeholder-val="{{false}}"><span style="padding: 1px 8px; border-radius: 10px; background: #16263F; color: #8AB8FF; font-size: 11px">Changed</span></sc-if>
+                  <button onClick="{{it.record}}" aria-label="{{it.aria}}" style="min-width: 150px; height: 30px; display: flex; align-items: center; justify-content: flex-end; gap: 4px; padding: 0 8px; border: 1px solid {{it.btnBorder}}; border-radius: 7px; background: {{it.btnBg}}; color: #E6E8EB; font: inherit">
+                    <sc-if value="{{it.recording}}" hint-placeholder-val="{{false}}"><span style="color: #8AB8FF; font-size: 12px">⌘T · press keys…</span></sc-if>
+                    <sc-if value="{{it.idle}}" hint-placeholder-val="{{true}}">
+                      <sc-for list="{{it.keys}}" as="k" hint-placeholder-count="1">
+                        <span style="padding: 2px 7px; border: 1px solid #343B46; border-bottom-width: 2px; border-radius: 5px; background: #1A1E25; font-family: 'JetBrains Mono', monospace; font-size: 11px">{{k.k}}</span>
+                      </sc-for>
+                    </sc-if>
+                  </button>
+                </div>
+                <sc-if value="{{it.recording}}" hint-placeholder-val="{{false}}">
+                  <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin: 0 16px 12px; padding: 10px 12px; border-radius: 8px; background: #2A2016; color: #F5C894; font-size: 12px">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="M12 8v5M12 16h.01"></path></svg>
+                    <span style="flex: 1 1 240px">⌘T is already used by “New tab”.</span>
+                    <button style="height: 28px; padding: 0 10px; border: 1px solid #4A3A24; border-radius: 6px; background: transparent; color: #F5C894; font: inherit; font-size: 12px">Reassign</button>
+                    <button onClick="{{it.record}}" style="height: 28px; padding: 0 10px; border: 0; border-radius: 6px; background: transparent; color: #C4C9D1; font: inherit; font-size: 12px">Cancel</button>
+                  </div>
+                </sc-if>
+              </div>
+            </sc-for>
+          </div>
+        </sc-for>
+      </div>
+    </main>
+  </div>
+
+  <div style="display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 8px; padding: 12px 20px; border-top: 1px solid #1E222A">
+    <button style="height: 36px; padding: 0 14px; border: 1px solid #2A303A; border-radius: 8px; background: transparent; color: #E6E8EB; font: inherit">Export…</button>
+    <button style="height: 36px; padding: 0 14px; border: 1px solid #2A303A; border-radius: 8px; background: transparent; color: #E6E8EB; font: inherit">Reset preset</button>
+    <button style="height: 36px; padding: 0 16px; border: 0; border-radius: 8px; background: #5B9DFF; color: #08111F; font: inherit; font-weight: 600">Done</button>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":900}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { rec: 'Open terminal here', customOnly: false };
+  }
+  renderVals() {
+    const s = this.state || { rec: '', customOnly: false };
+    const data = [
+      ['Navigation', [
+        ['Parent folder', ['Backspace']], ['Go to folder…', ['⌘', 'G']], ['Back', ['⌘', '[']], ['Command palette', ['⌘', 'K'], true]
+      ]],
+      ['Selection', [
+        ['Mark / unmark file', ['Space']], ['Mark all', ['⌘', 'A']], ['Invert marks', ['Num *']], ['Mark by pattern…', ['Num +']]
+      ]],
+      ['File operations', [
+        ['View', ['F3']], ['Edit', ['F4']], ['Copy to other pane', ['F5']], ['Move / rename', ['F6']], ['New folder', ['F7']], ['Delete (to Trash)', ['F8']], ['Delete permanently', ['⇧', 'F8']], ['Open terminal here', ['F9'], true]
+      ]],
+      ['Panes &amp; tabs', [
+        ['Switch active pane', ['Tab']], ['New tab', ['⌘', 'T']], ['Swap panes', ['⌘', 'U']], ['Compare directories', ['⇧', 'F2']]
+      ]]
+    ];
+    const groups = data.map(([name, items]) => ({
+      name: name.replace('&amp;', '&'),
+      items: items
+        .filter(([, , custom]) => !s.customOnly || custom)
+        .map(([label, keys, custom]) => {
+          const rec = s.rec === label;
+          return {
+            label, custom: !!custom, recording: rec, idle: !rec,
+            aria: 'Shortcut for ' + label + ': ' + keys.join(' '),
+            keys: keys.map((k) => ({ k })),
+            rowBg: rec ? '#171C25' : 'transparent',
+            btnBorder: rec ? '#5B9DFF' : 'transparent',
+            btnBg: rec ? '#16263F' : 'transparent',
+            record: () => this.setState({ rec: rec ? '' : label })
+          };
+        })
+    })).filter((g) => g.items.length > 0);
+    return {
+      groups,
+      toggleCustom: () => this.setState({ customOnly: !s.customOnly }),
+      customBg: s.customOnly ? '#232831' : 'transparent',
+      customBorder: s.customOnly ? '#3A414D' : '#2A303A',
+      sections: ['General', 'Appearance', 'Panes & columns', 'Keyboard', 'File operations', 'File types', 'Plugins', 'Advanced'].map((label) => ({
+        label,
+        bg: label === 'Keyboard' ? '#1F242C' : 'transparent',
+        fg: label === 'Keyboard' ? '#E6E8EB' : '#C4C9D1',
+        weight: label === 'Keyboard' ? 600 : 400
+      }))
+    };
+  }
+}
+</script>
+</body>
+</html>

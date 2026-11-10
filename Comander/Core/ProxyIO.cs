@@ -1,4 +1,5 @@
-﻿using Comander.CommanderIO;
+using Comander.CommanderIO;
+using Comander.Converters;
 using Comander.Dtos;
 using IOLib;
 using System;
@@ -25,49 +26,83 @@ namespace Comander.Core
             }
         }
 
-        public ProxyIO(IFileSystemManager fileManager, IStateMonitor monitor, IDialogService dialogs)
+        // Both panels share one queue so transfers run one after another ("Add to queue").
+        public ProxyIO(IFileSystemManager fileManager, IStateMonitor monitor, IDialogService dialogs, JobQueue queue = null)
         {
             _fileManager = fileManager;
             _monitor = monitor;
             _dialogs = dialogs;
+            _queue = queue ?? new JobQueue(monitor);
         }
 
-        public async Task CopyFile(IEnumerable<IMetadataFileStructure> files, IMetadataFileStructure destinationDir)
+        private readonly JobQueue _queue;
+
+        public Task CopyFile(IEnumerable<IMetadataFileStructure> files, IMetadataFileStructure destinationDir, ConflictPolicy policy = ConflictPolicy.Ask) =>
+            Transfer(files, destinationDir, false, policy);
+
+        public Task MoveFile(IEnumerable<IMetadataFileStructure> files, IMetadataFileStructure destinationDir) =>
+            Transfer(files, destinationDir, true, ConflictPolicy.Ask);
+
+        // F5/F6: options dialog, then a queued job with progress; conflicts are asked from the worker thread.
+        private async Task Transfer(IEnumerable<IMetadataFileStructure> files, IMetadataFileStructure destinationDir, bool move, ConflictPolicy policy)
         {
-            var items = files.ToList();
-            if (!Enter())
+            var items = files.Where(f => f.Name != "..").ToList();
+            if (items.Count == 0)
+            {
+                _ioManager.LogError("Nothing selected.");
                 return;
-            // Remembers "override all" / "cancel" for the rest of this operation.
-            var choice = CopyOption.None;
-            Func<string, string, bool> allowOverride = (file, dir) =>
+            }
+            var space = _fileManager.GetSpace(destinationDir.FullName);
+            var request = await _dialogs.AskCopy(new CopyDialogModel
             {
-                if (choice == CopyOption.OverrideAll)
-                    return true;
-                if (choice == CopyOption.Cancel)
-                    return false;
-                // Called on the worker thread; the dialog service marshals to the UI thread.
-                choice = _dialogs.AskOverride(string.Format("File {0} exist in {1}.\nDo you want to override it ?", file, dir)).GetAwaiter().GetResult();
-                return choice == CopyOption.OverrideAll || choice == CopyOption.OverrideSingle;
-            };
-            await RunBusy(() =>
-            {
-                int failed = 0;
-                foreach (var file in items)
-                {
-                    try
-                    {
-                        _ioManager.Notify(string.Format("Copy {0} to {1}", file.Name, destinationDir.FullName));
-                        file.Copy(destinationDir, allowOverride);
-                        _ioManager.LogDebug(string.Format("Copy {0} to {1}", file.Name, destinationDir.FullName));
-                    }
-                    catch (Exception ex)
-                    {
-                        failed++;
-                        _ioManager.LogError(ex, string.Format("Cannot copy {0} to {1}", file.Name, destinationDir.FullName));
-                    }
-                }
-                LogSummary("copied", items.Count, failed);
+                IsMove = move,
+                Names = items.Select(f => f.Name).ToList(),
+                TotalSize = items.Where(f => !f.IsDirectory).Sum(f => f.Size),
+                Destination = destinationDir.FullName,
+                FreeSpaceText = space == null ? string.Empty : FileSizeConverter.FormatSpace(space.Free) + " free on " + space.Label,
+                // Settings > File operations sets the default; Shift+F5 always keeps both.
+                Policy = policy == ConflictPolicy.Ask ? AppSettings.Current.DefaultPolicy : policy,
+                HasFilter = _ioManager.FilterPredicate() != null,
             });
+            if (request == null)
+                return;
+            var destination = request.Destination;
+            if (string.IsNullOrEmpty(destination) || !Directory.Exists(destination))
+            {
+                _ioManager.LogError(string.Format("Destination folder doesn't exist: {0}", destination));
+                return;
+            }
+            var options = request.Options;
+            if (request.OnlyMatchingFilter)
+                options.Include = _ioManager.FilterPredicate();
+            var verb = move ? "Moving" : "Copying";
+            var paths = items.Select(f => f.FullName).ToList();
+            var job = new TransferJob(verb, destination, j =>
+            {
+                Busy();
+                try
+                {
+                    var engine = new TransferEngine(options, c => _dialogs.AskConflict(c).GetAwaiter().GetResult(), j, j.Pause, j.Token);
+                    var result = move ? engine.Move(paths, destination) : engine.Copy(paths, destination);
+                    foreach (var error in result.Errors)
+                    {
+                        j.AddError();
+                        _ioManager.LogError(string.Format("Cannot {0} {1}", move ? "move" : "copy", error));
+                    }
+                    if (result.Cancelled)
+                        _ioManager.LogInfo(verb + " cancelled.");
+                    else
+                        LogSummary(move ? "moved" : "copied", result.Copied + result.Errors.Count, result.Errors.Count);
+                }
+                finally
+                {
+                    Avaiable();
+                }
+            });
+            var done = _queue.Enqueue(job);
+            if (request.ShowProgress)
+                _dialogs.ShowProgress(job);
+            await done;
         }
 
         public Task CreateDirectory()
@@ -103,56 +138,57 @@ namespace Comander.Core
             }
         }
 
-        public async Task DeleteFile(IEnumerable<IMetadataFileStructure> files)
+        // F8 moves to the Trash, Shift+F8 deletes permanently; the dialog can switch between both.
+        public async Task DeleteFile(IEnumerable<IMetadataFileStructure> files, bool permanent = false)
         {
-            var items = files.ToList();
-            if (!await _dialogs.Confirm("Do you want delete " + items.Count + " files ?") || !Enter())
-                return;
-            await RunBusy(() =>
+            var items = files.Where(f => f.Name != "..").ToList();
+            if (items.Count == 0)
             {
-                int iterator = 1, failed = 0;
-                foreach (var file in items)
-                {
-                    try
-                    {
-                        _ioManager.Notify(string.Format("Delete {0}, {1} of {2}", file.Name, iterator++, items.Count));
-                        file.Delete();
-                        _ioManager.LogDebug("Delete " + file.Name);
-                    }
-                    catch (Exception ex)
-                    {
-                        failed++;
-                        _ioManager.LogError(ex, string.Format("Cannot delete {0} file", file.Name));
-                    }
-                }
-                LogSummary("deleted", items.Count, failed);
-            });
-        }
-
-        public async Task MoveFile(IEnumerable<IMetadataFileStructure> files, IMetadataFileStructure destinationDir)
-        {
-            var items = files.ToList();
-            if (!Enter())
+                _ioManager.LogError("Nothing selected.");
                 return;
-            await RunBusy(() =>
+            }
+            var unavailable = items.Select(f => Trash.Unavailable(f.FullName)).FirstOrDefault(r => r != null);
+            var request = await _dialogs.AskDelete(new DeleteDialogModel
             {
-                int failed = 0;
-                foreach (var file in items)
-                {
-                    try
-                    {
-                        _ioManager.Notify(string.Format("Move {0} to {1}", file.Name, destinationDir.FullName));
-                        file.Move(destinationDir);
-                        _ioManager.LogDebug(string.Format("Move {0} to {1}", file.Name, destinationDir.FullName));
-                    }
-                    catch (Exception ex)
-                    {
-                        failed++;
-                        _ioManager.LogError(ex, string.Format("Cannot move {0} to {1}", file.Name, destinationDir.FullName));
-                    }
-                }
-                LogSummary("moved", items.Count, failed);
+                Items = items.Select(f => new DeleteItem { Name = f.Name, SizeText = f.IsDirectory ? "—" : FileSizeConverter.Format(f.Size) }).ToList(),
+                Folder = _ioManager.ActualPath,
+                TotalSizeText = FileSizeConverter.Format(items.Where(f => !f.IsDirectory).Sum(f => f.Size)),
+                Permanent = permanent,
+                TrashUnavailable = unavailable,
             });
+            if (request == null)
+                return;
+            var toTrash = !request.Permanent;
+            var job = new TransferJob(toTrash ? "Moving to Trash" : "Deleting", toTrash ? "Trash" : _ioManager.ActualPath, j =>
+            {
+                Busy();
+                try
+                {
+                    int failed = 0;
+                    for (int i = 0; i < items.Count && !j.Token.IsCancellationRequested; i++)
+                    {
+                        var file = items[i];
+                        j.Report(new TransferProgress { FileIndex = i + 1, FileCount = items.Count, CurrentName = file.Name });
+                        try
+                        {
+                            if (toTrash) Trash.MoveToTrash(file.FullName); else file.Delete();
+                            _ioManager.LogDebug((toTrash ? "Trash " : "Delete ") + file.Name);
+                        }
+                        catch (Exception ex)
+                        {
+                            failed++;
+                            j.AddError();
+                            _ioManager.LogError(ex, string.Format("Cannot {0} {1}", toTrash ? "move to Trash" : "delete", file.Name));
+                        }
+                    }
+                    LogSummary(toTrash ? "moved to Trash" : "deleted", items.Count, failed);
+                }
+                finally
+                {
+                    Avaiable();
+                }
+            });
+            await _queue.Enqueue(job);
         }
 
         public async Task RenameFile(IMetadataFileStructure selectedFile)
@@ -174,7 +210,7 @@ namespace Comander.Core
             }
             catch (Exception ex)
             {
-                _ioManager.LogError(ex, string.Format("Cannot rename {0} to {1}: {2}", oldName, newName, ex.Message));
+                _ioManager.LogError(ex, string.Format("Cannot rename {0} to {1}", oldName, newName));
             }
             _ioManager.FilterFiles();
         }
@@ -229,7 +265,7 @@ namespace Comander.Core
                 }
                 catch (Exception ex)
                 {
-                    _ioManager.LogError(ex, "Error occur during zip. Check logs.");
+                    _ioManager.LogError(ex, "Zip failed");
                 }
             });
         }
@@ -266,7 +302,7 @@ namespace Comander.Core
                 }
                 catch (Exception ex)
                 {
-                    _ioManager.LogError(ex, "Error occur during unzip. Check logs.");
+                    _ioManager.LogError(ex, "Unzip failed");
                 }
             });
         }
