@@ -93,7 +93,7 @@ namespace Comander.ViewModel
                     return;
                 foreach (IMetadataFileStructure item in items)
                     item.SelectFile();
-                RefreshFilesCollection();
+                CountSelectedFiles();
             });
             SelectAllCommand = new RelayCommand(SelectAllFiles);
             SelectTypeCommand = new RelayCommand(SelectByType);

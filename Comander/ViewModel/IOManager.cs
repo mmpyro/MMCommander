@@ -45,7 +45,7 @@ namespace Comander.ViewModel
         private void SelectAllFiles()
         {
             Files.ToList().ForEach(t => t.PermanentSelect());
-            RefreshFilesCollection();
+            CountSelectedFiles();
         }
 
         private void SelectByType()
@@ -53,7 +53,7 @@ namespace Comander.ViewModel
             if (SelectedFile != null && !string.IsNullOrEmpty(SelectedFile.Ext))
             {
                 Files.Where(t => t.Ext == SelectedFile.Ext).ToList().ForEach(t => t.PermanentSelect());
-                RefreshFilesCollection();
+                CountSelectedFiles();
             }
         }
 
@@ -65,12 +65,6 @@ namespace Comander.ViewModel
         private void ReversFileSelection()
         {
             Files.ToList().ForEach(t => t.SelectFile());
-            RefreshFilesCollection();
-        }
-
-        private void RefreshFilesCollection()
-        {
-            Files = new ObservableCollection<IMetadataFileStructure>(Files);
             CountSelectedFiles();
         }
 

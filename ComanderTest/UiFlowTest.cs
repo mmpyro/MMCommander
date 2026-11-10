@@ -100,6 +100,10 @@ namespace ComanderTest
         }
 
         // Panel 1's CommandWindow: [0] path box, [1] selected-file box (read only), [2] filter box.
+        private object TickIcon(string name) => Grid(1).GetVisualDescendants().OfType<DataGridRow>()
+            .First(r => (r.DataContext as IMetadataFileStructure)?.Name == name)
+            .GetVisualDescendants().OfType<Image>().First().Source;
+
         // The drive ComboBox has its own inner TextBox, so skip TextBoxes inside a ComboBox.
         private TextBox PanelTextBox(int index) => _window.GetVisualDescendants().OfType<CommandWindow>().First()
             .GetVisualDescendants().OfType<TextBox>().Where(t => t.FindAncestorOfType<ComboBox>() == null).ElementAt(index);
@@ -147,8 +151,10 @@ namespace ComanderTest
         {
             Open(_root, _dest);
             ClickRow(1, "file.txt");
+            var before = TickIcon("file.txt");
             Key(Avalonia.Input.Key.S);
             Shot("select");
+            Assert.That(TickIcon("file.txt"), Is.Not.SameAs(before), "tick icon redraws");
             Assert.That(_vm.Io1.Files.Single(f => f.Name == "file.txt").IsSelected(), Is.True);
             Assert.That(_vm.Io1.CurrentOperation, Is.EqualTo("Selected elements: 1"));
             // Marking several files with S in a row needs the cursor to stay where it was.
