@@ -10,8 +10,8 @@ namespace ZipLibTest
     [TestFixture]
     public class ZipFileTest
     {
-        private readonly string DestinationPath = Path.Combine(Path.GetTempPath(), "test_dir");
-        private readonly string FilePath = Path.Combine(Path.GetTempPath(), "test_dir\\file");
+        private readonly string DestinationPath = Path.Combine(TestPaths.Root, "test_dir");
+        private readonly string FilePath = Path.Combine(TestPaths.Root, "test_dir/file");
 
         [SetUp]
         public void Before()

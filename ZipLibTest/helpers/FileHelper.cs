@@ -88,6 +88,7 @@ namespace IOLibTest.helpers
             int filesize = 0;
             string str = null;
             const int charSize = 16;
+            Directory.CreateDirectory(Path.GetDirectoryName(path));
             size = size*charSize;
             switch (unit)
             {

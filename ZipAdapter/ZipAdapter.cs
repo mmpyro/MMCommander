@@ -1,88 +1,131 @@
-﻿using System;
-using SevenZip;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using ICSharpCode.SharpZipLib.BZip2;
+using ICSharpCode.SharpZipLib.GZip;
+using ICSharpCode.SharpZipLib.Tar;
+using ICSharpCode.SharpZipLib.Zip;
+using SharpCompress.Archives;
+using SharpCompress.Common;
+using SharpCompress.Readers;
 
 namespace ZipLib
 {
     public class ZipAdapter
     {
-        public ZipAdapter()
+        public void CompressFiles(ZipParameters zipParameters, params string[] filePaths)
         {
-            if(Environment.Is64BitProcess)
-                SevenZipCompressor.SetLibraryPath(String.Format(@"{0}\dll\7z.dll", AppDomain.CurrentDomain.BaseDirectory ));
-            else
-                SevenZipCompressor.SetLibraryPath(String.Format(@"{0}\dll\7z(x86).dll", AppDomain.CurrentDomain.BaseDirectory ));
+            Write(zipParameters, null, filePaths.SelectMany(Entries).ToList());
         }
 
-        public void CompressFiles(ZipParameters zipParameters ,params string[] filePaths)
+        public void CompressFilesWithEncryption(ZipParameters zipParameters, params string[] filePaths)
         {
-            var cmp = InitCompressor(zipParameters);
-            cmp.CompressFiles(zipParameters.ArchiveName, filePaths);
+            Write(zipParameters, zipParameters.Password, filePaths.SelectMany(Entries).ToList());
+        }
+
+        // Stores the directory's contents (not the directory itself) at the archive root.
+        public void CompressDir(ZipParameters zipParameters, string dir)
+        {
+            Write(zipParameters, null, DirEntries(dir, "").ToList());
+        }
+
+        public void CompressDirWithEncryption(ZipParameters zipParameters, string dir)
+        {
+            Write(zipParameters, zipParameters.Password, DirEntries(dir, "").ToList());
         }
 
         /// <summary>
         /// Works as extract all
         /// </summary>
-        /// <param name="zipParameters"></param>
-        /// <param name="dir"></param>
         public void UnCompressFile(ZipParameters zipParameters, string dir)
         {
-            SevenZipExtractor extractor = null;
-            if(string.IsNullOrEmpty(zipParameters.Password))
-                extractor = new SevenZipExtractor(zipParameters.ArchiveName);
-            else
-                extractor = new SevenZipExtractor(zipParameters.ArchiveName, zipParameters.Password);
-            extractor.ExtractArchive(dir);
-        }
-
-        public void CompressFilesWithEncryption(ZipParameters zipParameters, params string[] filePaths)
-        {
-            var cmp = InitCompressor(zipParameters);
-            cmp.ZipEncryptionMethod = ZipEncryptionMethod.Aes256;
-            cmp.EncryptHeaders = true;
-            cmp.CompressFilesEncrypted(zipParameters.ArchiveName, zipParameters.Password,filePaths);
-        }
-
-        public void CompressDir(ZipParameters zipParameters, string dir)
-        {
-            var cmp = InitCompressor(zipParameters);
-            cmp.CompressDirectory(dir, zipParameters.ArchiveName);
-        }
-
-        public void CompressDirWithEncryption(ZipParameters zipParameters, string dir)
-        {
-            var cmp = InitCompressor(zipParameters);
-            cmp.CompressDirectory(dir, zipParameters.ArchiveName, zipParameters.Password);
-        }
-
-        private SevenZipCompressor InitCompressor(ZipParameters zipParameters)
-        {
-            var cmp = new SevenZipCompressor
+            var readerOptions = new ReaderOptions { Password = string.IsNullOrEmpty(zipParameters.Password) ? null : zipParameters.Password };
+            // ExtractFullPath keeps folders; SharpCompress rejects entries that resolve outside dir (zip-slip).
+            var options = new ExtractionOptions { ExtractFullPath = true, Overwrite = true };
+            Directory.CreateDirectory(dir);
+            if (ArchiveFactory.IsArchive(zipParameters.ArchiveName, out var type) && type == ArchiveType.SevenZip)
             {
-                CompressionMethod = CompressionMethod.Lzma,
-                CompressionMode = CompressionMode.Create,
-                CompressionLevel = CompressionLevel.Fast,
-                VolumeSize = 0
-            };
+                // 7z needs random access, so it can't go through the streaming reader.
+                using var archive = ArchiveFactory.OpenArchive(zipParameters.ArchiveName, readerOptions);
+                archive.WriteToDirectory(dir, options);
+                return;
+            }
+            // The reader also unpacks the tar inside .tar.gz / .tar.bz2.
+            using var reader = ReaderFactory.OpenReader(zipParameters.ArchiveName, readerOptions);
+            reader.WriteAllToDirectory(dir, options);
+        }
+
+        public static string ArchivePath(ZipParameters zipParameters)
+        {
             switch (zipParameters.Type)
             {
-                case ZipType.Zip:
-                    cmp.ArchiveFormat = OutArchiveFormat.Zip;
-                    zipParameters.ArchiveName = zipParameters.ArchiveName + "." + "zip";
-                    break;
-                case ZipType.GZip:
-                    cmp.ArchiveFormat = OutArchiveFormat.GZip;
-                    zipParameters.ArchiveName = zipParameters.ArchiveName + "." + "gzip";
-                    break;
-                case ZipType.SevenZip:
-                    cmp.ArchiveFormat = OutArchiveFormat.SevenZip;
-                    zipParameters.ArchiveName = zipParameters.ArchiveName + "." + "7z";
-                    break;
-                case ZipType.Tar:
-                    cmp.ArchiveFormat = OutArchiveFormat.Tar;
-                    zipParameters.ArchiveName = zipParameters.ArchiveName + "." + "tar";
-                    break;
+                case ZipType.Zip: return zipParameters.ArchiveName + ".zip";
+                case ZipType.Tar: return zipParameters.ArchiveName + ".tar";
+                case ZipType.GZip: return zipParameters.ArchiveName + ".tar.gz";
+                case ZipType.Bzip2: return zipParameters.ArchiveName + ".tar.bz2";
+                default: throw new NotSupportedException("Unsupported archive type " + zipParameters.Type);
             }
-            return cmp;
+        }
+
+        private static IEnumerable<(string Source, string Name)> Entries(string path)
+        {
+            var name = Path.GetFileName(Path.TrimEndingDirectorySeparator(path));
+            return Directory.Exists(path) ? DirEntries(path, name + "/") : new[] { (path, name) };
+        }
+
+        private static IEnumerable<(string Source, string Name)> DirEntries(string dir, string prefix)
+        {
+            return Directory.EnumerateFiles(dir, "*", SearchOption.AllDirectories)
+                .Select(f => (f, prefix + Path.GetRelativePath(dir, f).Replace(Path.DirectorySeparatorChar, '/')));
+        }
+
+        // Entries are listed before the archive is created, so an archive written inside the source dir doesn't include itself.
+        private static void Write(ZipParameters zipParameters, string password, List<(string Source, string Name)> entries)
+        {
+            var archivePath = ArchivePath(zipParameters);
+            if (!string.IsNullOrEmpty(password) && zipParameters.Type != ZipType.Zip)
+                throw new ArgumentException("Password protection is supported only for Zip archives");
+
+            using var output = File.Create(archivePath);
+            if (zipParameters.Type == ZipType.Zip)
+            {
+                using var zip = new ZipOutputStream(output);
+                if (!string.IsNullOrEmpty(password))
+                    zip.Password = password;
+                foreach (var (source, name) in entries)
+                {
+                    var entry = new ZipEntry(name) { DateTime = File.GetLastWriteTime(source) };
+                    if (!string.IsNullOrEmpty(password))
+                        entry.AESKeySize = 256;
+                    zip.PutNextEntry(entry);
+                    using (var input = File.OpenRead(source))
+                        input.CopyTo(zip);
+                    zip.CloseEntry();
+                }
+                return;
+            }
+
+            Stream compressed = zipParameters.Type switch
+            {
+                ZipType.GZip => new GZipOutputStream(output),
+                ZipType.Bzip2 => new BZip2OutputStream(output),
+                _ => output
+            };
+            using (compressed)
+            using (var tar = new TarOutputStream(compressed, System.Text.Encoding.UTF8))
+            {
+                foreach (var (source, name) in entries)
+                {
+                    var entry = TarEntry.CreateTarEntry(name);
+                    entry.Size = new FileInfo(source).Length;
+                    entry.ModTime = File.GetLastWriteTimeUtc(source);
+                    tar.PutNextEntry(entry);
+                    using (var input = File.OpenRead(source))
+                        input.CopyTo(tar);
+                    tar.CloseEntry();
+                }
+            }
         }
     }
 }

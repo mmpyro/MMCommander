@@ -2,6 +2,7 @@
 using IOLib;
 using IOLibTest.helpers;
 using NUnit.Framework;
+using NUnit.Framework.Legacy;
 using ZipLib;
 
 namespace ZipLibTest
@@ -9,9 +10,9 @@ namespace ZipLibTest
     [TestFixture]
     public class ZipDirectoryTest
     {
-        private readonly string RootDirectoryPath = Path.Combine(Path.GetTempPath(), "test_dir\\dir");
-        private readonly string SubDirectoryPath = Path.Combine(Path.GetTempPath(), "test_dir\\dir\\sub");
-        private readonly string RepositoryPath = Path.Combine(Path.GetTempPath(), "test_dir\\dir\\zippedDir");
+        private readonly string RootDirectoryPath = Path.Combine(TestPaths.Root, "test_dir/dir");
+        private readonly string SubDirectoryPath = Path.Combine(TestPaths.Root, "test_dir/dir/sub");
+        private readonly string RepositoryPath = Path.Combine(TestPaths.Root, "test_dir/dir/zippedDir");
 
         [SetUp]
         public void Before()
@@ -28,9 +29,9 @@ namespace ZipLibTest
             //Given
             ZipAdapter zipAdapter = new ZipAdapter();
             //When
-            zipAdapter.CompressDir(new ZipParameters(RepositoryPath, "", ZipType.SevenZip), RootDirectoryPath );
+            zipAdapter.CompressDir(new ZipParameters(RepositoryPath, "", ZipType.Zip), RootDirectoryPath );
             //Then
-            Assert.IsTrue(File.Exists(RepositoryPath+@".7z"));
+            ClassicAssert.IsTrue(File.Exists(RepositoryPath+@".zip"));
         }
 
         [TestCase("")]
@@ -41,16 +42,16 @@ namespace ZipLibTest
             //Given
             ZipAdapter zipAdapter = new ZipAdapter();
             //When
-            zipAdapter.CompressDir(new ZipParameters(RepositoryPath, "", ZipType.SevenZip), RootDirectoryPath);
+            zipAdapter.CompressDirWithEncryption(new ZipParameters(RepositoryPath, password, ZipType.Zip), RootDirectoryPath);
             //Then
-            Assert.IsTrue(File.Exists(RepositoryPath + @".7z"));
+            ClassicAssert.IsTrue(File.Exists(RepositoryPath + @".zip"));
         }
 
         [TearDown]
         public void After()
         {
             FileHelper.DeleteDirIfExist(RootDirectoryPath);
-            FileHelper.DeleteIfExist(RepositoryPath + @".7z");
+            FileHelper.DeleteIfExist(RepositoryPath + @".zip");
         }
     }
 }
