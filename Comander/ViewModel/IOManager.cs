@@ -146,7 +146,8 @@ namespace Comander.ViewModel
             }
             catch (Exception ex)
             {
-                _logger.Error(ex);
+                // e.g. access denied: say so instead of showing an empty folder (BUG-13).
+                _logger.Error(string.Format("Cannot open {0}: {1}", path, ex.Message));
             }
         }
 

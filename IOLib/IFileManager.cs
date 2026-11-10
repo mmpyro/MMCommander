@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
@@ -18,7 +18,7 @@ namespace IOLib
     {
         void CreateFile(string path);
         bool FileExist(string path);
-        void Split(IAbstractFileStructure abstractFile,int partSize ,FileSizeUnit unit, string destinationPath);
+        void Split(IAbstractFileStructure abstractFile, long partSize, FileSizeUnit unit, string destinationPath);
         void Join(string sourcePath, string fileName, string destinationFileName);
     }
 
@@ -31,9 +31,10 @@ namespace IOLib
             _fileFactory = fileFactory;
         }
 
-        private int ConvertFileSize(int size, FileSizeUnit unit)
+        // long: part sizes and offsets pass 2 GB (BUG-07).
+        private static long ConvertFileSize(long size, FileSizeUnit unit)
         {
-            return size*(int)unit;
+            return checked(size*(long)unit);
         }
 
         private int CreateBufferSize(FileSizeUnit unit)
@@ -49,7 +50,7 @@ namespace IOLib
             }
         }
 
-        private int CreateBufferSize(int fileSize)
+        private int CreateBufferSize(long fileSize)
         {
             if(fileSize > (int)FileSizeUnit.MB)
                 return 20 * 1024;
@@ -58,19 +59,20 @@ namespace IOLib
             return 100;
         }
 
-        private void DevideFile(IAbstractFileStructure abstractFile, int size, FileSizeUnit unit, string destinationPath, int index)
+        private void DevideFile(IAbstractFileStructure abstractFile, long size, FileSizeUnit unit, string destinationPath, int index)
         {
             int BUFFER_SIZE = CreateBufferSize(unit);
             byte[] buffer = new byte[BUFFER_SIZE];
-            int partSize = ConvertFileSize(size, unit);
+            long partSize = ConvertFileSize(size, unit);
             using (Stream input = File.OpenRead(abstractFile.FullName))
             {
                 input.Position = input.Seek(partSize*index, SeekOrigin.Begin);
                 using (Stream output = File.Create(Path.Combine(destinationPath, Path.GetFileNameWithoutExtension(abstractFile.Name) + "__" + index)))
                 {
-                    int remaining = partSize, bytesRead;
+                    long remaining = partSize;
+                    int bytesRead;
                     while (remaining > 0 && (bytesRead = input.Read(buffer, 0,
-                            Math.Min(remaining, BUFFER_SIZE))) > 0)
+                            (int)Math.Min(remaining, BUFFER_SIZE))) > 0)
                     {
                         output.Write(buffer, 0, bytesRead);
                         remaining -= bytesRead;
@@ -81,15 +83,16 @@ namespace IOLib
 
         private void JoinFile(string fullfileName,FileStream fileStream)
         {
-            int partSize = (int)(new FileInfo(fullfileName)).Length;
+            long partSize = new FileInfo(fullfileName).Length;
             int BUFFER_SIZE = CreateBufferSize(partSize);
             byte[] buffer = new byte[BUFFER_SIZE];
             using (Stream input = File.OpenRead(fullfileName))
             {
                 fileStream.Position = fileStream.Seek(fileStream.Length, SeekOrigin.Begin);
-                int remaining = partSize, bytesRead;
+                long remaining = partSize;
+                int bytesRead;
                 while (remaining > 0 && (bytesRead = input.Read(buffer, 0,
-                        Math.Min(remaining, BUFFER_SIZE))) > 0)
+                        (int)Math.Min(remaining, BUFFER_SIZE))) > 0)
                 {
                     fileStream.Write(buffer, 0, bytesRead);
                     remaining -= bytesRead;
@@ -115,9 +118,9 @@ namespace IOLib
         /// <param name="abstractFilehich will be devided</param>
         /// <param name="partSize">Size of file pice</param>
         /// <param name="unit">File size unit</param>
-        public void Split(IAbstractFileStructure abstractFile, int partSize, FileSizeUnit unit, string destinationPath)
+        public void Split(IAbstractFileStructure abstractFile, long partSize, FileSizeUnit unit, string destinationPath)
         {
-            if ( ConvertFileSize(partSize, unit) >= abstractFile.Size)
+            if (partSize <= 0 || ConvertFileSize(partSize, unit) >= abstractFile.Size)
             {
                 throw new ArgumentException("Split size can'AbstractFileStructure be grater than file size");
             }
@@ -137,31 +140,23 @@ namespace IOLib
         /// <param name="destinationFileName">Destination full path with extension</param>
         public void Join(string sourcePath, string fileName, string destinationFileName)
         {
-            var fileNames = Directory.GetFiles(sourcePath);
-            Regex regex = new Regex(@".*[_]{2}");
-            fileName = CleanInvalidPassword(fileName);
-            var filterFiles = fileNames.Where( t => Regex.IsMatch(RemovePath(t,sourcePath), fileName + @"[0-9]*"))
-                .Select(t => Path.Combine(sourcePath, t)).OrderBy(t => int.Parse(regex.Replace(t, "")));
-            int numberOfFiles = filterFiles.Count();
-            if (numberOfFiles < 2)
+            // Only "<name>__<n>" parts of this file, in numeric order (BUG-15).
+            var part = new Regex("^" + Regex.Escape(fileName) + @"__(\d+)$");
+            var parts = Directory.GetFiles(sourcePath)
+                .Select(path => (path, match: part.Match(Path.GetFileName(path))))
+                .Where(t => t.match.Success)
+                .OrderBy(t => long.Parse(t.match.Groups[1].Value))
+                .Select(t => t.path)
+                .ToList();
+            if (parts.Count < 2)
                 throw new ArgumentException("Join need at least two files");
             using (FileStream fileStream = File.Create(destinationFileName))
             {
-                foreach (string file in filterFiles)
+                foreach (string file in parts)
                 {
                     JoinFile(file, fileStream);
                 }
             }
-        }
-
-        private string CleanInvalidPassword(string value)
-        {
-            return value.Replace("(", "").Replace(")", "");
-        }
-
-        private string RemovePath(string fullPath, string sourcePath)
-        {
-            return CleanInvalidPassword(fullPath.Replace(sourcePath, ""));
         }
     }
 

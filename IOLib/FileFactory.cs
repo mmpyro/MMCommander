@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 
@@ -23,7 +23,8 @@ namespace IOLib
 
         public IAbstractFileStructure CreateFileMsg(string fullPath)
         {
-            if (string.IsNullOrEmpty(Path.GetExtension(fullPath)))
+            // Existing paths are classified by what they are, not by their extension (BUG-03).
+            if (Directory.Exists(fullPath) || (!File.Exists(fullPath) && string.IsNullOrEmpty(Path.GetExtension(fullPath))))
             {
                 return CreateFileMsg(new DirectoryInfo(fullPath));
             }

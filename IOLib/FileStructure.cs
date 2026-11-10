@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -103,58 +103,30 @@ namespace IOLib
             }
         }
 
+        // Keeps the source attributes; only a ReadOnly target is cleared so it can be overwritten (BUG-30).
         public override void Copy(IAbstractFileStructure destinationDirectory, Func<string,string, bool> allowOverride)
         {
-            if (destinationDirectory.IsDirectory)
-            {
-                string destinationPath = Path.Combine(destinationDirectory.FullName, Name);
-                try
-                {
-                    if (IsFileExistInDestinationDir(destinationDirectory))
-                    {
-                        if (allowOverride(Name, destinationPath))
-                        {
-                            File.Copy(FullName, destinationPath, true);
-                            File.SetAttributes(destinationPath, FileAttributes.Normal);
-                        }
-                    }
-                    else
-                    {
-                        File.Copy(FullName, destinationPath);
-                        File.SetAttributes(destinationPath, FileAttributes.Normal);
-                    }
-                }
-                catch (IOException ex)
-                {
-                    CopyFileInUse(destinationDirectory, ex);
-                }
-            }
-            else
-            {
+            if (!destinationDirectory.IsDirectory)
                 throw new ArgumentException("Invalid arguments");
+            string destinationPath = Path.Combine(destinationDirectory.FullName, Name);
+            bool exists = IsFileExistInDestinationDir(destinationDirectory);
+            if (exists && !allowOverride(Name, destinationPath))
+                return;
+            try
+            {
+                if (exists)
+                    File.SetAttributes(destinationPath, FileAttributes.Normal);
+                File.Copy(FullName, destinationPath, exists);
+            }
+            catch (IOException ex) when (OperatingSystem.IsWindows() && ex.Message.Contains("in use"))
+            {
+                CopyFileInUse(destinationDirectory);
             }
         }
 
-
         public override void OverrideCopy(IAbstractFileStructure destinationDirectory)
         {
-            try
-            {
-                if (destinationDirectory.IsDirectory)
-                {
-                    string destinationPath = Path.Combine(destinationDirectory.FullName, Name);
-                    File.Copy(FullName, destinationPath, true);
-                    File.SetAttributes(destinationPath, FileAttributes.Normal);
-                }
-                else
-                {
-                    throw new ArgumentException("Invalid arguments");
-                }
-            }
-            catch(IOException ex)
-            {
-                CopyFileInUse(destinationDirectory, ex);
-            }
+            Copy(destinationDirectory, (_, _) => true);
         }
 
         public override void Rename(string newName)
@@ -177,7 +149,7 @@ namespace IOLib
 
         public override int GetHashCode()
         {
-            return FullName.GetHashCode();
+            return StringComparer.OrdinalIgnoreCase.GetHashCode(FullName);
         }
 
         public override string ToString()
@@ -194,21 +166,18 @@ namespace IOLib
             return false;
         }
 
-        private void CopyFileInUse(IAbstractFileStructure destinationDirectory, IOException e)
+        // cmd.exe copy fallback for files locked by another process; Windows only.
+        private void CopyFileInUse(IAbstractFileStructure destinationDirectory)
         {
-            // cmd.exe copy fallback for files locked by another process; Windows only
-            if (OperatingSystem.IsWindows() && e.Message.Contains("in use"))
-            {
-                var process = new Process();
-                process.StartInfo.UseShellExecute = false;
-                process.StartInfo.RedirectStandardOutput = true;
-                process.StartInfo.CreateNoWindow = true;
-                process.StartInfo.FileName = "cmd.exe";
-                process.StartInfo.Arguments = "/C copy \"" + FullName + "\" \"" + destinationDirectory.FullName + "\"";
-                process.Start();
-                process.WaitForExit();
-                process.Close();
-            }
+            var process = new Process();
+            process.StartInfo.UseShellExecute = false;
+            process.StartInfo.RedirectStandardOutput = true;
+            process.StartInfo.CreateNoWindow = true;
+            process.StartInfo.FileName = "cmd.exe";
+            process.StartInfo.Arguments = "/C copy \"" + FullName + "\" \"" + destinationDirectory.FullName + "\"";
+            process.Start();
+            process.WaitForExit();
+            process.Close();
         }
     }
 }

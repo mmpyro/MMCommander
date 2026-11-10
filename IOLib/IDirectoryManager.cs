@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -33,60 +33,49 @@ namespace IOLib
             _fileFactory = fileFactory;
         }
 
+        // Errors propagate so the panel can say why a folder can't be listed (BUG-13).
         public List<IAbstractFileStructure> GetFilesFromPath(string path)
         {
-            try
-            {
-                var res = Directory.GetFiles(path).Select(AbstractFileStructure => _fileFactory.CreateFileMsg(new FileInfo(AbstractFileStructure)));    
-                return  new List<IAbstractFileStructure>(res);
-            }
-            catch
-            {
-                return _fileFactory.CreateEmptyFileList();
-            }
+            return Directory.GetFiles(path).Select(file => _fileFactory.CreateFileMsg(new FileInfo(file))).ToList();
         }
 
         public List<IAbstractFileStructure> GetDirectoriesFromPath(string path)
         {
-            try
-            {
-                var res = Directory.GetDirectories(path).Select(AbstractFileStructure => _fileFactory.CreateFileMsg(new DirectoryInfo(AbstractFileStructure)));
-                var list = new List<IAbstractFileStructure>();
-                CreateParentDirIfNotNull(list,path);
-                list.AddRange(res);
-                return list;
-            }
-            catch
-            {
-                return _fileFactory.CreateEmptyFileList();
-            }
+            var list = new List<IAbstractFileStructure>();
+            CreateParentDirIfNotNull(list, path);
+            list.AddRange(Directory.GetDirectories(path).Select(dir => _fileFactory.CreateFileMsg(new DirectoryInfo(dir))));
+            return list;
         }
 
         public void SearchFiles(SearchParameters searchParameters)
         {
-            string fullName = searchParameters.StartDirectoryPath;
-            var files = Directory.GetFiles(fullName);
-            var isFileExtension = new Regex(@"\*\.*");
-            if(searchParameters.MatchOptions == MatchOptions.WholeWord)
+            string phrase = searchParameters.SearchPhrase;
+            if (searchParameters.MatchOptions == MatchOptions.WholeWord)
+                phrase = string.Format(@"\b{0}\b", phrase);
+            else if (new Regex(@"\*\.*").IsMatch(phrase))
+                phrase = string.Format(@".*\.{0}$", phrase.Split('.')[1]);
+            var pattern = new Regex(phrase, searchParameters.RegexOptions);
+            var pending = new Stack<string>();
+            pending.Push(searchParameters.StartDirectoryPath);
+            while (pending.Count > 0)
             {
-                searchParameters.SearchPhrase = string.Format(@"\b{0}\b", searchParameters.SearchPhrase);
-            }
-            else if (isFileExtension.IsMatch(searchParameters.SearchPhrase))
-            {
-                string extension = searchParameters.SearchPhrase.Split('.')[1];
-                searchParameters.SearchPhrase = string.Format(@".*\.{0}$",extension);
-            }
-            foreach (var file in files)
-            {
-                if (Regex.IsMatch(file, searchParameters.SearchPhrase, searchParameters.RegexOptions))
-                    OnFindedFileNotification(_fileFactory.CreateFileMsg(Path.Combine(fullName, file)));
-            }
-            if (searchParameters.Recursive)
-            {
-                foreach (var dir in Directory.GetDirectories(fullName))
+                string dir = pending.Pop();
+                string[] files, dirs;
+                try
                 {
-                    SearchFiles(new SearchParameters(dir, searchParameters.SearchPhrase, searchParameters.Recursive));
+                    files = Directory.GetFiles(dir);
+                    dirs = searchParameters.Recursive ? Directory.GetDirectories(dir) : Array.Empty<string>();
                 }
+                catch (Exception e) when (e is UnauthorizedAccessException || e is IOException)
+                {
+                    continue; // one unreadable folder must not end the search (BUG-13)
+                }
+                // Match the file name, not the full path (BUG-12).
+                foreach (var file in files.Where(f => pattern.IsMatch(Path.GetFileName(f))))
+                    OnFindedFileNotification(_fileFactory.CreateFileMsg(file));
+                // Skip symlinks/junctions: they can loop.
+                foreach (var sub in dirs.Reverse().Where(d => !new DirectoryInfo(d).Attributes.HasFlag(FileAttributes.ReparsePoint)))
+                    pending.Push(sub);
             }
         }
 

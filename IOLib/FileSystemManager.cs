@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace IOLib
@@ -13,8 +13,7 @@ namespace IOLib
         Task<List<IAbstractFileStructure>> GetAllStructuresAsync(string path);
         void CreateDirectory(string path);
         void CreateFile(string path);
-        void FileExist(string path);
-        void Split(IAbstractFileStructure abstractFile, int partSize, FileSizeUnit unit, string destinationPath);
+        void Split(IAbstractFileStructure abstractFile, long partSize, FileSizeUnit unit, string destinationPath);
         void Join(string sourcePath, string fileName, string destinationFileName);
         IAbstractFileStructure GetDirFromPath(string path);
         IEnumerable<DriveStruct> GetDrives();
@@ -83,12 +82,7 @@ namespace IOLib
             _fileManager.CreateFile(path);
         }
 
-        public void FileExist(string path)
-        {
-            _fileManager.FileExist(path);
-        }
-
-        public void Split(IAbstractFileStructure abstractFile, int partSize, FileSizeUnit unit, string destinationPath)
+        public void Split(IAbstractFileStructure abstractFile, long partSize, FileSizeUnit unit, string destinationPath)
         {
             _fileManager.Split(abstractFile, partSize, unit, destinationPath);
         }
