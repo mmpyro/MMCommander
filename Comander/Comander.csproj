@@ -3,6 +3,8 @@
     <OutputType>WinExe</OutputType>
     <ApplicationIcon>Icons/main.ico</ApplicationIcon>
     <AvaloniaUseCompiledBindingsByDefault>false</AvaloniaUseCompiledBindingsByDefault>
+    <!-- Dialogs take constructor arguments, so the XAML runtime loader (designer) cannot create them; we never use it. -->
+    <NoWarn>$(NoWarn);AVLN3001</NoWarn>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Avalonia" Version="12.1.6" />
