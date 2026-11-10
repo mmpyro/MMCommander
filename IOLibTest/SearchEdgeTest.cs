@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using IOLib;
 using NUnit.Framework;
+using System.Runtime.Versioning;
 
 namespace IOLibTest
 {
@@ -64,7 +65,7 @@ namespace IOLibTest
         }
 
         // BUG-13: one unreadable folder used to abort the whole search.
-        [Test]
+        [Test, UnsupportedOSPlatform("windows")]
         public void Recursive_SkipsUnreadableFolder_AndContinues()
         {
             Assume.That(OperatingSystem.IsWindows(), Is.False, "uses Unix permissions");
@@ -74,7 +75,7 @@ namespace IOLibTest
         }
 
         // BUG-13: listing an unreadable folder used to return an empty list.
-        [Test]
+        [Test, UnsupportedOSPlatform("windows")]
         public void Listing_UnreadableFolder_Throws()
         {
             Assume.That(OperatingSystem.IsWindows(), Is.False, "uses Unix permissions");

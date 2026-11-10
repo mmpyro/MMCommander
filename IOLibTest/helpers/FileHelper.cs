@@ -33,6 +33,7 @@ namespace IOLibTest.helpers
 
         public static void CreateIfNotExist(string path)
         {
+            Directory.CreateDirectory(Path.GetDirectoryName(path));
             if (!File.Exists(path))
             {
                 var stream = File.Create(path);
@@ -88,6 +89,7 @@ namespace IOLibTest.helpers
             int filesize = 0;
             string str = null;
             const int charSize = 16;
+            Directory.CreateDirectory(Path.GetDirectoryName(path));
             size = size*charSize;
             switch (unit)
             {
