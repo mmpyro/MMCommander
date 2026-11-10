@@ -52,7 +52,6 @@ namespace Comander.ViewModel
             _io2 = io2;
             KeyMap = new KeyMap(configReader.KeyBindings);
             Palette = new PaletteVM(this);
-            string keymapPath = Path.Combine(AppContext.BaseDirectory, "Manuals", "keymap.html");
             string syntaxPath = Path.Combine(AppContext.BaseDirectory, "Manuals", "syntax.html");
 
             SwitchCommand = new RelayCommand(SwitchCommanders);
@@ -62,11 +61,10 @@ namespace Comander.ViewModel
             ReadLogsCommand = new RelayCommand(() => Shell.Open(Path.Combine(Path.GetTempPath(), "mmcommander")));
             ClearLogCommand = new RelayCommand(ClearLog);
             CompareDirCommand = new RelayCommand(() => CompareDirectories(false));
-            SettingsCommand = new AsyncRelayCommand(() => WindowHost.ShowDialog(() => new SettingsWindow(new SettingsWindowVM(KeyMap, _configReader))));
+            SettingsCommand = new AsyncRelayCommand(() => ShowSettings(0));
             SyncDirsCommand = new RelayCommand(() => CompareDirectories(true));
-            AboutCommand = new AsyncRelayCommand(() => WindowHost.ShowDialog(() => new AboutWindow(string.Format("Product version: {0}\nCreated by Michał Marszałek.",
-                _assemblyVersionResolver.GetProductVersion(GetType())))));
-            KeyMapCommand = new RelayCommand(() => Shell.Open(keymapPath));
+            AboutCommand = new AsyncRelayCommand(() => WindowHost.ShowDialog(() => new AboutWindow(_assemblyVersionResolver.GetProductVersion(GetType()))));
+            KeyMapCommand = new AsyncRelayCommand(() => ShowSettings(1)); // opens Settings on the Keyboard page
             SyntaxCommand = new RelayCommand(() => Shell.Open(syntaxPath));
             DuplicateCommand = new RelayCommand(DuplicateCommanders);
 
@@ -125,6 +123,10 @@ namespace Comander.ViewModel
                 _logger.Error("Cannot save settings", e);
             }
         }
+
+        // 0 Appearance, 1 Keyboard, 2 File operations (SettingsWindowVM.Section).
+        private Task ShowSettings(int section) => WindowHost.ShowDialog(() =>
+            new SettingsWindow(new SettingsWindowVM(KeyMap, _configReader) { Section = section }));
 
         private void SwitchCommanders()
         {

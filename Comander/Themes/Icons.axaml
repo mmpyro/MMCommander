@@ -1,7 +1,6 @@
 <ResourceDictionary xmlns="https://github.com/avaloniaui"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
     <!-- 24x24 stroke icons from docs/design/*.dc.html (Lucide style). Draw with <Path Classes="icon" Data="{StaticResource Icon.X}"/>. -->
-    <StreamGeometry x:Key="Icon.AppMark">M4 5h6v14H4z M14 5h6v14h-6z</StreamGeometry>
     <StreamGeometry x:Key="Icon.Folder">M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z</StreamGeometry>
     <StreamGeometry x:Key="Icon.FolderPlus">M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z M12 10v6 M9 13h6</StreamGeometry>
     <StreamGeometry x:Key="Icon.File">M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z M14 3v5h5</StreamGeometry>

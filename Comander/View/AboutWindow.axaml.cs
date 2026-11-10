@@ -4,10 +4,10 @@ namespace Comander.View
 {
     public partial class AboutWindow : DialogWindow
     {
-        public AboutWindow(string message)
+        public AboutWindow(string version)
         {
             InitializeComponent();
-            InformationTb.Text = message;
+            VersionText.Text = "Version " + version;
         }
 
         private void Close_OnClick(object sender, RoutedEventArgs e) => Close();

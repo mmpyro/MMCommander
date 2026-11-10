@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Net;
 using Avalonia.Input;
 using Comander.Core;
 using Comander.ViewModel;
@@ -52,17 +51,6 @@ namespace ComanderTest
             Assert.That(map.Find(new KeyEventArgs { Key = Key.F6, KeyModifiers = KeyModifiers.Shift })?.Id, Is.EqualTo("rename"));
             Assert.That(map.Find(new KeyEventArgs { Key = Key.K, KeyModifiers = KeyModifiers.Control }, c => c.Scope == CommandScope.Panel), Is.Null,
                 "Ctrl+K is a window command, not a panel one");
-        }
-
-        // Manuals/keymap.html is hand-written; every default key must be documented there.
-        [Test]
-        public void KeymapManual_ListsEveryDefaultKey()
-        {
-            var html = WebUtility.HtmlDecode(System.IO.File.ReadAllText(Path.Combine(AppContext.BaseDirectory, "Manuals", "keymap.html")));
-            var missing = CommandRegistry.All.SelectMany(c => c.DefaultKeys.Select(k => (c.Id, key: k)))
-                .Where(x => !html.Contains("<strong>" + x.key.Replace("Back", "Backspace").Replace("Escape", "Esc").Replace("OemComma", ",") + "</strong>"))
-                .Select(x => x.Id + " " + x.key);
-            Assert.That(missing, Is.Empty);
         }
 
         [TestCase("Cmd+K", true, "⌘K")]

@@ -2,9 +2,18 @@
         xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:local="clr-namespace:Comander.View"
-        Title="About" Height="150" Width="330">
-    <Grid ColumnDefinitions="*,Auto" Margin="10">
-        <TextBlock Name="InformationTb" TextWrapping="Wrap" FontSize="16" VerticalAlignment="Center"/>
-        <Button Grid.Column="1" VerticalAlignment="Top" Content="X" Click="Close_OnClick"/>
-    </Grid>
+        Title="About" Width="360" SizeToContent="Height">
+    <StackPanel Margin="18" Spacing="14">
+        <StackPanel Orientation="Horizontal" Spacing="14">
+            <Image Source="/Icons/main.ico" Width="48" Height="48"/>
+            <StackPanel Spacing="4" VerticalAlignment="Center">
+                <TextBlock Classes="title" Text="MMCommander"/>
+                <TextBlock Name="VersionText" Classes="muted"/>
+            </StackPanel>
+        </StackPanel>
+        <TextBlock Classes="muted" Text="Created by Michał Marszałek"/>
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+            <Button Classes="footer accent" Content="Close" IsDefault="True" IsCancel="True" Click="Close_OnClick"/>
+        </StackPanel>
+    </StackPanel>
 </local:DialogWindow>

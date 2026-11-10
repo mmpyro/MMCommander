@@ -31,6 +31,12 @@ namespace ComanderTest
             window.Close();
         }
 
+        [Test]
+        public void About_ShowsProductVersion()
+        {
+            Assert.That(new Comander.Core.AssemblyVersionResolver().GetProductVersion(typeof(Comander.ViewModel.MainVM)), Is.EqualTo("2.0.0"));
+        }
+
         [AvaloniaTest]
         public void MainWindow_Renders()
         {
@@ -52,7 +58,7 @@ namespace ComanderTest
             var logger = new ComplexLogger(new GUILogger());
             var windows = new Dictionary<string, Func<Window>>
             {
-                ["About"] = () => new AboutWindow("Product version: test"),
+                ["About"] = () => new AboutWindow("1.2.3"),
                 ["Confirm"] = () => new ConfirmWindow("Do you want delete 3 files ?"),
                 ["Input"] = () => new InputWindow("New folder", "new folder"),
                 ["Copy"] = () => new CopyDialog(new Comander.Dtos.CopyDialogModel

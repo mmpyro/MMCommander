@@ -1,6 +1,9 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
+    <Version>2.0.0</Version>
+    <!-- Directory.Build.props turns this off for every project; without it <Version> never reaches the assembly. -->
+    <GenerateAssemblyInfo>true</GenerateAssemblyInfo>
     <ApplicationIcon>Icons/main.ico</ApplicationIcon>
     <AvaloniaUseCompiledBindingsByDefault>false</AvaloniaUseCompiledBindingsByDefault>
     <!-- Dialogs take constructor arguments, so the XAML runtime loader (designer) cannot create them; we never use it. -->

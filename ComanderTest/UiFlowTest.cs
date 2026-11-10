@@ -701,6 +701,19 @@ namespace ComanderTest
         }
     
         [AvaloniaTest]
+        public void HelpKeyboardShortcuts_OpensSettingsOnKeyboardPage()
+        {
+            Open(_root, _dest);
+            _vm.KeyMapCommand.Execute(null);
+            var window = (SettingsWindow)Dialog<SettingsWindow>();
+            var vm = (Comander.ViewModel.SettingsWindowVM)window.DataContext;
+            Assert.That(vm.Section, Is.EqualTo(1));
+            Assert.That(vm.IsKeyboard, Is.True);
+            window.Close();   // never Done: it writes the real Config.xml
+            Pump();
+        }
+
+        [AvaloniaTest]
         public void ThumbnailView_ShowsImages_AndKeysStillWork()
         {
             using (var bitmap = new Avalonia.Media.Imaging.RenderTargetBitmap(new PixelSize(16, 16)))
