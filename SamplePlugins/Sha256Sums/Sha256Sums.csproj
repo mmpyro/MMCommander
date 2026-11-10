@@ -1,0 +1,7 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!-- A sample plugin: build output goes to <app folder>/Plugins/Sha256Sums/. See docs/PLUGINS.md. -->
+  <ItemGroup>
+    <!-- Private=false: the app always supplies CommanderPlugin.dll, so do not copy it next to the plugin. -->
+    <ProjectReference Include="../../CommanderPlugin/CommanderPlugin.csproj" Private="false" />
+  </ItemGroup>
+</Project>

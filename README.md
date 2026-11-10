@@ -128,7 +128,7 @@ Extraction refuses entries that would land outside the target folder (zip-slip).
 
 ## Plugins
 
-Put a .NET 10 class library in `Plugins/<Name>/` next to the binary. Plugins run with your full user rights, so install only ones you trust. See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md#plugins).
+Put a .NET 10 class library in `Plugins/<Name>/` next to the binary. Plugins run with your full user rights, so install only ones you trust. How to write one: [docs/PLUGINS.md](docs/PLUGINS.md). A working sample, `SamplePlugins/Sha256Sums`, writes a `SHA256SUMS` file for the selected files.
 
 ## Known limits
 

@@ -54,7 +54,7 @@ namespace ComanderTest
             {
                 ["About"] = () => new AboutWindow("Product version: test"),
                 ["Confirm"] = () => new ConfirmWindow("Do you want delete 3 files ?"),
-                ["Input"] = () => new InputWindow("Please enter the directory name", "new folder"),
+                ["Input"] = () => new InputWindow("New folder", "new folder"),
                 ["Copy"] = () => new CopyDialog(new Comander.Dtos.CopyDialogModel
                 {
                     Names = new[] { "image_1.png", "image_2.png", "image.png" }, TotalSize = 4_300_000, Destination = "/Users/Shared", FreeSpaceText = "412 GB free on Macintosh HD",

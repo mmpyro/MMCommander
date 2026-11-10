@@ -78,6 +78,42 @@ namespace ComanderTest
             Assert.That(File.Exists(Path.Combine(_root, "touched.txt")), Is.True);
             Assert.That(_errors, Is.Empty);
         }
+
+        // The sample plugin, installed the way docs/PLUGINS.md says: Plugins/Sha256Sums/Sha256Sums.dll.
+        private PluginManager InstallSha256Sums()
+        {
+            var folder = Directory.CreateDirectory(Path.Combine(_root, "Plugins", "Sha256Sums")).FullName;
+            File.Copy(typeof(Sha256Sums.Sha256Sums).Assembly.Location, Path.Combine(folder, "Sha256Sums.dll"));
+            var manager = new PluginManager(_logger);
+            manager.LoadPlugins(Path.Combine(_root, "Plugins"));
+            return manager;
+        }
+
+        [Test]
+        public async Task Sha256Sums_WritesSumsFile()
+        {
+            var file = Path.Combine(_root, "abc.txt");
+            File.WriteAllText(file, "abc");
+            var manager = InstallSha256Sums();
+
+            await manager.InvokeMethod("SHA-256 sums", _root, new[] { file });
+
+            // NIST FIPS 180-2 test vector for "abc".
+            Assert.That(File.ReadAllText(Path.Combine(_root, "SHA256SUMS")).TrimEnd(),
+                Is.EqualTo("ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad  abc.txt"));
+            Assert.That(_errors, Is.Empty);
+        }
+
+        [Test]
+        public async Task Sha256Sums_NoFilesSelected_LogsError()
+        {
+            var manager = InstallSha256Sums();
+
+            await manager.InvokeMethod("SHA-256 sums", _root, new[] { Path.Combine(_root, "Plugins") });
+
+            Assert.That(File.Exists(Path.Combine(_root, "SHA256SUMS")), Is.False);
+            Assert.That(_errors, Has.Count.EqualTo(1).And.Some.EndsWith("Select one or more files"));
+        }
     }
 
     // Loaded by LoadPlugins_FolderPlugin_ListedAndRuns from a copy of this assembly.

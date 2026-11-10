@@ -107,12 +107,12 @@ namespace Comander.Core
 
         public Task CreateDirectory()
         {
-            return CreateItem("Please enter the directory name", path => _fileManager.CreateDirectory(path), "Create new directory ", "Directory wasn't created");
+            return CreateItem("New folder", path => _fileManager.CreateDirectory(path), "Create new directory ", "Directory wasn't created");
         }
 
         public Task CreateFile()
         {
-            return CreateItem("Please enter the file name", path => _fileManager.CreateFile(path), "Create new file ", "File wasn't created");
+            return CreateItem("New file", path => _fileManager.CreateFile(path), "Create new file ", "File wasn't created");
         }
 
         private async Task CreateItem(string question, Action<string> create, string debugMessage, string errorMessage)
@@ -194,7 +194,7 @@ namespace Comander.Core
         public async Task RenameFile(IMetadataFileStructure selectedFile)
         {
             var oldName = selectedFile.Name;
-            var newName = await _dialogs.AskText("Please enter the new file name", oldName);
+            var newName = await _dialogs.AskText("Rename", oldName);
             if (string.IsNullOrEmpty(newName))
                 return;
             // A bare name only: "../x" or "sub/x" would move the file (BUG-29).

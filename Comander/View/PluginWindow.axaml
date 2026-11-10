@@ -1,11 +1,22 @@
 <view:HidenWindowBase x:Class="Comander.View.PluginWindow"
-        xmlns="https://github.com/avaloniaui"
-        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:view="clr-namespace:Comander.View"
-        Title="Plugins" Height="120" Width="300">
-    <ListBox Name="PluginListView" FontWeight="Bold" ItemsSource="{Binding PluginNames}">
-        <ListBox.KeyBindings>
-            <KeyBinding Gesture="Enter" Command="{Binding PluginInvokeCommand}" CommandParameter="{Binding #PluginListView.SelectedItem}"/>
-        </ListBox.KeyBindings>
-    </ListBox>
+                      xmlns="https://github.com/avaloniaui"
+                      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                      xmlns:view="clr-namespace:Comander.View"
+                      Title="Plugins" Width="360" SizeToContent="Height">
+    <!-- Ctrl+P: Enter or "Run" runs the selected plugin on the panel's selection. See docs/PLUGINS.md. -->
+    <StackPanel Margin="18" Spacing="14">
+        <StackPanel Spacing="4">
+            <TextBlock Classes="title" Text="Plugins"/>
+            <TextBlock Classes="muted" Text="Runs on the selected files"/>
+        </StackPanel>
+        <Border Name="ListBorder" Classes="listbox">
+            <ListBox Name="PluginListView" ItemsSource="{Binding PluginNames}" MaxHeight="300"/>
+        </Border>
+        <TextBlock Name="EmptyText" Classes="muted" TextWrapping="Wrap" Text="No plugins installed · see docs/PLUGINS.md" IsVisible="False"/>
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Spacing="8">
+            <Button Classes="footer" Content="Close" Click="CloseButton_OnClick"/>
+            <Button Name="RunButton" Classes="footer accent" Content="Run" IsDefault="True"
+                    Command="{Binding PluginInvokeCommand}" CommandParameter="{Binding #PluginListView.SelectedItem}"/>
+        </StackPanel>
+    </StackPanel>
 </view:HidenWindowBase>

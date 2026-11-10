@@ -6,5 +6,6 @@
     <PackageReference Include="Avalonia.Headless.NUnit" Version="12.1.6" />
     <PackageReference Include="Avalonia.Skia" Version="12.1.6" />
     <ProjectReference Include="../Comander/Comander.csproj" />
+    <ProjectReference Include="../SamplePlugins/Sha256Sums/Sha256Sums.csproj" />
   </ItemGroup>
 </Project>

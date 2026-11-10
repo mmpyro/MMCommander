@@ -1,20 +1,38 @@
 <UserControl x:Class="Search.View.SettingsPage"
              xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
-    <StackPanel Spacing="8">
-        <Grid ColumnDefinitions="60,*,50">
-            <TextBlock VerticalAlignment="Center" Text="Where:"/>
-            <TextBox Grid.Column="1" Text="{Binding RootPath}" IsReadOnly="True"/>
-            <Button Grid.Column="2" Command="{Binding SetDirectoryCommand}" Content="..."/>
-        </Grid>
-        <TextBox Text="{Binding Phrase}" PlaceholderText="file name or regex, e.g. .*\.pdf"/>
-        <StackPanel Orientation="Horizontal" Spacing="12">
-            <TextBlock VerticalAlignment="Center" Text="Options:"/>
-            <RadioButton Content="Whole" IsChecked="{Binding WholeWord}" GroupName="Match"/>
-            <RadioButton Content="Contains" IsChecked="{Binding Contains}" GroupName="Match"/>
-            <CheckBox IsChecked="{Binding Recursive}" Content="Recursive"/>
-            <CheckBox IsChecked="{Binding IgnoreCase}" Content="Ignore case"/>
+    <!-- Ctrl+F, page 1: Enter (Search) shows the results page and starts searching; Esc closes. -->
+    <Grid Margin="18" RowDefinitions="Auto,*,Auto">
+        <StackPanel Spacing="14">
+            <StackPanel Spacing="4">
+                <TextBlock Classes="title" Text="Find files"/>
+                <TextBlock Classes="muted" Text="Name or regex, matched against file names"/>
+            </StackPanel>
+            <StackPanel Spacing="6">
+                <TextBlock Classes="muted" FontSize="12" Text="Look in"/>
+                <Grid ColumnDefinitions="*,Auto" ColumnSpacing="6">
+                    <TextBox Text="{Binding RootPath}" IsReadOnly="True" FontFamily="{DynamicResource Font.Mono}" FontSize="12"/>
+                    <Button Grid.Column="1" Content="Browse…" Command="{Binding SetDirectoryCommand}"/>
+                </Grid>
+            </StackPanel>
+            <StackPanel Spacing="6">
+                <TextBlock Classes="muted" FontSize="12" Text="Name"/>
+                <TextBox Name="PhraseBox" Text="{Binding Phrase}" FontFamily="{DynamicResource Font.Mono}" FontSize="12"
+                         PlaceholderText="file name or regex, e.g. .*\.pdf"/>
+            </StackPanel>
+            <WrapPanel ItemSpacing="18" LineSpacing="6">
+                <RadioButton Content="Contains" IsChecked="{Binding Contains}" GroupName="Match"/>
+                <RadioButton Content="Whole name" IsChecked="{Binding WholeWord}" GroupName="Match"/>
+                <CheckBox IsChecked="{Binding Recursive}" Content="Include subfolders"/>
+                <CheckBox IsChecked="{Binding IgnoreCase}" Content="Ignore case"/>
+            </WrapPanel>
         </StackPanel>
-        <Button HorizontalAlignment="Stretch" Content="Search" IsDefault="True" Command="{Binding NavigationCommand}"/>
-    </StackPanel>
+        <DockPanel Grid.Row="2">
+            <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" Spacing="8">
+                <Button Name="CloseButton" Classes="footer" Content="Close"/>
+                <Button Classes="footer accent" Content="Search" IsDefault="True" Command="{Binding NavigationCommand}"/>
+            </StackPanel>
+            <TextBlock Classes="muted" FontSize="12" VerticalAlignment="Center" Text="Enter searches"/>
+        </DockPanel>
+    </Grid>
 </UserControl>

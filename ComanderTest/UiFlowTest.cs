@@ -306,7 +306,7 @@ namespace ComanderTest
         public void InputDialog_TypedTextIsReturnedOnEnter_NullOnEscape()
         {
             Open(_root, _dest);
-            var ok = new InputWindow("Please enter the directory name", "new folder");
+            var ok = new InputWindow("New folder", "new folder");
             var okResult = ok.ShowDialog<string>(_window);
             Pump();
             ok.KeyTextInput("docs");
@@ -315,13 +315,60 @@ namespace ComanderTest
             Assert.That(okResult.IsCompleted, Is.True, "Enter closes the dialog");
             Assert.That(okResult.Result, Is.EqualTo("docs"), "initial text is selected, so typing replaces it");
 
-            var cancel = new InputWindow("Please enter the directory name", "x");
+            var cancel = new InputWindow("New folder", "x");
             var cancelResult = cancel.ShowDialog<string>(_window);
             Pump();
             cancel.KeyPress(Avalonia.Input.Key.Escape, RawInputModifiers.None, PhysicalKey.Escape, null);
             Pump();
             Assert.That(cancelResult.IsCompleted, Is.True, "Escape closes the dialog");
             Assert.That(cancelResult.Result, Is.Null);
+        }
+
+        // One Enter on the options page shows the results page and runs the search (no second "Search" press).
+        [AvaloniaTest]
+        public void Search_EnterOnOptionsPage_ShowsResults()
+        {
+            Open(_root, _dest);
+            var search = new Search.SearchWindow(_vm.Io1, new ComplexLogger(_gui));
+            search.Show(_window);
+            Pump();
+            search.KeyTextInput("file");
+            search.KeyPress(Avalonia.Input.Key.Enter, RawInputModifiers.None, PhysicalKey.Enter, null);
+
+            ListBox Results() => search.GetVisualDescendants().OfType<ListBox>().FirstOrDefault();
+            PumpUntil(() => Results()?.ItemCount > 0);
+            ShotOf(search, "search");
+            Assert.That(Results()?.Items.OfType<IOLib.IAbstractFileStructure>().Select(f => f.Name), Is.EqualTo(new[] { "file.txt" }));
+        }
+
+        // Ctrl+P: Enter runs the selected plugin with the panel's folder and selection.
+        [AvaloniaTest]
+        public void Plugins_EnterRunsSelectedPlugin()
+        {
+            Open(_root, _dest);
+            var plugins = new FakePluginManager("Sample");
+            var window = new PluginWindow(plugins, _root, new[] { Path.Combine(_root, "file.txt") }, new ComplexLogger(_gui));
+            window.Show(_window);
+            Pump();
+            window.KeyPress(Avalonia.Input.Key.Enter, RawInputModifiers.None, PhysicalKey.Enter, null);
+            Pump();
+            ShotOf(window, "plugins");
+
+            Assert.That(plugins.Invoked, Is.EqualTo("Sample"));
+        }
+
+        private class FakePluginManager : IPluginManager
+        {
+            private readonly string _name;
+            public string Invoked;
+            public FakePluginManager(string name) => _name = name;
+            public void LoadPlugins(string path) { }
+            public System.Collections.Generic.IEnumerable<string> GetMethods() => new[] { _name };
+            public Task InvokeMethod(string name, string dir, System.Collections.Generic.IEnumerable<string> files)
+            {
+                Invoked = name;
+                return Task.CompletedTask;
+            }
         }
 
         [AvaloniaTest]

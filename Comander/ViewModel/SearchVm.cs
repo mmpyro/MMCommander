@@ -46,7 +46,7 @@ namespace Search.ViewModel
                 return;
             var search = _search = new CancellationTokenSource();
             Files.Clear();
-            Status = "";
+            Status = "Searching…";
             IsRunning = true;
             try
             {
@@ -77,7 +77,7 @@ namespace Search.ViewModel
             {
                 // Set once, here only (BUG-14: it used to be toggled twice).
                 IsRunning = false;
-                Dispatcher.UIThread.Post(() => Status = string.Format("Finished: Files: {0}", Files.Count), DispatcherPriority.Background);
+                Dispatcher.UIThread.Post(() => Status = Files.Count == 1 ? "1 file found" : Files.Count + " files found", DispatcherPriority.Background);
             }
         }
 

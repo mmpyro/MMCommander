@@ -1,20 +1,37 @@
 <UserControl x:Class="Search.View.SearchPage"
              xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
-    <Grid RowDefinitions="*,Auto,Auto">
-        <ListBox ItemsSource="{Binding Files}" SelectedItem="{Binding SelectedFile}" DoubleTapped="Select_DoubleTapped">
-            <ListBox.ItemTemplate>
-                <DataTemplate>
-                    <TextBlock Text="{Binding FullName}"/>
-                </DataTemplate>
-            </ListBox.ItemTemplate>
-        </ListBox>
-        <UniformGrid Grid.Row="1" Columns="4" Margin="0,4">
-            <Button HorizontalAlignment="Stretch" IsEnabled="{Binding IsRunning}" Command="{Binding StopCommand}" Content="Stop"/>
-            <Button HorizontalAlignment="Stretch" IsEnabled="{Binding !IsRunning}" Command="{Binding StartCommand}" Content="Search"/>
-            <Button HorizontalAlignment="Stretch" Content="Back" Command="{Binding NavigationCommand}"/>
-            <Button HorizontalAlignment="Stretch" Content="Select" Command="{Binding SelectCommand}"/>
-        </UniformGrid>
-        <TextBlock Grid.Row="2" Text="{Binding Status, Mode=OneWay}"/>
+    <!-- Ctrl+F, page 2: Enter, double-click or "Go to" shows the file in the panel. -->
+    <Grid Margin="18" RowDefinitions="Auto,Auto,*,Auto" RowSpacing="12">
+        <StackPanel Spacing="4">
+            <TextBlock Classes="title" Text="Results"/>
+            <TextBlock Classes="muted" Text="{Binding Status, Mode=OneWay}" TextTrimming="CharacterEllipsis"/>
+        </StackPanel>
+        <ProgressBar Grid.Row="1" Classes="thin" IsIndeterminate="True" IsVisible="{Binding IsRunning}"/>
+        <Border Grid.Row="2" Classes="listbox">
+            <ListBox ItemsSource="{Binding Files}" SelectedItem="{Binding SelectedFile}" DoubleTapped="Select_DoubleTapped"
+                     ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+                <ListBox.ItemTemplate>
+                    <DataTemplate>
+                        <Grid ColumnDefinitions="Auto,Auto,*" ColumnSpacing="8">
+                            <!-- Stroke follows Foreground (Path.icon style), so colour it through Foreground. -->
+                            <Path Classes="icon" Data="{Binding Converter={StaticResource FileIconConverter}}"
+                                  TextElement.Foreground="{Binding Converter={StaticResource FileKindBrushConverter}}"/>
+                            <TextBlock Grid.Column="1" VerticalAlignment="Center" Text="{Binding Name}"/>
+                            <TextBlock Grid.Column="2" Classes="mono muted" FontSize="12" VerticalAlignment="Center"
+                                       TextTrimming="PrefixCharacterEllipsis" Text="{Binding FullName}" ToolTip.Tip="{Binding FullName}"/>
+                        </Grid>
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </ListBox>
+        </Border>
+        <DockPanel Grid.Row="3">
+            <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" Spacing="8">
+                <Button Classes="footer" Content="Stop" IsVisible="{Binding IsRunning}" Command="{Binding StopCommand}"/>
+                <Button Classes="footer" Content="Search again" IsEnabled="{Binding !IsRunning}" Command="{Binding StartCommand}"/>
+                <Button Classes="footer accent" Content="Go to" IsDefault="True" Command="{Binding SelectCommand}"/>
+            </StackPanel>
+            <Button Classes="footer" Content="New search" HorizontalAlignment="Left" Command="{Binding NavigationCommand}"/>
+        </DockPanel>
     </Grid>
 </UserControl>
