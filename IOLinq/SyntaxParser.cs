@@ -38,7 +38,16 @@ namespace IOLinq
             _parserDict.Add(ParserType.IsType, new IsTypeParser());
         }
 
+        private readonly object _lock = new object();
+
+        // The queues are instance state and both panels share this parser, so calls are serialised (BUG-10).
         public List<IAbstractFileStructure> Perform(string txt, IAbstractFileStructure[] abstractFiles)
+        {
+            lock (_lock)
+                return PerformLocked(txt, abstractFiles);
+        }
+
+        private List<IAbstractFileStructure> PerformLocked(string txt, IAbstractFileStructure[] abstractFiles)
         {
             try
             {

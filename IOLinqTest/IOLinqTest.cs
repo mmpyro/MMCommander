@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -123,6 +123,19 @@ namespace IOLinqTest
             var result = _parser.Perform(ext, list.ToArray());
             //Then
             Assert.That(result.Count, Is.EqualTo(count));
+        }
+
+        // BUG-10: both panels share one parser; overlapping calls used to mix their queues.
+        [Test]
+        public void Perform_InParallel_GivesSameResultAsSerial()
+        {
+            var files = _fileFakeCreator.CreateFiles(_parameters).ToArray();
+            var queries = new[] { "ext == js", "ext -> (xml, html)", "ext != js", "ext == exe || ext == pdf" };
+            var expected = queries.Select(q => _parser.Perform(q, files).Count).ToArray();
+            var results = new System.Collections.Concurrent.ConcurrentBag<(int query, int count)>();
+            System.Threading.Tasks.Parallel.For(0, 400, new System.Threading.Tasks.ParallelOptions { MaxDegreeOfParallelism = 8 },
+                i => results.Add((i % queries.Length, _parser.Perform(queries[i % queries.Length], files).Count)));
+            Assert.That(results.Where(r => r.count != expected[r.query]), Is.Empty);
         }
     }
 }
