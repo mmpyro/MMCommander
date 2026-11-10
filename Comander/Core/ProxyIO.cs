@@ -51,6 +51,7 @@ namespace Comander.Core
             };
             await RunBusy(() =>
             {
+                int failed = 0;
                 foreach (var file in items)
                 {
                     try
@@ -61,9 +62,11 @@ namespace Comander.Core
                     }
                     catch (Exception ex)
                     {
+                        failed++;
                         _ioManager.LogError(ex, string.Format("Cannot copy {0} to {1}", file.Name, destinationDir.FullName));
                     }
                 }
+                LogSummary("copied", items.Count, failed);
             });
         }
 
@@ -107,7 +110,7 @@ namespace Comander.Core
                 return;
             await RunBusy(() =>
             {
-                int iterator = 1;
+                int iterator = 1, failed = 0;
                 foreach (var file in items)
                 {
                     try
@@ -118,9 +121,11 @@ namespace Comander.Core
                     }
                     catch (Exception ex)
                     {
+                        failed++;
                         _ioManager.LogError(ex, string.Format("Cannot delete {0} file", file.Name));
                     }
                 }
+                LogSummary("deleted", items.Count, failed);
             });
         }
 
@@ -131,6 +136,7 @@ namespace Comander.Core
                 return;
             await RunBusy(() =>
             {
+                int failed = 0;
                 foreach (var file in items)
                 {
                     try
@@ -141,9 +147,11 @@ namespace Comander.Core
                     }
                     catch (Exception ex)
                     {
+                        failed++;
                         _ioManager.LogError(ex, string.Format("Cannot move {0} to {1}", file.Name, destinationDir.FullName));
                     }
                 }
+                LogSummary("moved", items.Count, failed);
             });
         }
 
@@ -153,8 +161,21 @@ namespace Comander.Core
             var newName = await _dialogs.AskText("Please enter the new file name", oldName);
             if (string.IsNullOrEmpty(newName))
                 return;
-            selectedFile.Rename(newName);
-            _ioManager.LogDebug(string.Format("Rename {0} to {1}", oldName, newName));
+            // A bare name only: "../x" or "sub/x" would move the file (BUG-29).
+            if (newName == "." || newName == ".." || newName.IndexOfAny(Path.GetInvalidFileNameChars()) >= 0 || newName.IndexOfAny(new[] { '/', '\\' }) >= 0)
+            {
+                _ioManager.LogError(string.Format("Invalid file name: {0}", newName));
+                return;
+            }
+            try
+            {
+                selectedFile.Rename(newName);
+                _ioManager.LogDebug(string.Format("Rename {0} to {1}", oldName, newName));
+            }
+            catch (Exception ex)
+            {
+                _ioManager.LogError(ex, string.Format("Cannot rename {0} to {1}: {2}", oldName, newName, ex.Message));
+            }
             _ioManager.FilterFiles();
         }
 
@@ -256,6 +277,15 @@ namespace Comander.Core
             var fileFactory = new MetaDataFileFactory();
             var files = paths.Select(path => (IMetadataFileStructure)fileFactory.CreateFileMsg(path)).ToList();
             await CopyFile(files, destinationDir);
+        }
+
+        // One line per batch so a partial failure is visible (BUG-17).
+        private void LogSummary(string verb, int total, int failed)
+        {
+            if (failed == 0 && total > 1)
+                _ioManager.LogInfo(string.Format("{0} {1}.", total, verb));
+            else if (failed > 0)
+                _ioManager.LogError(string.Format("{0} {1}, {2} failed.", total - failed, verb, failed));
         }
 
         private bool Enter()

@@ -11,9 +11,10 @@ namespace Comander.Core
         public LogMsg(LogInfo info, string message)
         {
             Info = info;
-            string[] param = message.Split('|');
-            Time = param[0];
-            Message = param[1];
+            // "time|message"; the message itself may contain '|' (BUG-27).
+            string[] param = message.Split('|', 2);
+            Time = param.Length == 2 ? param[0] : string.Empty;
+            Message = param[param.Length - 1];
         }
 
         public override string ToString()
