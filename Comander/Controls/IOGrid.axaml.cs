@@ -25,6 +25,8 @@ namespace Comander.Controls
             DataGrid1.AddHandler(KeyDownEvent, OnPreviewKeyDown, RoutingStrategies.Tunnel);
             DataGrid1.DoubleTapped += (_, _) => Execute(Panel?.EnterIntoDirCommand, null);
             DataGrid1.AddHandler(PointerPressedEvent, OnPointerPressed, RoutingStrategies.Tunnel, true);
+            // Folders are styled via the "dir" class (Themes/Theme.axaml). Rows are recycled, so set it on every load.
+            DataGrid1.LoadingRow += (_, e) => e.Row.Classes.Set("dir", (e.Row.DataContext as IOLib.IAbstractFileStructure)?.IsDirectory == true);
         }
 
         public string GridName

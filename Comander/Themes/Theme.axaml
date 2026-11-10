@@ -22,7 +22,12 @@
         <Setter Property="Foreground" Value="White"/>
         <Setter Property="Background" Value="#FF3A3838"/>
     </Style>
-    <Style Selector="DataGridRow:pointerover">
+    <!-- Cell text is a TextBlock, which the style above forces to white, so row colours target the TextBlock. -->
+    <Style Selector="DataGridRow.dir TextBlock">
+        <Setter Property="Foreground" Value="Yellow"/>
+        <Setter Property="FontWeight" Value="Bold"/>
+    </Style>
+    <Style Selector="DataGridRow:pointerover TextBlock">
         <Setter Property="Foreground" Value="{StaticResource MainBorderBrush}"/>
         <Setter Property="FontWeight" Value="ExtraBold"/>
     </Style>
