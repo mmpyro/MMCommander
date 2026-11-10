@@ -1,0 +1,20 @@
+<view:HidenWindowBase x:Class="Comander.View.InfoWindow"
+        xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:converters="clr-namespace:Comander.Converters"
+        xmlns:view="clr-namespace:Comander.View"
+        Title="Info" Height="110" Width="320">
+    <Window.Resources>
+        <converters:FileAttributesConverter x:Key="AttributesConverter"/>
+    </Window.Resources>
+    <Grid ColumnDefinitions="*,2*" RowDefinitions="*,*,*,*" Margin="10,5">
+        <TextBlock Text="Create time:" Grid.Row="0"/>
+        <TextBlock Text="Modify time:" Grid.Row="1"/>
+        <TextBlock Text="Access time:" Grid.Row="2"/>
+        <TextBlock Text="Attributes:" Grid.Row="3"/>
+        <TextBlock Text="{Binding File.CreationTime}" Grid.Column="1" Grid.Row="0"/>
+        <TextBlock Text="{Binding File.LastModifyTime}" Grid.Column="1" Grid.Row="1"/>
+        <TextBlock Text="{Binding File.LastAccessTime}" Grid.Column="1" Grid.Row="2"/>
+        <TextBlock Text="{Binding File.Attributes, Converter={StaticResource AttributesConverter}}" Grid.Column="1" Grid.Row="3"/>
+    </Grid>
+</view:HidenWindowBase>

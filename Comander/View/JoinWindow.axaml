@@ -1,0 +1,20 @@
+<Window x:Class="Comander.View.JoinWindow"
+        xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Join file" Icon="/Icons/icon.png" Height="200" Width="460" CanResize="False" WindowStartupLocation="CenterOwner">
+    <Grid ColumnDefinitions="130,*,50" RowDefinitions="Auto,Auto,Auto,Auto" Margin="10">
+        <Grid.Styles>
+            <Style Selector="TextBlock"><Setter Property="VerticalAlignment" Value="Center"/></Style>
+            <Style Selector="Grid > Control"><Setter Property="Margin" Value="0,0,0,6"/></Style>
+        </Grid.Styles>
+        <TextBlock Text="File to join:"/>
+        <TextBox Grid.Column="1" ToolTip.Tip="First part of the split file" Name="JoinPathTextBox" IsReadOnly="True"/>
+        <Button Grid.Column="2" Click="BrowseButton1_OnClick" Content="..."/>
+        <TextBlock Grid.Row="1" Text="File name:"/>
+        <TextBox Grid.Row="1" Grid.Column="1" ToolTip.Tip="File name with extension" Name="FileNameTextBox" TextChanged="FileNameTextBox_OnTextChanged"/>
+        <TextBlock Grid.Row="2" Text="Destination path:"/>
+        <TextBox Grid.Row="2" Grid.Column="1" ToolTip.Tip="Destination folder" Name="PathTextBox" IsReadOnly="True"/>
+        <Button Grid.Row="2" Grid.Column="2" Click="BrowseButton2_OnClick" Content="..."/>
+        <Button Grid.Row="3" Grid.Column="1" Grid.ColumnSpan="2" HorizontalAlignment="Right" Click="ExecuteButton_OnClick" Name="ExecuteButton" Content="Execute" IsEnabled="False"/>
+    </Grid>
+</Window>

@@ -1,36 +1,37 @@
-﻿using System.Collections.Generic;
+using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Linq;
 using System.Windows.Input;
 using Comander.Core;
-using Comander.View;
-using Comander.ViewModel.Commands;
-using IOLib;
+using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 using LogLib;
 
 namespace Comander.ViewModel
 {
-    public class PluginVM : HidenVM
+    public class PluginVM : ObservableObject
     {
-        private ObservableCollection<string> _pluginNames; 
-
-        public PluginVM(HidenWindowBase window, IPluginManager pluginManager, string dir, IEnumerable<string> files, ILogger logger) : base(window)
+        public PluginVM(IPluginManager pluginManager, string dir, IEnumerable<string> files, ILogger logger)
         {
-            PluginInvokeCommand = new PluginCommand(pluginManager, dir, files, logger);
             PluginNames = new ObservableCollection<string>(pluginManager.GetMethods());
-        }
-
-        public ObservableCollection<string> PluginNames
-        {
-            get { return _pluginNames; }
-            set
+            // Awaited, so a plugin that fails asynchronously is still logged (BUG-25).
+            PluginInvokeCommand = new AsyncRelayCommand<string>(async name =>
             {
-                if (Equals(value, _pluginNames)) return;
-                _pluginNames = value;
-                OnPropertyChanged();
-            }
+                if (string.IsNullOrEmpty(name))
+                    return;
+                try
+                {
+                    await pluginManager.InvokeMethod(name, dir, files);
+                }
+                catch (Exception e)
+                {
+                    logger.Error(e);
+                }
+            });
         }
 
-        public ICommand PluginInvokeCommand { get; set; }
+        public ObservableCollection<string> PluginNames { get; }
+
+        public ICommand PluginInvokeCommand { get; }
     }
 }

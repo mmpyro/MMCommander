@@ -1,187 +1,105 @@
-﻿using System;
+using System;
 using System.Collections.ObjectModel;
-using System.ComponentModel;
-using System.Runtime.CompilerServices;
-using System.Text.RegularExpressions;
 using System.Threading;
-using System.Windows;
-using System.Windows.Controls;
+using System.Threading.Tasks;
 using System.Windows.Input;
-using System.Windows.Navigation;
-using Comander.Annotations;
-using Comander.Messages;
-using Comander.ViewModel;
-using Comander.ViewModel.Commands;
+using Avalonia.Threading;
+using Comander.Core;
+using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 using IOLib;
 using LogLib;
 
 namespace Search.ViewModel
 {
-    public class SearchVm : INotifyPropertyChanged
+    public class SearchVm : ObservableObject
     {
-        private Page _page;
-        private SearchParameters _searchParameters;
-        private ObservableCollection<IAbstractFileStructure> _files;
         private IAbstractFileStructure _selectedFile;
         private bool _isRunning;
-        private Thread _task;
         private string _status = "";
         private readonly ILogger _logger;
+        private CancellationTokenSource _search;
 
-        public SearchVm(ILogger logger)
+        // back: returns to the settings page. Thread.Abort is gone (throws on .NET 10), so searches stop via a token (BUG-26).
+        public SearchVm(ILogger logger, IFileNotifier fileNotifier, Action back)
         {
             _logger = logger;
-            try
+            NavigationCommand = new RelayCommand(() =>
             {
-                Files = new ObservableCollection<IAbstractFileStructure>();
-                NavigationCommand = new ExecuteCommand(() =>
-                {
-                    if (_task != null)
-                    {
-                        _task.Abort();
-                    }
-                    NavigationService navigationService = NavigationService.GetNavigationService(Page);
-                    navigationService.Navigate(new Uri("../View/Pages/SettingsPage.xaml", UriKind.Relative));
-                    var messanger = Messanger.Messanger.GetInstance();
-                });
-                StartCommand = new ExecuteCommand(StartSearch);
-                StopCommand = new RelayCommand((t) => StopSearch(), Log, _ => true);
-                SelectCommand = new ExecuteCommand(() =>
-                {
-                    var fileNotifier = Locator.Notifier;
-                    if(fileNotifier != null && _selectedFile != null)
-                        fileNotifier.Notify(_selectedFile);
-                });
-            }
-            catch (Exception e)
+                _search?.Cancel();
+                back();
+            });
+            StartCommand = new AsyncRelayCommand(StartSearch);
+            StopCommand = new RelayCommand(() => _search?.Cancel());
+            SelectCommand = new RelayCommand(() =>
             {
-                Log(e);
-            }
+                if (fileNotifier != null && _selectedFile != null)
+                    fileNotifier.Notify(_selectedFile);
+            });
         }
 
-        private void StopSearch()
-        {
-            _task.Abort();
-            OnComplete();
-        }
+        public SearchParameters Parameters { get; set; }
 
-        private void StartSearch()
+        private async Task StartSearch()
         {
-            _task = new Thread(Search);
-            _task.IsBackground = true;
-            _task.Start();
+            if (Parameters == null)
+                return;
+            var search = _search = new CancellationTokenSource();
+            Files.Clear();
+            Status = "";
             IsRunning = true;
-        }
-
-        private void Log(Exception ex)
-        {
-            Status = "[Error]: " + ex.Message;
-            _logger.Error(ex);
-        }
-
-        private void Search()
-        {
             try
             {
-                _searchParameters = Application.Current.Properties["parameter"] as SearchParameters;
-                ClearCollection();
-                var directoryManager = new DirectoryManager(new FileFactory());
-                directoryManager.OnFindFile += AddFileToList;
-                if (_searchParameters != null)
+                var parameters = Parameters;
+                await Task.Run(() =>
                 {
-                    directoryManager.SearchFiles(_searchParameters);
-                    OnComplete();
-                }
-                else
-                    throw new ArgumentException("Invalid parameters");
+                    var directoryManager = new DirectoryManager(new FileFactory());
+                    directoryManager.OnFindFile += file =>
+                    {
+                        search.Token.ThrowIfCancellationRequested();
+                        Dispatcher.UIThread.Post(() => Files.Add(file));
+                    };
+                    directoryManager.SearchFiles(parameters);
+                }, search.Token);
             }
-            catch(System.IO.PathTooLongException)
+            catch (OperationCanceledException)
             {
-
+            }
+            catch (System.IO.PathTooLongException)
+            {
             }
             catch (Exception ex)
             {
+                Status = "[Error]: " + ex.Message;
                 _logger.Error(ex);
             }
             finally
             {
-                OnComplete();
+                // Set once, here only (BUG-14: it used to be toggled twice).
+                IsRunning = false;
+                Dispatcher.UIThread.Post(() => Status = string.Format("Finished: Files: {0}", Files.Count), DispatcherPriority.Background);
             }
-        }
-
-        private void OnComplete()
-        {
-            Application.Current.Dispatcher.Invoke(() =>
-            {
-                Status = string.Format("Finished: Files: {0}", Files.Count);
-                IsRunning = !IsRunning;
-            });
-        }
-
-        private void ClearCollection()
-        {
-            Application.Current.Dispatcher.Invoke(() =>
-            {
-                Files.Clear();
-                Status = "";
-            });
-        }
-
-        private void AddFileToList(IAbstractFileStructure file)
-        {
-            Application.Current.Dispatcher.Invoke(() => Files.Add(file));
         }
 
         #region Property
-        public Page Page
-        {
-            get { return _page; }
-            set
-            {
-                if (Equals(value, _page)) return;
-                _page = value;
-                OnPropertyChanged();
-            }
-        }
-
         public bool IsRunning
         {
             get { return _isRunning; }
-            set
-            {
-                _isRunning = value;
-                OnPropertyChanged();
-            }
+            set { SetProperty(ref _isRunning, value); }
         }
 
-        public ObservableCollection<IAbstractFileStructure> Files
-        {
-            get { return _files; }
-            set
-            {
-                _files = value;
-                OnPropertyChanged();
-            }
-        }
+        public ObservableCollection<IAbstractFileStructure> Files { get; } = new ObservableCollection<IAbstractFileStructure>();
 
         public IAbstractFileStructure SelectedFile
         {
             get { return _selectedFile; }
-            set
-            {
-                _selectedFile = value;
-                OnPropertyChanged();
-            }
+            set { SetProperty(ref _selectedFile, value); }
         }
 
         public string Status
         {
             get { return _status; }
-            set
-            {
-                _status = value;
-                OnPropertyChanged();
-            }
+            set { SetProperty(ref _status, value); }
         }
         #endregion
 
@@ -189,15 +107,5 @@ namespace Search.ViewModel
         public ICommand StartCommand { get; set; }
         public ICommand StopCommand { get; set; }
         public ICommand SelectCommand { get; set; }
-        #region INotifyPropertyChanged
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        [NotifyPropertyChangedInvocator]
-        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
-        {
-            PropertyChangedEventHandler handler = PropertyChanged;
-            if (handler != null) handler(this, new PropertyChangedEventArgs(propertyName));
-        }
-        #endregion
     }
 }

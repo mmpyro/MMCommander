@@ -1,0 +1,16 @@
+<Window x:Class="Comander.View.TreeWindow"
+        xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="clr-namespace:Comander.ViewModel"
+        Icon="/Icons/tree.png" Height="400" Width="300" WindowStartupLocation="CenterOwner" Title="TreeView">
+    <TreeView Name="Tree" ItemsSource="{Binding Folders}" DoubleTapped="TreeView_DoubleTapped">
+        <TreeView.ItemTemplate>
+            <TreeDataTemplate DataType="vm:File" ItemsSource="{Binding Files}">
+                <StackPanel Orientation="Horizontal" Spacing="6">
+                    <Image Width="20" Height="20" Source="{Binding Converter={StaticResource TreeViewConverter}}"/>
+                    <TextBlock VerticalAlignment="Center" Text="{Binding Name, Mode=OneWay}"/>
+                </StackPanel>
+            </TreeDataTemplate>
+        </TreeView.ItemTemplate>
+    </TreeView>
+</Window>

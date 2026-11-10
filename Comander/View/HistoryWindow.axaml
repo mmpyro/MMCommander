@@ -1,0 +1,9 @@
+<Window x:Class="Comander.View.HistoryWindow"
+        xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="History" Icon="/Icons/icon.png" Height="300" Width="300" WindowStartupLocation="CenterOwner">
+    <Grid RowDefinitions="*,Auto">
+        <ListBox Name="ListView" DoubleTapped="SelectButton_OnClick"/>
+        <Button Click="SelectButton_OnClick" Content="Select" Grid.Row="1" HorizontalAlignment="Stretch"/>
+    </Grid>
+</Window>

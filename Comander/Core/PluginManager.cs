@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.Composition;
 using System.ComponentModel.Composition.Hosting;
@@ -9,6 +9,7 @@ using CommanderPlugin;
 using LogLib;
 using System.Threading.Tasks;
 using Comander.Messages;
+using CommunityToolkit.Mvvm.Messaging;
 
 namespace Comander.Core
 {
@@ -57,20 +58,24 @@ namespace Comander.Core
             _logger = logger;
         }
 
+        // Loads only *.dll files; a file that fails to load is logged and skipped, not fatal for the others (BUG-20).
         public void LoadPlugins(string path)
         {
             var catalog = new AggregateCatalog();
-            var di = new DirectoryInfo(path);
-            foreach (var file in di.GetFileSystemInfos())
+            if (Directory.Exists(path))
             {
-                try
+                foreach (var file in Directory.GetFiles(path, "*.dll"))
                 {
-                    var ac = new AssemblyCatalog(Assembly.LoadFile(file.FullName));
-                    ac.Parts.ToArray();
-                    catalog.Catalogs.Add(ac);
-                }
-                catch (ReflectionTypeLoadException)
-                {
+                    try
+                    {
+                        var ac = new AssemblyCatalog(Assembly.LoadFrom(file));
+                        ac.Parts.ToArray();
+                        catalog.Catalogs.Add(ac);
+                    }
+                    catch (Exception e)
+                    {
+                        _logger.Error("Cannot load plugin " + file, e);
+                    }
                 }
             }
 
@@ -102,8 +107,7 @@ namespace Comander.Core
             {
                 _logger.Error(response.ErrorMessage);
             }
-            var messanger = Messanger.Messanger.GetInstance();
-            messanger.Send(new RefreshMessage());
+            WeakReferenceMessenger.Default.Send(new RefreshMessage());
         }
     }
 }

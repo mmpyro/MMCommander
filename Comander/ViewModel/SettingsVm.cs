@@ -1,23 +1,16 @@
-﻿using System;
-using System.ComponentModel;
-using System.Runtime.CompilerServices;
+using System;
 using System.Text.RegularExpressions;
-using System.Windows.Controls;
-using System.Windows.Forms;
+using System.Threading.Tasks;
 using System.Windows.Input;
-using System.Windows.Navigation;
-using Comander.Annotations;
-using Comander.ViewModel.Commands;
+using Comander.View;
+using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 using IOLib;
-using System.Linq;
-using Application = System.Windows.Application;
-using Messanger;
 
 namespace Search.ViewModel
 {
-    public class SettingsVm : INotifyPropertyChanged
+    public class SettingsVm : ObservableObject
     {
-        private Page _page;
         private bool _recursive;
         private string _phrase;
         private string _rootPath;
@@ -25,19 +18,13 @@ namespace Search.ViewModel
         private bool _wholeWord;
         private bool _contains;
 
-        public SettingsVm()
+        // search: shows the results page for these parameters (was Application.Current.Properties + page navigation).
+        public SettingsVm(string rootPath, Action<SearchParameters> search)
         {
-            RootPath = @"C:\";
+            RootPath = rootPath;
             Contains = true;
-
-            NavigationCommand = new ExecuteCommand(() =>
-            {
-                NavigationService navigationService = NavigationService.GetNavigationService(Page);
-                Application.Current.Properties["parameter"] = CreateSearchParameters();
-
-                navigationService.Navigate(new Uri("../View/Pages/SearchPage.xaml", UriKind.Relative));
-            });
-            SetDirectoryCommand = new ExecuteCommand(SetDirectory);
+            NavigationCommand = new RelayCommand(() => search(CreateSearchParameters()), () => !string.IsNullOrEmpty(Phrase));
+            SetDirectoryCommand = new AsyncRelayCommand(SetDirectory);
         }
 
         private SearchParameters CreateSearchParameters()
@@ -53,32 +40,15 @@ namespace Search.ViewModel
             return searchParameters;
         }
 
-        private void SetDirectory()
+        private async Task SetDirectory()
         {
-            FolderBrowserDialog dialog = new FolderBrowserDialog();
-            dialog.SelectedPath = RootPath;
-            DialogResult result = dialog.ShowDialog();
-            if (result.Equals(DialogResult.OK))
-            {
-                RootPath = dialog.SelectedPath;
-            }
+            RootPath = await WindowHost.PickFolder(RootPath) ?? RootPath;
         }
 
         public ICommand NavigationCommand { get; set; }
         public ICommand SetDirectoryCommand { get; set; }
 
         #region Property
-        public Page Page
-        {
-            get { return _page; }
-            set
-            {
-                if (Equals(value, _page)) return;
-                _page = value;
-                OnPropertyChanged();
-            }
-        }
-
         public bool WholeWord
         {
             get
@@ -128,6 +98,7 @@ namespace Search.ViewModel
             {
                 _phrase = value;
                 OnPropertyChanged();
+                ((RelayCommand)NavigationCommand).NotifyCanExecuteChanged();
             }
         }
 
@@ -151,16 +122,6 @@ namespace Search.ViewModel
             }
         }
 
-        #endregion
-        #region INotifyPropertyChanged
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        [NotifyPropertyChangedInvocator]
-        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
-        {
-            PropertyChangedEventHandler handler = PropertyChanged;
-            if (handler != null) handler(this, new PropertyChangedEventArgs(propertyName));
-        }
         #endregion
     }
 }

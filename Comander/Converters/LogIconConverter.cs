@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Globalization;
-using System.Windows.Data;
+using Avalonia.Data.Converters;
 using Comander.Core;
 using LogLib;
 
@@ -16,11 +16,11 @@ namespace Comander.Converters
                 switch (logMsg.Info)
                 {
                     case LogInfo.Error:
-                        return @"\Icons\error.png";
+                        return Icons.Load("error.png");
                     case LogInfo.Warrning:
-                        return @"\Icons\warning.png";
+                        return Icons.Load("warning.png");
                     default:
-                        return @"\Icons\info.png";
+                        return Icons.Load("info.png");
                 }
             }
             return null;

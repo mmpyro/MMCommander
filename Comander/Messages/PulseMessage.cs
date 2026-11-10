@@ -1,11 +1,11 @@
 ﻿
 namespace Comander.Messages
 {
-    internal struct PulseMessage
+    public class PulseMessage
     {
     }
 
-    internal struct WaitMessage
+    public class WaitMessage
     {
     }
 }

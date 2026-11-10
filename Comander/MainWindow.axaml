@@ -1,0 +1,48 @@
+<Window x:Class="Comander.MainWindow"
+        xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:local="clr-namespace:Comander.View"
+        xmlns:controls="clr-namespace:Comander.Controls"
+        Title="MMCommander" Icon="/Icons/main.ico" Height="600" Width="1000">
+    <Grid RowDefinitions="Auto,Auto,*,35">
+        <Menu Grid.Row="0">
+            <MenuItem Header="Options">
+                <MenuItem Header="Switch" Command="{Binding SwitchCommand}"/>
+                <MenuItem Header="Source = Target" Command="{Binding DuplicateCommand}"/>
+                <MenuItem Header="Reload drives" Command="{Binding RefreshCommand}"/>
+                <MenuItem Header="Open logs" Command="{Binding ReadLogsCommand}"/>
+                <MenuItem Header="Clear logs" Command="{Binding ClearLogCommand}"/>
+            </MenuItem>
+            <MenuItem Header="Run" ItemsSource="{Binding Programs}"/>
+            <MenuItem Header="Ext" ItemsSource="{Binding Exts}"/>
+            <MenuItem Header="Tools">
+                <MenuItem Header="Compare Dir" Command="{Binding CompareDirCommand}"/>
+                <MenuItem Header="Split" Command="{Binding SplitFileCommand}"/>
+                <MenuItem Header="Join" Command="{Binding JoinFileCommand}"/>
+                <MenuItem Header="Search" Command="{Binding SearchCommand}"/>
+            </MenuItem>
+            <MenuItem Header="Help">
+                <MenuItem Header="Keymap" Command="{Binding KeyMapCommand}"/>
+                <MenuItem Header="Syntax" Command="{Binding SyntaxCommand}"/>
+                <MenuItem Header="About" Command="{Binding AboutCommand}"/>
+            </MenuItem>
+        </Menu>
+        <Grid Grid.Row="1" ColumnDefinitions="*,10,*">
+            <local:CommandWindow Grid.Column="0" DataContext="{Binding Io1}"/>
+            <local:CommandWindow Grid.Column="2" DataContext="{Binding Io2}"/>
+        </Grid>
+        <Grid Grid.Row="2" ColumnDefinitions="*,10,*">
+            <controls:IOGrid DataContext="{Binding Io1}" GridName="Io1"/>
+            <GridSplitter Grid.Column="1" ResizeDirection="Columns"/>
+            <controls:IOGrid DataContext="{Binding Io2}" GridName="Io2" Grid.Column="2"/>
+        </Grid>
+        <Grid Grid.Row="3" ColumnDefinitions="30,30,Auto,*,40,40">
+            <ProgressBar Grid.Column="0" Width="24" MinWidth="24" IsIndeterminate="True" IsVisible="{Binding IsBusy}" Foreground="{StaticResource MainBorderBrush}"/>
+            <Image Width="20" Height="20" Grid.Column="1" Source="{Binding CurrentLogMsg, Converter={StaticResource LogIconConverter}}"/>
+            <TextBlock Padding="5,10,0,0" Text="{Binding LogCount}" Grid.Column="2"/>
+            <TextBlock Padding="5,10,0,0" Text="{Binding CurrentLogMsg, Converter={StaticResource LogMessageConverter}}" Grid.Column="3"/>
+            <Button FontWeight="ExtraBold" Grid.Column="4" Content="&lt;" Command="{Binding PreviusLogCommand}"/>
+            <Button FontWeight="ExtraBold" Grid.Column="5" Content="&gt;" Command="{Binding NextLogCommand}"/>
+        </Grid>
+    </Grid>
+</Window>

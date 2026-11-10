@@ -1,47 +1,45 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Diagnostics;
 using System.Linq;
-using System.Windows;
+using System.Threading;
+using System.Threading.Tasks;
+using Avalonia.Threading;
 using Comander.CommanderIO;
 using Comander.View;
+using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Messaging;
 using IOLib;
-using RxFramework;
-using Search;
 using Comander.Core;
 using Comander.Messages;
-using System.Collections.Specialized;
-using Comander.Dtos;
+using Search;
 
 namespace Comander.ViewModel
 {
-    public partial class IOManager : ReactiveObject, IFileNotifier
+    public partial class IOManager : ObservableObject, IFileNotifier, IIOManager
     {
         #region Methods
-        private void ZipFiles()
+        private List<IMetadataFileStructure> SelectedFiles()
         {
-            _proxy.ZipFiles();
-        }
-
-        private void UnZipFiles()
-        {
-            _proxy.UnZipFiles();
-        }
-
-        private void DeleteFile()
-        {
-           _proxy.DeleteFile(_files.Where(t => t.IsSelected()));
+            return _files.Where(t => t.IsSelected()).ToList();
         }
 
         public void LoadDrivers()
         {
             Drives = new ObservableCollection<DriveStruct>(_fileManager.GetDrives());
         }
-        
+
         private void EnterIntoDir()
         {
-            if (SelectedFile.IsDirectory)
+            if (SelectedFile != null && SelectedFile.IsDirectory)
                 ActualPath = SelectedFile.FullName;
+        }
+
+        private async Task ChooseDirectory()
+        {
+            var path = await WindowHost.PickFolder(ActualPath);
+            if (path != null)
+                ActualPath = path;
         }
 
         private void SelectAllFiles()
@@ -76,15 +74,9 @@ namespace Comander.ViewModel
             CountSelectedFiles();
         }
 
-        private void MoveFile()
+        private void Refresh()
         {
-            _proxy.MoveFile(_files.Where(t => t.IsSelected()), SeccondManagerCurrentDir);
-        }
-
-        private async void Refresh()
-        {
-            var dirs = await _fileManager.GetAllStructuresAsync(ActualPath);
-            Files = new ObservableCollection<IMetadataFileStructure>(dirs.Cast<IMetadataFileStructure>());
+            FilterFiles();
         }
 
         private void SetFocus()
@@ -115,64 +107,47 @@ namespace Comander.ViewModel
             return null;
         }
 
-        public async void FilterFiles()
+        public void FilterFiles()
         {
+            Dispatcher.UIThread.Post(() => _ = LoadFiles(TimeSpan.Zero));
+        }
+
+        // Lists ActualPath, applies Filter, and drops the result if a newer call started meanwhile (BUG-11).
+        private async Task LoadFiles(TimeSpan delay)
+        {
+            _listing.Cancel();
+            var listing = _listing = new CancellationTokenSource();
+            var path = ActualPath;
+            var filter = Filter;
             try
             {
-                if (string.IsNullOrEmpty(Filter))
-                    Refresh();
-                else
+                if (delay > TimeSpan.Zero)
+                    await Task.Delay(delay, listing.Token);
+                // The path box updates ActualPath on every keystroke; ignore paths that don't exist (yet).
+                if (!System.IO.Directory.Exists(path))
+                    return;
+                var files = await _fileManager.GetAllStructuresAsync(path);
+                if (!string.IsNullOrEmpty(filter))
                 {
-                    var files = await _fileManager.GetAllStructuresAsync(ActualPath);
-                    var filterFiles = await _syntaxParser.PerformAsync(Filter, files.ToArray());
-                    Files = new ObservableCollection<IMetadataFileStructure>(filterFiles.Cast<IMetadataFileStructure>());
+                    try
+                    {
+                        files = await _syntaxParser.PerformAsync(filter, files.ToArray());
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.Error("Invalid filter: " + ex.Message);
+                    }
                 }
+                if (!listing.IsCancellationRequested)
+                    Files = new ObservableCollection<IMetadataFileStructure>(files.Cast<IMetadataFileStructure>());
             }
-            catch
+            catch (OperationCanceledException)
             {
-                Refresh();
             }
-        }
-
-        private void CopyFile()
-        {
-            Func<string, string, bool> allowOverride = OpenConfirWindowForOvverideFiles();
-            _proxy.CopyFile(_files.Where(t => t.IsSelected()), SeccondManagerCurrentDir, allowOverride);
-            copyOption.Options = CopyOption.None;
-        }
-
-        private Func<string, string, bool> OpenConfirWindowForOvverideFiles()
-        {
-            return new Func<string, string, bool>((f, d) =>
+            catch (Exception ex)
             {
-                if (copyOption.Options == CopyOption.OverrideAll)
-                {
-                    return true;
-                }
-                if(copyOption.Options == CopyOption.Cancel)
-                {
-                    return false;
-                }
-
-                var overrideWindow = new OverrideWindow(string.Format("File {0} exist in {1}.\nDo you want to override it ?", f, d), copyOption);
-                var result = overrideWindow.ShowDialog() ?? false;
-    
-                if (result && (copyOption.Options == CopyOption.OverrideAll || copyOption.Options == CopyOption.OverrideSingle))
-                {
-                    return true;
-                }
-                return false;
-            });
-        }
-
-        public void CreateDirectory()
-        {
-            _proxy.CreateDirectory();
-        }
-
-        public void CreateFile()
-        {
-            _proxy.CreateFile();
+                _logger.Error(ex);
+            }
         }
 
         public void SetBusyApp()
@@ -182,76 +157,33 @@ namespace Comander.ViewModel
 
         public void Notify(string msg)
         {
-            CurrentOperation = msg;
+            Dispatcher.UIThread.Post(() => CurrentOperation = msg);
         }
 
         public void UnsetBusyApp()
         {
             _messanger.Send(new WaitMessage());
-            CurrentOperation = string.Empty;
-            FilterFiles();
-            _secondManager.FilterFiles();
-            SetFocus();
-        }
-
-        private void RunAsAdmin()
-        {
-            _proxy.RunAsAdmin(SelectedFile);
-        }
-
-        private void Run()
-        {
-            _proxy.Run(SelectedFile);
-        }
-
-        private void ShowShortcutsWindow()
-        {
-            var window = new ShortcutsWindow(_shortcutManager);
-            window.ShowDialog();
-            if (window.Selected != null)
+            Dispatcher.UIThread.Post(() =>
             {
-                ActualPath = window.Selected;
-            }
+                CurrentOperation = string.Empty;
+                FilterFiles();
+                _secondManager.FilterFiles();
+                SetFocus();
+            });
         }
 
-        private void ShowHistory()
+        private async Task ShowShortcutsWindow()
         {
-            var window = new HistoryWindow();
-            window.Items = _historyManager.GetHistory();
-            window.ShowDialog();
-            if (window.Selected != null)
-            {
-                ActualPath = window.Selected;
-            }
+            var selected = await WindowHost.ShowDialog<string>(() => new ShortcutsWindow(_shortcutManager));
+            if (selected != null)
+                ActualPath = selected;
         }
 
-        private void RunConsole()
+        private async Task ShowHistory()
         {
-            var processInfo = new ProcessStartInfo(_configReader["cmd"].Value);
-            processInfo.WorkingDirectory = ActualPath;
-            Process.Start(processInfo);
-        }
-
-        private void MouseMoveCallback(object e)
-        {
-            var args = e as WindowPositionEventArgs;
-            if(args != null)
-            {
-                _currentPosition = args.CurrentCursorPosition;
-            }
-        }
-
-        private void ShowInfoWindow()
-        {
-            InfoWindow infoWindow = new InfoWindow(SelectedFile);
-            infoWindow.Left = _currentPosition.X;
-            infoWindow.Top = _currentPosition.Y;
-            infoWindow.Show();
-        }
-
-        private void RenameFile()
-        {
-            _proxy.RenameFile(SelectedFile);
+            var selected = await WindowHost.ShowDialog<string>(() => new HistoryWindow(_historyManager.GetHistory()));
+            if (selected != null)
+                ActualPath = selected;
         }
 
         private void EvaluatePath(string value)
@@ -273,6 +205,7 @@ namespace Comander.ViewModel
             }
         }
 
+        // The logger raises GUI events; MainVM marshals them to the UI thread, so these are safe from any thread.
         public void LogDebug(string message)
         {
             _logger.Debug(message);
@@ -281,50 +214,33 @@ namespace Comander.ViewModel
         public void LogError(Exception ex, string message = null)
         {
             if(ex is NullReferenceException)
-            {
-                Application.Current.Dispatcher.Invoke(() => _logger.Error("Any file was selected"));
-            }
+                _logger.Error("Any file was selected");
+            else if (string.IsNullOrEmpty(message))
+                _logger.Error(ex);
             else
-            {
-                if (string.IsNullOrEmpty(message))
-                {
-                    Application.Current.Dispatcher.Invoke(() => _logger.Error(ex));
-                }
-                else
-                {
-                    Application.Current.Dispatcher.Invoke(() => _logger.Error(message, ex));
-                }
-            }
+                _logger.Error(message, ex);
         }
 
         public void LogInfo(string message)
         {
-            Application.Current.Dispatcher.Invoke(
-                       () => _logger.Info(message));
+            _logger.Info(message);
+        }
+
+        public void LogError(string message)
+        {
+            _logger.Error(message);
         }
 
         public void ShowTreeWindow()
         {
-            string path = SelectedFile.IsDirectory ? SelectedFile.FullName : ActualPath;
-            TreeWindow window = new TreeWindow(path, this);
-            window.Show();
+            string path = SelectedFile != null && SelectedFile.IsDirectory ? SelectedFile.FullName : ActualPath;
+            WindowHost.Show(() => new TreeWindow(path, this));
         }
 
-        public void PutSelectedFilesIntoClipboard()
+        private void ShowPluginWindow()
         {
-            StringCollection clipboardCollection = new StringCollection();
-            foreach (var item in Files.Where(t => t.IsSelected()))
-            {
-                clipboardCollection.Add(item.FullName);
-            }
-            Clipboard.Clear();
-            Clipboard.SetFileDropList(clipboardCollection);
-        }
-
-        public void TakeFilesFromClipboard()
-        {
-            
-            _proxy.PasteFromClipboard(CurrentDir, OpenConfirWindowForOvverideFiles());
+            var files = SelectedFiles().Select(t => t.FullName).ToList();
+            WindowHost.Show(() => new PluginWindow(_pluginManager, ActualPath, files, _logger));
         }
         #endregion
 
@@ -345,13 +261,14 @@ namespace Comander.ViewModel
             }
         }
 
+        // Typing in the filter box waits 1 s for more input before listing (was Rx Throttle).
         public string Filter
         {
             get { return _filter; }
             set
             {
-                _filter = value;
-                OnPropertyChanged("Filter");
+                if (SetProperty(ref _filter, value))
+                    _ = LoadFiles(string.IsNullOrEmpty(value) ? TimeSpan.Zero : TimeSpan.FromSeconds(1));
             }
         }
 
@@ -361,16 +278,7 @@ namespace Comander.ViewModel
             set
             {
                 _currentOperation = value;
-                OnPropertyChanged("CurrentOperation");
-            }
-        }
-
-        public IMetadataFileStructure RootDirectory
-        {
-            get { return _rootDirectory; }
-            set
-            {
-                _rootDirectory = value;
+                OnPropertyChanged();
             }
         }
 
@@ -380,7 +288,7 @@ namespace Comander.ViewModel
             set
             {
                 _secondManager = value;
-                OnPropertyChanged("SecondManager");
+                OnPropertyChanged();
             }
         }
 
@@ -390,7 +298,7 @@ namespace Comander.ViewModel
             set
             {
                 _selectedFile = value;
-                OnPropertyChanged("SelectedFile");
+                OnPropertyChanged();
             }
         }
 
@@ -400,7 +308,7 @@ namespace Comander.ViewModel
             set
             {
                 _files = value;
-                OnPropertyChanged("Files");
+                OnPropertyChanged();
                 SetFocus();
             }
         }
@@ -413,7 +321,7 @@ namespace Comander.ViewModel
                 EvaluatePath(value);
                 CurrentOperation = string.Empty;
                 FilterFiles();
-                OnPropertyChanged("ActualPath");
+                OnPropertyChanged();
             }
         }
 
@@ -425,22 +333,9 @@ namespace Comander.ViewModel
                 if (value != null)
                 {
                     _driveLetter = value;
-                    _rootDirectory = null;
                     ActualPath = _driveLetter;
-                    OnPropertyChanged("DriveLetter");
+                    OnPropertyChanged();
                 }
-            }
-        }
-
-        public IProxyIO State
-        {
-            get
-            {
-                return _proxy;
-            }
-            set
-            {
-                _proxy = value;
             }
         }
 
@@ -450,7 +345,7 @@ namespace Comander.ViewModel
             set
             {
                 _drives = value;
-                OnPropertyChanged("Drives");
+                OnPropertyChanged();
             }
         }
         #endregion
@@ -462,27 +357,8 @@ namespace Comander.ViewModel
                 if (file.IsDirectory)
                     ActualPath = file.FullName;
                 else
-                {
-                    string path = file.FullName.Substring(0, file.FullName.Length - file.Name.Length);
-                    ActualPath = path;
-                }
+                    ActualPath = System.IO.Path.GetDirectoryName(file.FullName);
             }
-        }
-
-        private void ShowPluginWindow()
-        {
-           _proxy.ShowPluginWindow(() =>
-           {
-               var pluginWindow = new PluginWindow(_pluginManager, ActualPath, Files.Where(t => t.IsSelected()).Select(t => t.FullName), _logger);
-               pluginWindow.Left = _currentPosition.X;
-               pluginWindow.Top = _currentPosition.Y;
-               pluginWindow.Show();
-           });
-        }
-
-        public void LogError(string message)
-        {
-            _logger.Error(message);
         }
     }
 }

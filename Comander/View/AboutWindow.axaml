@@ -1,0 +1,10 @@
+<local:DialogWindow x:Class="Comander.View.AboutWindow"
+        xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:local="clr-namespace:Comander.View"
+        Title="About" Height="150" Width="330">
+    <Grid ColumnDefinitions="*,Auto" Margin="10">
+        <TextBlock Name="InformationTb" TextWrapping="Wrap" FontSize="16" VerticalAlignment="Center"/>
+        <Button Grid.Column="1" VerticalAlignment="Top" Content="X" Foreground="{StaticResource MainBorderBrush}" Click="Close_OnClick"/>
+    </Grid>
+</local:DialogWindow>

@@ -1,27 +1,23 @@
 ﻿using Comander.CommanderIO;
-using Comander.View;
-using Comander.ViewModel;
+using Comander.Dtos;
 using IOLib;
 using System;
 using System.Collections.Generic;
-using System.Collections.Specialized;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using System.Windows;
 using ZipLib;
-
 
 namespace Comander.Core
 {
     public class ProxyIO : IProxyIO
     {
         private readonly IFileSystemManager _fileManager;
-        private IOManager _ioManager;
         private readonly IStateMonitor _monitor;
+        private readonly IDialogService _dialogs;
+        private IIOManager _ioManager;
 
-        public IOManager Manager
+        public IIOManager Manager
         {
             set
             {
@@ -29,361 +25,263 @@ namespace Comander.Core
             }
         }
 
-        public ProxyIO( IFileSystemManager fileManager, IStateMonitor monitor)
+        public ProxyIO(IFileSystemManager fileManager, IStateMonitor monitor, IDialogService dialogs)
         {
             _fileManager = fileManager;
             _monitor = monitor;
+            _dialogs = dialogs;
         }
 
-        public void CopyFile(IEnumerable<IMetadataFileStructure> files, IMetadataFileStructure destinationDir, Func<string, string, bool> allowOverride)
+        public async Task CopyFile(IEnumerable<IMetadataFileStructure> files, IMetadataFileStructure destinationDir)
         {
-            if(_monitor.Enter())
-                Task.Run(() =>
+            var items = files.ToList();
+            if (!Enter())
+                return;
+            // Remembers "override all" / "cancel" for the rest of this operation.
+            var choice = CopyOption.None;
+            Func<string, string, bool> allowOverride = (file, dir) =>
+            {
+                if (choice == CopyOption.OverrideAll)
+                    return true;
+                if (choice == CopyOption.Cancel)
+                    return false;
+                // Called on the worker thread; the dialog service marshals to the UI thread.
+                choice = _dialogs.AskOverride(string.Format("File {0} exist in {1}.\nDo you want to override it ?", file, dir)).GetAwaiter().GetResult();
+                return choice == CopyOption.OverrideAll || choice == CopyOption.OverrideSingle;
+            };
+            await RunBusy(() =>
+            {
+                foreach (var file in items)
                 {
                     try
                     {
-                        Busy();
-                        int allfiles = files.Count();
-                        foreach (var file in files)
-                        {
-                            try
-                            {
-                                _ioManager.Notify(string.Format("Copy {0} to {1}", file.Name, destinationDir.FullName));
-                                Application.Current.Dispatcher.Invoke(() =>
-                                {
-                                    file.Copy(destinationDir, allowOverride);
-                                });
-                                _ioManager.LogDebug(string.Format("Copy {0} to {1}", file.Name, destinationDir.FullName));
-                            }
-                            catch (Exception ex)
-                            {
-                                _ioManager.LogError(ex, string.Format("Cannot copy {0} to {1}", file.Name, destinationDir.FullName));
-                            }
-                        }
+                        _ioManager.Notify(string.Format("Copy {0} to {1}", file.Name, destinationDir.FullName));
+                        file.Copy(destinationDir, allowOverride);
+                        _ioManager.LogDebug(string.Format("Copy {0} to {1}", file.Name, destinationDir.FullName));
                     }
-                    finally
+                    catch (Exception ex)
                     {
-                        Avaiable();
+                        _ioManager.LogError(ex, string.Format("Cannot copy {0} to {1}", file.Name, destinationDir.FullName));
                     }
-                }).ContinueWith(t => _monitor.Exit(), TaskContinuationOptions.OnlyOnRanToCompletion);
+                }
+            });
         }
 
-        public void CreateDirectory()
+        public Task CreateDirectory()
         {
-            if (_monitor.Enter())
+            return CreateItem("Please enter the directory name", path => _fileManager.CreateDirectory(path), "Create new directory ", "Directory wasn't created");
+        }
+
+        public Task CreateFile()
+        {
+            return CreateItem("Please enter the file name", path => _fileManager.CreateFile(path), "Create new file ", "File wasn't created");
+        }
+
+        private async Task CreateItem(string question, Action<string> create, string debugMessage, string errorMessage)
+        {
+            var name = await _dialogs.AskText(question);
+            if (string.IsNullOrEmpty(name) || !Enter())
+                return;
+            try
             {
-                InputWindow inputWindow = new InputWindow("Please enter the directory name");
-                if (inputWindow.ShowDialog() == true)
+                Busy();
+                string path = Path.Combine(_ioManager.ActualPath, name);
+                create(path);
+                _ioManager.LogDebug(debugMessage + path);
+            }
+            catch
+            {
+                _ioManager.LogError(errorMessage);
+            }
+            finally
+            {
+                _monitor.Exit();
+                Avaiable();
+            }
+        }
+
+        public async Task DeleteFile(IEnumerable<IMetadataFileStructure> files)
+        {
+            var items = files.ToList();
+            if (!await _dialogs.Confirm("Do you want delete " + items.Count + " files ?") || !Enter())
+                return;
+            await RunBusy(() =>
+            {
+                int iterator = 1;
+                foreach (var file in items)
                 {
                     try
                     {
-                        Busy();
-                        string path = Path.Combine(_ioManager.ActualPath, inputWindow.InputName);
-                        _fileManager.CreateDirectory(path);
-                        _ioManager.LogDebug("Create new directory " + path);
-                        _ioManager.FilterFiles();
+                        _ioManager.Notify(string.Format("Delete {0}, {1} of {2}", file.Name, iterator++, items.Count));
+                        file.Delete();
+                        _ioManager.LogDebug("Delete " + file.Name);
                     }
-                    catch
+                    catch (Exception ex)
                     {
-                        _ioManager.LogError("Directory wasn't created");
-                    }
-                    finally
-                    {
-                        Avaiable();
-                        _monitor.Exit();
+                        _ioManager.LogError(ex, string.Format("Cannot delete {0} file", file.Name));
                     }
                 }
-                else
-                {
-                    _monitor.Exit();
-                }
-            }
+            });
         }
 
-        public void CreateFile()
+        public async Task MoveFile(IEnumerable<IMetadataFileStructure> files, IMetadataFileStructure destinationDir)
         {
-            if (_monitor.Enter())
+            var items = files.ToList();
+            if (!Enter())
+                return;
+            await RunBusy(() =>
             {
-                InputWindow inputWindow = new InputWindow("Please enter the file name");
-                if (inputWindow.ShowDialog() == true)
+                foreach (var file in items)
                 {
                     try
                     {
-                        Busy();
-                        string path = Path.Combine(_ioManager.ActualPath, inputWindow.InputName);
-                        _fileManager.CreateFile(path);
-                        _ioManager.LogDebug("Create new file " + path);
-                        _ioManager.FilterFiles();
+                        _ioManager.Notify(string.Format("Move {0} to {1}", file.Name, destinationDir.FullName));
+                        file.Move(destinationDir);
+                        _ioManager.LogDebug(string.Format("Move {0} to {1}", file.Name, destinationDir.FullName));
                     }
-                    catch
+                    catch (Exception ex)
                     {
-                        _ioManager.LogError("File wasn't created");
-                    }
-                    finally
-                    {
-                        Avaiable();
-                        _monitor.Exit();
+                        _ioManager.LogError(ex, string.Format("Cannot move {0} to {1}", file.Name, destinationDir.FullName));
                     }
                 }
-                else
-                {
-                    _monitor.Exit();
-                }
-            }
+            });
         }
 
-        public void DeleteFile(IEnumerable<IMetadataFileStructure> files)
+        public async Task RenameFile(IMetadataFileStructure selectedFile)
         {
-            if (_monitor.Enter())
-            {
-                int allfiles = files.Count();
-                ConfirmWindow confirmWindow = new ConfirmWindow("Do you want delete " + allfiles + " files ?");
-                if (confirmWindow.ShowDialog() == true)
-                {
-                    Task.Run(() =>
-                    {
-                        try
-                        {
-                            Busy();
-                            int iterator = 1;
-                            foreach (var file in files)
-                            {
-                                try
-                                {
-                                    _ioManager.Notify(string.Format("Delete {0}, {1} of {2}", file.Name, iterator++, allfiles));
-                                    file.Delete();
-                                    _ioManager.LogDebug("Delete " + file.Name);
-                                }
-                                catch (Exception ex)
-                                {
-                                    _ioManager.LogError(ex, string.Format("Cannot delete {0} file", file.Name));
-                                }
-                            }
-                        }
-                        finally
-                        {
-                            Avaiable();
-                        }
-                    }).ContinueWith(t => _monitor.Exit(), TaskContinuationOptions.OnlyOnRanToCompletion); ;
-                }
-                else
-                {
-                    _monitor.Exit();
-                }
-            }
-        }
-
-        public void MoveFile(IEnumerable<IMetadataFileStructure> files, IMetadataFileStructure destinationDir)
-        {
-            if(_monitor.Enter())
-                Task.Run(() =>
-                {
-                    try
-                    {
-                        Busy();
-
-                        int allfiles = files.Count();
-                        foreach (var file in files)
-                        {
-                            try
-                            {
-                                _ioManager.Notify(string.Format("Move {0} to {1}", file.Name, destinationDir.FullName));
-                                file.Move(destinationDir);
-                                _ioManager.LogDebug(string.Format("Move {0} to {1}", file.Name, destinationDir.FullName));
-                            }
-                            catch (Exception ex)
-                            {
-                                _ioManager.LogError(ex, string.Format("Cannot move {0} to {1}", file.Name, destinationDir.FullName));
-                            }
-                        }
-                    }
-                    finally
-                    {
-                        Avaiable();
-                    }
-                }).ContinueWith(t => _monitor.Exit(),TaskContinuationOptions.OnlyOnRanToCompletion);
-        }
-
-        public void RenameFile(IMetadataFileStructure selectedFile)
-        {
-            var inputWindow = new InputWindow("Please enter the new file name", selectedFile.Name);
-            if (inputWindow.ShowDialog() == true)
-            {
-                selectedFile.Rename(inputWindow.InputName);
-                _ioManager.LogDebug(string.Format("Rename {0} to {1}", selectedFile.Name, inputWindow.InputName));
-                _ioManager.FilterFiles();
-            }
+            var oldName = selectedFile.Name;
+            var newName = await _dialogs.AskText("Please enter the new file name", oldName);
+            if (string.IsNullOrEmpty(newName))
+                return;
+            selectedFile.Rename(newName);
+            _ioManager.LogDebug(string.Format("Rename {0} to {1}", oldName, newName));
+            _ioManager.FilterFiles();
         }
 
         public void Run(IMetadataFileStructure selectedFile)
         {
-            var info = new ProcessStartInfo
-            {
-                FileName = selectedFile.FullName,
-                WorkingDirectory = _ioManager.ActualPath,
-            };
-            Process.Start(info);
+            Shell.Open(selectedFile.FullName, _ioManager.ActualPath);
             _ioManager.LogDebug("Run " + selectedFile.FullName);
         }
 
         public void RunAsAdmin(IMetadataFileStructure selectedFile)
         {
-            var info = new ProcessStartInfo
-            {
-                FileName = selectedFile.FullName,
-                WorkingDirectory = _ioManager.ActualPath,
-                Verb = "runas"
-            };
-            Process.Start(info);
+            Shell.RunAsAdmin(selectedFile.FullName, _ioManager.ActualPath);
             _ioManager.LogDebug("Run as administrator " + selectedFile.FullName);
         }
 
-        public void ShowPluginWindow(Action displayPluginWindow)
+        public async Task ZipFiles()
         {
-            displayPluginWindow();
-        }
-
-        public void ZipFiles()
-        {
-            var files = _ioManager.Files.Where(t => t.IsSelected());
-            if (files.Count() == 1 && files.First().IsDirectory)
-            {
-                ZipWindow zipWindow = new ZipWindow(_ioManager.ActualPath);
-                zipWindow.ShowDialog();
-                if (zipWindow.ZipParameters != null)
-                {
-                    _ioManager.Notify("Zip in progress...");
-                    var parameters = zipWindow.ZipParameters;
-                    ZipDirProcessor(files.First(), parameters);
-                }
-            }
-            else if (files.Any())
-            {
-                ZipWindow zipWindow = new ZipWindow(_ioManager.ActualPath);
-                zipWindow.ShowDialog();
-                if (zipWindow.ZipParameters != null)
-                {
-                    _ioManager.Notify("Zip in progress...");
-                    var parameters = zipWindow.ZipParameters;
-                    ZipFileProcessor(files, parameters);
-                }
-            }
-            else
+            var files = _ioManager.Files.Where(t => t.IsSelected()).ToList();
+            if (!files.Any())
             {
                 _ioManager.LogError("Any file was selected.");
+                return;
             }
+            var zipParameters = await _dialogs.AskZip(_ioManager.ActualPath);
+            if (zipParameters == null || !Enter())
+                return;
+            _ioManager.Notify("Zip in progress...");
+            bool encrypt = !string.IsNullOrEmpty(zipParameters.Password);
+            await RunBusy(() =>
+            {
+                try
+                {
+                    var zipper = new ZipAdapter();
+                    if (files.Count == 1 && files[0].IsDirectory)
+                    {
+                        if (encrypt)
+                            zipper.CompressDirWithEncryption(zipParameters, files[0].FullName);
+                        else
+                            zipper.CompressDir(zipParameters, files[0].FullName);
+                        _ioManager.LogInfo(string.Format("Zip {0} was finished without errors.", files[0].Name));
+                    }
+                    else
+                    {
+                        var paths = files.Select(t => t.FullName).ToArray();
+                        if (encrypt)
+                            zipper.CompressFilesWithEncryption(zipParameters, paths);
+                        else
+                            zipper.CompressFiles(zipParameters, paths);
+                        _ioManager.LogInfo("Zip proccess was finished without errors.");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    _ioManager.LogError(ex, "Error occur during zip. Check logs.");
+                }
+            });
         }
 
-        public void UnZipFiles()
+        public async Task UnZipFiles()
         {
+            UnZipRequest request;
             try
             {
-                UnZipWindow window = new UnZipWindow(_ioManager.SelectedFile);
-                window.ShowDialog();
-                if (window.ZipParameters != null)
-                {
-                    UnZipFilesProcessor(window.ZipParameters, window.ExtractionType);
-                }
+                request = await _dialogs.AskUnzip(_ioManager.SelectedFile);
             }
             catch (Exception e)
             {
                 _ioManager.LogError(e.Message);
+                return;
             }
+            if (request == null || !Enter())
+                return;
+            var zipParameters = request.Parameters;
+            await RunBusy(() =>
+            {
+                try
+                {
+                    var zipper = new ZipAdapter();
+                    if (request.ExtractType == ExtractType.Here)
+                        zipper.UnCompressFile(zipParameters, _ioManager.ActualPath);
+                    else
+                    {
+                        string extractionPath = Path.Combine(_ioManager.ActualPath, Path.GetFileNameWithoutExtension(zipParameters.ArchiveName));
+                        _fileManager.CreateDirectory(extractionPath);
+                        zipper.UnCompressFile(zipParameters, extractionPath);
+                    }
+                    _ioManager.LogInfo(string.Format("UnZip {0} was finished without errors.", _ioManager.ActualPath));
+                }
+                catch (Exception ex)
+                {
+                    _ioManager.LogError(ex, "Error occur during unzip. Check logs.");
+                }
+            });
         }
 
-        private void ZipFileProcessor(IEnumerable<IMetadataFileStructure> zFiles, ZipParameters zipParameters)
+        public async Task PasteFromClipboard(IMetadataFileStructure destinationDir)
         {
-            if(_monitor.Enter())
-                Task.Run(() =>
-                {
-                    try
-                    {
-                        Busy();
-                        ZipAdapter zipper = new ZipAdapter();
-                        var files = (from file in zFiles select file.FullName).ToArray();
-                        if (string.IsNullOrEmpty(zipParameters.Password))
-                        {
-                            zipper.CompressFiles(zipParameters, files);
-                        }
-                        else
-                        {
-                            zipper.CompressFilesWithEncryption(zipParameters, files);
-                        }
-                        _ioManager.LogInfo("Zip proccess was finished without errors.");
-                    }
-                    catch (Exception ex)
-                    {
-                        _ioManager.LogError(ex, "Error occur during zip. Check logs.");
-                    }
-                    finally
-                    {
-                        _ioManager.Notify(string.Empty);
-                        Avaiable();
-                    }
-                }).ContinueWith(t => _monitor.Exit(), TaskContinuationOptions.OnlyOnRanToCompletion);
+            var paths = await _dialogs.GetClipboardFiles();
+            var fileFactory = new MetaDataFileFactory();
+            var files = paths.Select(path => (IMetadataFileStructure)fileFactory.CreateFileMsg(path)).ToList();
+            await CopyFile(files, destinationDir);
         }
 
-        private void ZipDirProcessor(IMetadataFileStructure dir, ZipParameters zipParameters)
+        private bool Enter()
         {
-            if(_monitor.Enter())
-                Task.Run(() =>
-                {
-                    try
-                    {
-                        Busy();
-                        ZipAdapter zipper = new ZipAdapter();
-                        if (string.IsNullOrEmpty(zipParameters.Password))
-                        {
-                            zipper.CompressDir(zipParameters, dir.FullName);
-                        }
-                        else
-                        {
-                            zipper.CompressDirWithEncryption(zipParameters, dir.FullName);
-                        }
-                        _ioManager.LogInfo(string.Format("Zip {0} was finished without errors.", dir.Name));
-                    }
-                    catch (Exception ex)
-                    {
-                        _ioManager.LogError(ex, "Error occur during zip. Check logs.");
-                    }
-                    finally
-                    {
-                        _ioManager.Notify(string.Empty);
-                        Avaiable();
-                    }
-                }).ContinueWith(t => _monitor.Exit(), TaskContinuationOptions.OnlyOnRanToCompletion);
+            if (_monitor.Enter())
+                return true;
+            _ioManager.LogError("Another operation is in progress.");
+            return false;
         }
 
-        private void UnZipFilesProcessor(ZipParameters zipParameters, ExtractType extractionType)
+        // Runs work on the thread pool; the busy lock is always released, even if work or the refresh throws (BUG-09).
+        private Task RunBusy(Action work)
         {
-            if(_monitor.Enter())
-                Task.Run(() =>
+            return Task.Run(() =>
+            {
+                try
                 {
-                    try
-                    {
-                        Busy();
-                        var zipper = new ZipAdapter();
-                        if (extractionType == ExtractType.Here)
-                            zipper.UnCompressFile(zipParameters, _ioManager.ActualPath);
-                        else
-                        {
-                            string dir = zipParameters.ArchiveName.Split('.')[0];
-                            string extractionPath = Path.Combine(_ioManager.ActualPath, dir);
-                            _fileManager.CreateDirectory(extractionPath);
-                            zipper.UnCompressFile(zipParameters, extractionPath);
-                        }
-                        _ioManager.LogInfo(string.Format("UnZip {0} was finished without errors.", _ioManager.ActualPath));
-                    }
-                    catch (Exception ex)
-                    {
-                        _ioManager.LogError(ex, "Error occur during unzip. Check logs.");
-                    }
-                    finally
-                    {
-                        Avaiable();
-                        _ioManager.Notify(string.Empty);
-                    }
-                }).ContinueWith(t => _monitor.Exit(), TaskContinuationOptions.OnlyOnRanToCompletion);
+                    Busy();
+                    work();
+                }
+                finally
+                {
+                    _monitor.Exit();
+                    Avaiable();
+                }
+            });
         }
 
         private void Avaiable()
@@ -394,18 +292,6 @@ namespace Comander.Core
         private void Busy()
         {
             _ioManager.SetBusyApp();
-        }
-
-        public void PasteFromClipboard(IMetadataFileStructure destinationDir, Func<string, string, bool> allowOverride)
-        {
-            StringCollection paths = Clipboard.GetFileDropList();
-            MetaDataFileFactory fileFactory = new MetaDataFileFactory();
-            List<IMetadataFileStructure> files = new List<IMetadataFileStructure>();
-            foreach (var path in paths)
-            {
-                files.Add((IMetadataFileStructure)fileFactory.CreateFileMsg(path));
-            }
-            CopyFile(files, destinationDir, allowOverride);
         }
     }
 }

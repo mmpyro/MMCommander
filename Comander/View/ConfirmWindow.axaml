@@ -1,0 +1,14 @@
+<local:DialogWindow x:Class="Comander.View.ConfirmWindow"
+        xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:local="clr-namespace:Comander.View"
+        Title="Confirm" Height="150" Width="330">
+    <Grid RowDefinitions="*,Auto" ColumnDefinitions="Auto,*" Margin="10">
+        <Image Name="Image" Width="40" Height="40" Margin="0,0,10,0"/>
+        <TextBlock Name="InfoTextBlock" Grid.Column="1" TextWrapping="Wrap" FontWeight="Bold" TextAlignment="Center" VerticalAlignment="Center"/>
+        <StackPanel Grid.Row="1" Grid.ColumnSpan="2" Orientation="Horizontal" HorizontalAlignment="Center" Spacing="40">
+            <Button Name="AcceptButton" IsDefault="True" Click="AcceptButton_OnClick"><Image Width="24" Height="24" Source="/Icons/appbar.check.png"/></Button>
+            <Button IsCancel="True" Click="CancelButton_OnClick"><Image Width="24" Height="24" Source="/Icons/Cancel.png"/></Button>
+        </StackPanel>
+    </Grid>
+</local:DialogWindow>

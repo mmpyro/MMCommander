@@ -1,6 +1,6 @@
 ﻿namespace Comander.Messages
 {
-    internal struct RefreshMessage
+    public class RefreshMessage
     {
     }
 }

@@ -1,8 +1,5 @@
-﻿<?xml version="1.0" encoding="utf-8" ?>
-<!-- Command name has to be unique-->
-<!--s - source d - destiny-->
+<?xml version="1.0" encoding="utf-8" ?>
+<!-- Command name has to be unique. {s} = file selected in the left panel, {d} = file selected in the right panel. -->
+<!-- Example: <Command name="Compare Files"><Parameter>kdiff3 -args {s} {d}</Parameter></Command> -->
 <Commands>
-  <Command name="Compare Files">
-    <Parameter>F:\instalki\KDiff\KDiff3\kdiff3.exe -args {s} {d}</Parameter>
-  </Command>
 </Commands>

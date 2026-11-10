@@ -1,7 +1,7 @@
 ﻿using Comander.ViewModel;
 using System;
 using System.Globalization;
-using System.Windows.Data;
+using Avalonia.Data.Converters;
 
 namespace Comander.Converters
 {
@@ -14,9 +14,9 @@ namespace Comander.Converters
             {
                 if (file.IsDir)
                 {
-                    return @"..\Icons\treefolder.png";
+                    return Icons.Load("treefolder.png");
                 }
-                return @"..\Icons\treefiles.png";
+                return Icons.Load("treefiles.png");
             }
             return string.Empty;
         }

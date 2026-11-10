@@ -2,13 +2,13 @@
 
 namespace Comander.Messages
 {
-    public struct SetFocusMessage
+    public class SetFocusMessage
     {
         public string GridName { get; set; }
         public IMetadataFileStructure SelectedFile { get; set; }
     }
 
-    public struct FocusMessage
+    public class FocusMessage
     {
         public string ManagerName { get; set; }
     }

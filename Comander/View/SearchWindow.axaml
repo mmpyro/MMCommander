@@ -1,0 +1,6 @@
+<Window x:Class="Search.SearchWindow"
+        xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Search" Height="320" Width="600" MinHeight="300" MinWidth="400" WindowStartupLocation="CenterOwner" Icon="/Icons/search.png">
+    <ContentControl Name="PageHost" Margin="6"/>
+</Window>

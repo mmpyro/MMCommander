@@ -1,19 +1,18 @@
-﻿using System;
+using System;
 using System.Collections.ObjectModel;
-using System.Diagnostics;
-using System.Reactive.Linq;
+using System.IO;
+using System.Linq;
+using System.Threading;
 using System.Windows.Input;
 using Comander.CommanderIO;
 using Comander.Core;
-using Comander.ViewModel.Commands;
+using Comander.View;
+using CommunityToolkit.Mvvm.Input;
+using CommunityToolkit.Mvvm.Messaging;
 using IOLib;
 using IOLinq;
 using LogLib;
-using RxFramework;
-using Messanger;
-using System.Windows;
 using Comander.Messages;
-using Comander.Dtos;
 
 namespace Comander.ViewModel
 {
@@ -29,23 +28,23 @@ namespace Comander.ViewModel
         private IMetadataFileStructure _selectedFile;
         private string _driveLetter;
         private string _currentOperation;
-        private IMetadataFileStructure _rootDirectory;
         private readonly IHistoryManager _historyManager;
         private readonly IConfigReader _configReader;
         private readonly IShortcutManager _shortcutManager;
         private readonly IPluginManager _pluginManager;
+        private readonly IDialogService _dialogs;
         private IOManager _secondManager;
         private string _filter;
-        private Point _currentPosition;
-        private IMessanger _messanger;
+        private readonly IMessenger _messanger = WeakReferenceMessenger.Default;
         private IProxyIO _proxy;
         private ManagerType _type;
         private bool _focus;
-        private CopyOptionDto copyOption = new CopyOptionDto();
+        // Cancelled whenever a newer listing or filter starts, so a slow old result never replaces a newer one (BUG-11).
+        private CancellationTokenSource _listing = new CancellationTokenSource();
 
         public IOManager(ManagerType type,string actualPath, IFileSystemManager fileManager, SyntaxParser syntaxParser, 
             IHistoryManager historyManager, IConfigReader configReader, 
-            IPluginManager pluginManager, ILogger logger, IPathResolver pathResolver, IProxyIO proxy)
+            IPluginManager pluginManager, ILogger logger, IPathResolver pathResolver, IProxyIO proxy, IDialogService dialogs)
         {
             _proxy = proxy;
             _proxy.Manager = this;
@@ -59,64 +58,62 @@ namespace Comander.ViewModel
             _pluginManager = pluginManager;
             _logger = logger;
             _pathResolver = pathResolver;
-            ChooseDirCommand = new DirChooseCommand(this);
-            RootDirCommand = new RootDirCommand(this);
-            ParentDirCommand = new ParentDirCommand(this);
-            DeleteFileCommand = new ExecuteCommand(DeleteFile, _logger);
+            _dialogs = dialogs;
+            ChooseDirCommand = new AsyncRelayCommand(ChooseDirectory);
+            RootDirCommand = new RelayCommand(() => { if (Directory.Exists(ActualPath)) ActualPath = Path.GetPathRoot(Path.GetFullPath(ActualPath)); });
+            ParentDirCommand = new RelayCommand(() =>
+            {
+                var dir = Directory.Exists(ActualPath) ? Directory.GetParent(ActualPath) : null;
+                if (dir != null)
+                    ActualPath = dir.FullName;
+            });
+            DeleteFileCommand = new AsyncRelayCommand(() => _proxy.DeleteFile(SelectedFiles()));
             CurrentOperation = string.Empty;
-            CreateDirCommand = new ExecuteCommand(CreateDirectory, _logger);
-            CreateFileCommand = new ExecuteCommand(CreateFile, _logger);
-            ZipCommand = new ExecuteCommand(ZipFiles, _logger);
-            EnterIntoDirCommand = new ExecuteCommand(EnterIntoDir, _logger);
-            RunFileCommand = new ExecuteCommand(Run, _logger);
-            RunAsAdminCommand = new ExecuteCommand(RunAsAdmin, _logger);
-            NotepadCommand = new ExecuteCommand(() => Process.Start(_configReader["notepad"].Value, SelectedFile.FullName), _logger);
-            AddShortCutsCommand = new ExecuteCommand(() => _shortcutManager.Add(ActualPath), _logger);
+            CreateDirCommand = new AsyncRelayCommand(_proxy.CreateDirectory);
+            CreateFileCommand = new AsyncRelayCommand(_proxy.CreateFile);
+            ZipCommand = new AsyncRelayCommand(_proxy.ZipFiles);
+            EnterIntoDirCommand = new RelayCommand(EnterIntoDir);
+            RunFileCommand = new RelayCommand(() => _proxy.Run(SelectedFile));
+            RunAsAdminCommand = new RelayCommand(() => _proxy.RunAsAdmin(SelectedFile));
+            NotepadCommand = new RelayCommand(() => Shell.Run(_configReader["notepad"], SelectedFile.FullName, ActualPath));
+            AddShortCutsCommand = new RelayCommand(() => _shortcutManager.Add(ActualPath));
             
-            RefreshDriveCommand = new ExecuteCommand(() =>
+            RefreshDriveCommand = new RelayCommand(() =>
             {
                 LoadDrivers();
                 _secondManager.LoadDrivers();
-            }, _logger);
-
-            RefreshCommand = new ExecuteCommand(FilterFiles, _logger);
-            ReverseSelectionCommand = new ExecuteCommand(ReversFileSelection, _logger);
-            SelectCommand = new SelectFilesCommand(RefreshFilesCollection);
-            SelectAllCommand = new ExecuteCommand(SelectAllFiles, _logger);
-            SelectTypeCommand = new ExecuteCommand(SelectByType, _logger);
-            CopyCommand = new ExecuteCommand(CopyFile, _logger);
-            MoveCommand = new ExecuteCommand(MoveFile, _logger);
-            ShowSortcutsCommand = new ExecuteCommand(ShowShortcutsWindow, _logger);
-            HistoryCommand = new ExecuteCommand(ShowHistory, _logger);
-            ConsoleRunCommand = new ExecuteCommand(RunConsole, _logger);
-            InfoCommand = new ExecuteCommand(ShowInfoWindow, _logger);
-            RenameCommand = new ExecuteCommand(RenameFile, _logger);
-            UnZipCommand = new ExecuteCommand(UnZipFiles, _logger);
-            PluginCommand = new ExecuteCommand(ShowPluginWindow,_logger);
-            SwitchFocusCommand = new ExecuteCommand(SwitchFocus, _logger);
-            TreeWindowCommand = new ExecuteCommand(ShowTreeWindow, _logger);
-            CopyToClipboardCommand = new ExecuteCommand(PutSelectedFilesIntoClipboard, _logger);
-            PasteToClipboardCommand = new ExecuteCommand(TakeFilesFromClipboard, _logger);
-
-            _messanger = Messanger.Messanger.GetInstance();
-            _messanger.Register(typeof(WindowPositionEventArgs), MouseMoveCallback);
-            _messanger.Register(typeof(FocusMessage), t =>
-            {
-                FocusMessage msg = (FocusMessage)t;
-                if(msg.ManagerName.Equals(_type.ToString(), StringComparison.OrdinalIgnoreCase))
-                {
-                    _focus = true;
-                }
-                else
-                {
-                    _focus = false;
-                }
             });
-            _messanger.Register(typeof(RefreshMessage), _ => Refresh());
-            ObservableFromProperty(this, t => t.Filter)
-                .DistinctUntilChanged()
-                .Throttle(TimeSpan.FromSeconds(1))
-                .InvokeCommand(new ReactiveCommand<string>(t => FilterFiles(), _ => true));
+
+            RefreshCommand = new RelayCommand(FilterFiles);
+            ReverseSelectionCommand = new RelayCommand(ReversFileSelection);
+            // Null when nothing is selected; the command then does nothing (BUG-33).
+            SelectCommand = new RelayCommand<System.Collections.IList>(items =>
+            {
+                if (items == null)
+                    return;
+                foreach (IMetadataFileStructure item in items)
+                    item.SelectFile();
+                RefreshFilesCollection();
+            });
+            SelectAllCommand = new RelayCommand(SelectAllFiles);
+            SelectTypeCommand = new RelayCommand(SelectByType);
+            CopyCommand = new AsyncRelayCommand(() => _proxy.CopyFile(SelectedFiles(), SeccondManagerCurrentDir));
+            MoveCommand = new AsyncRelayCommand(() => _proxy.MoveFile(SelectedFiles(), SeccondManagerCurrentDir));
+            ShowSortcutsCommand = new AsyncRelayCommand(ShowShortcutsWindow);
+            HistoryCommand = new AsyncRelayCommand(ShowHistory);
+            ConsoleRunCommand = new RelayCommand(() => Shell.Run(_configReader["cmd"], ActualPath, ActualPath));
+            InfoCommand = new RelayCommand(() => WindowHost.Show(() => new InfoWindow(SelectedFile)));
+            RenameCommand = new AsyncRelayCommand(() => _proxy.RenameFile(SelectedFile));
+            UnZipCommand = new AsyncRelayCommand(_proxy.UnZipFiles);
+            PluginCommand = new RelayCommand(ShowPluginWindow);
+            SwitchFocusCommand = new RelayCommand(SwitchFocus);
+            TreeWindowCommand = new RelayCommand(ShowTreeWindow);
+            CopyToClipboardCommand = new AsyncRelayCommand(() => _dialogs.SetClipboardFiles(SelectedFiles().Select(t => t.FullName)));
+            PasteToClipboardCommand = new AsyncRelayCommand(() => _proxy.PasteFromClipboard(CurrentDir));
+
+            _messanger.Register<FocusMessage>(this, (_, msg) =>
+                _focus = msg.ManagerName.Equals(_type.ToString(), StringComparison.OrdinalIgnoreCase));
+            _messanger.Register<RefreshMessage>(this, (_, _) => Refresh());
 
             LoadDrivers();
             Refresh();
@@ -139,7 +136,6 @@ namespace Comander.ViewModel
         public ICommand SelectAllCommand { get; set; }
         public ICommand SelectTypeCommand { get; set; }
         public ICommand RefreshDriveCommand { get; set; }
-        public ICommand SplitFileCommand { get; set; }
         public ICommand RefreshCommand { get; set; }
         public ICommand ZipCommand { get; set; }
         public ICommand RunAsAdminCommand { get; set; }

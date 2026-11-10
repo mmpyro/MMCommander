@@ -1,0 +1,54 @@
+<UserControl x:Class="Comander.Controls.IOGrid"
+             xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <Grid RowDefinitions="*,30">
+        <TextBox IsReadOnly="True" Text="{Binding CurrentOperation}" Grid.Row="1"/>
+        <DataGrid Name="DataGrid1" Grid.Row="0" AutoGenerateColumns="False" IsReadOnly="True" SelectionMode="Extended"
+                  GridLinesVisibility="None" CanUserSortColumns="False"
+                  SelectedItem="{Binding SelectedFile}" ItemsSource="{Binding Files}">
+            <DataGrid.Columns>
+                <DataGridTemplateColumn CanUserResize="False" CanUserReorder="False">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <Image Width="16" Height="16" Source="{Binding MetaData.IsSelected, Mode=OneWay, Converter={StaticResource SelectedConverter}}"/>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+                <DataGridTextColumn Header="Name" Binding="{Binding Name}" Width="2.5*"/>
+                <DataGridTextColumn Header="Ext" Binding="{Binding Ext}" Width="*"/>
+                <DataGridTextColumn Header="Creation Date" Binding="{Binding CreationTime}" Width="2*"/>
+                <DataGridTextColumn Header="Type" Binding="{Binding IsDirectory, Converter={StaticResource FileTypeConverter}}" Width="0.5*"/>
+                <DataGridTextColumn Header="Size [KB]" Binding="{Binding Size, Converter={StaticResource SizeConverter}}" Width="*"/>
+            </DataGrid.Columns>
+            <DataGrid.KeyBindings>
+                <KeyBinding Gesture="Enter" Command="{Binding EnterIntoDirCommand}"/>
+                <KeyBinding Gesture="F1" Command="{Binding CreateDirCommand}"/>
+                <KeyBinding Gesture="F2" Command="{Binding CreateFileCommand}"/>
+                <KeyBinding Gesture="F5" Command="{Binding RefreshCommand}"/>
+                <KeyBinding Gesture="E" Command="{Binding RunFileCommand}"/>
+                <KeyBinding Gesture="Ctrl+E" Command="{Binding RunAsAdminCommand}"/>
+                <KeyBinding Gesture="C" Command="{Binding CopyCommand}"/>
+                <KeyBinding Gesture="M" Command="{Binding MoveCommand}"/>
+                <KeyBinding Gesture="N" Command="{Binding NotepadCommand}"/>
+                <KeyBinding Gesture="S" Command="{Binding SelectCommand}" CommandParameter="{Binding #DataGrid1.SelectedItems}"/>
+                <KeyBinding Gesture="R" Command="{Binding ReverseSelectionCommand}"/>
+                <KeyBinding Gesture="A" Command="{Binding SelectAllCommand}"/>
+                <KeyBinding Gesture="Delete" Command="{Binding DeleteFileCommand}"/>
+                <KeyBinding Gesture="Ctrl+D" Command="{Binding AddShortCutsCommand}"/>
+                <KeyBinding Gesture="Ctrl+Z" Command="{Binding ZipCommand}"/>
+                <KeyBinding Gesture="Ctrl+U" Command="{Binding UnZipCommand}"/>
+                <KeyBinding Gesture="Shift+C" Command="{Binding ConsoleRunCommand}"/>
+                <KeyBinding Gesture="Ctrl+I" Command="{Binding InfoCommand}"/>
+                <KeyBinding Gesture="Ctrl+R" Command="{Binding RenameCommand}"/>
+                <KeyBinding Gesture="Ctrl+T" Command="{Binding TreeWindowCommand}"/>
+                <KeyBinding Gesture="Escape" Command="{Binding ParentDirCommand}"/>
+                <KeyBinding Gesture="Home" Command="{Binding RootDirCommand}"/>
+                <KeyBinding Gesture="Tab" Command="{Binding SwitchFocusCommand}"/>
+                <KeyBinding Gesture="F3" Command="{Binding PluginCommand}"/>
+                <KeyBinding Gesture="Ctrl+C" Command="{Binding CopyToClipboardCommand}"/>
+                <KeyBinding Gesture="Ctrl+V" Command="{Binding PasteToClipboardCommand}"/>
+                <KeyBinding Gesture="T" Command="{Binding SelectTypeCommand}"/>
+            </DataGrid.KeyBindings>
+        </DataGrid>
+    </Grid>
+</UserControl>

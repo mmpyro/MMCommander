@@ -1,59 +1,31 @@
 using System;
-using System.Diagnostics;
-using System.Threading;
-using System.Threading.Tasks;
-using System.Windows;
+using Avalonia.Input;
+using Avalonia.Threading;
 
 namespace Comander.View
 {
-    public class HidenWindowBase : Window
+    // Popup that closes 1.5 s after the pointer leaves it; re-entering cancels. A UI-thread timer replaces the old polling task (BUG-32).
+    public class HidenWindowBase : DialogWindow
     {
-        protected CancellationTokenSource ts = new CancellationTokenSource();
-        protected CancellationToken ct;
-        protected Task _task;
+        private readonly DispatcherTimer _hideTimer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(1.5) };
 
-        protected void InitTask()
+        public HidenWindowBase()
         {
-            ct = ts.Token;
+            WindowStartupLocation = Avalonia.Controls.WindowStartupLocation.CenterOwner;
+            _hideTimer.Tick += (_, _) => Close();
+            Closed += (_, _) => _hideTimer.Stop();
         }
 
-        public void FinishTask()
+        protected override void OnPointerEntered(PointerEventArgs e)
         {
-            ts.Cancel();
+            base.OnPointerEntered(e);
+            _hideTimer.Stop();
         }
 
-        public new void MouseEnter()
+        protected override void OnPointerExited(PointerEventArgs e)
         {
-            if (_task.Status == TaskStatus.Running)
-            {
-                ts.Cancel();
-                Debug.WriteLine("Enter");
-            }
-        }
-
-        public new void MouseLeave()
-        {
-            Debug.WriteLine("Leave");
-            _task = new Task(() =>
-            {
-                var startTime = DateTime.Now;
-                while (true)
-                {
-                    Thread.Sleep(100);
-                    if (ct.IsCancellationRequested)
-                    {
-                        ts = new CancellationTokenSource();
-                        ct = ts.Token;
-                        break;
-                    }
-                    else if( (DateTime.Now - startTime).TotalSeconds >= 1.5  )
-                    {
-                        Application.Current.Dispatcher.Invoke(this.Close);
-                        break;
-                    }
-                }
-            });
-            _task.Start();
+            base.OnPointerExited(e);
+            _hideTimer.Start();
         }
     }
 }

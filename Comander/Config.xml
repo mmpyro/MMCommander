@@ -1,14 +1,13 @@
-﻿<?xml version="1.0" encoding="utf-8" ?>
+<?xml version="1.0" encoding="utf-8" ?>
 <Configuration>
   <AppSection>
-    <Program name="notepad">notepad++.exe</Program>
-    <Program name="cmd">cmd.exe</Program>
-    <Program name="web">chrome.exe</Program>
-    <!--<Program name="cmd" workingDirectory="D:\">cmd.exe</Program>-->
+    <Program name="notepad" os="windows" args="{path}">notepad.exe</Program>
+    <Program name="notepad" os="osx" args="-t {path}">open</Program>
+    <Program name="notepad" os="linux" args="{path}">xdg-open</Program>
+    <Program name="cmd" os="windows">cmd.exe</Program>
+    <Program name="cmd" os="osx" args="-a Terminal {path}">open</Program>
+    <Program name="cmd" os="linux">x-terminal-emulator</Program>
   </AppSection>
   <ShortCuts>
-    <ShortCut>D:\test</ShortCut>
-    <ShortCut>D:\ssh</ShortCut>
-    <ShortCut>D:\MMCommander</ShortCut>
   </ShortCuts>
 </Configuration>

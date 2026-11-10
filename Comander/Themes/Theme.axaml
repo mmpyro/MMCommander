@@ -1,0 +1,29 @@
+<Styles xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <Styles.Resources>
+        <SolidColorBrush x:Key="MainBorderBrush" Color="#FF0092BE"/>
+        <SolidColorBrush x:Key="BackgroundBrush" Color="#FF181818"/>
+    </Styles.Resources>
+    <Style Selector="Window">
+        <Setter Property="Background" Value="{StaticResource BackgroundBrush}"/>
+    </Style>
+    <Style Selector="Menu">
+        <Setter Property="Background" Value="#FF181818"/>
+        <Setter Property="Foreground" Value="#FFBABABA"/>
+        <Setter Property="FontWeight" Value="Bold"/>
+    </Style>
+    <Style Selector="TextBlock">
+        <Setter Property="Foreground" Value="White"/>
+    </Style>
+    <Style Selector="DataGrid">
+        <Setter Property="Background" Value="#FF181818"/>
+    </Style>
+    <Style Selector="DataGridColumnHeader">
+        <Setter Property="Foreground" Value="White"/>
+        <Setter Property="Background" Value="#FF3A3838"/>
+    </Style>
+    <Style Selector="DataGridRow:pointerover">
+        <Setter Property="Foreground" Value="{StaticResource MainBorderBrush}"/>
+        <Setter Property="FontWeight" Value="ExtraBold"/>
+    </Style>
+</Styles>

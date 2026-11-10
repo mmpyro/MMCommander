@@ -1,0 +1,20 @@
+<UserControl x:Class="Search.View.SettingsPage"
+             xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <StackPanel Spacing="8">
+        <Grid ColumnDefinitions="60,*,50">
+            <TextBlock VerticalAlignment="Center" Text="Where:"/>
+            <TextBox Grid.Column="1" Text="{Binding RootPath}" IsReadOnly="True"/>
+            <Button Grid.Column="2" Command="{Binding SetDirectoryCommand}" Content="..."/>
+        </Grid>
+        <TextBox Text="{Binding Phrase}" PlaceholderText="file name or regex, e.g. .*\.pdf"/>
+        <StackPanel Orientation="Horizontal" Spacing="12">
+            <TextBlock VerticalAlignment="Center" Text="Options:"/>
+            <RadioButton Content="Whole" IsChecked="{Binding WholeWord}" GroupName="Match"/>
+            <RadioButton Content="Contains" IsChecked="{Binding Contains}" GroupName="Match"/>
+            <CheckBox IsChecked="{Binding Recursive}" Content="Recursive"/>
+            <CheckBox IsChecked="{Binding IgnoreCase}" Content="Ignore case"/>
+        </StackPanel>
+        <Button HorizontalAlignment="Stretch" Content="Search" IsDefault="True" Command="{Binding NavigationCommand}"/>
+    </StackPanel>
+</UserControl>

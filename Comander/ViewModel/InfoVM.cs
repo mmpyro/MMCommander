@@ -1,28 +1,21 @@
-﻿using Comander.CommanderIO;
-using Comander.View;
+using Comander.CommanderIO;
+using CommunityToolkit.Mvvm.ComponentModel;
 
 namespace Comander.ViewModel
 {
-    public class InfoVM : HidenVM
+    public class InfoVM : ObservableObject
     {
         private IMetadataFileStructure _file;
 
-        public InfoVM(HidenWindowBase window, IMetadataFileStructure file) : base(window)
+        public InfoVM(IMetadataFileStructure file)
         {
             _file = file;
-
         }
 
         public IMetadataFileStructure File
         {
             get { return _file; }
-            set
-            {
-                if (Equals(value, _file)) return;
-                _file = value;
-                OnPropertyChanged("File");
-            }
+            set { SetProperty(ref _file, value); }
         }
-
     }
 }

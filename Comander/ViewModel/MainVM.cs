@@ -1,30 +1,27 @@
-﻿using System;
+using System;
 using System.Collections.ObjectModel;
-using System.ComponentModel;
-using System.Diagnostics;
 using System.IO;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using System.Windows;
 using System.Windows.Input;
-using Comander.Annotations;
+using Avalonia.Controls;
+using Avalonia.Threading;
 using Comander.CommanderIO;
 using Comander.Core;
 using Comander.View;
-using Comander.ViewModel.Commands;
+using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
+using CommunityToolkit.Mvvm.Messaging;
 using IOLib;
 using LogLib;
-using Search;
-using Messanger;
 using Comander.Messages;
+using Search;
 using System.Collections.Generic;
-using System.Windows.Controls;
-using System.Runtime.CompilerServices;
 using System.Linq;
 
 namespace Comander.ViewModel
 {
-    public class MainVM : INotifyPropertyChanged
+    public class MainVM : ObservableObject
     {
         private IOManager _io1;
         private IOManager _io2;
@@ -35,6 +32,7 @@ namespace Comander.ViewModel
         private readonly ILogger _logger;
         private int _current = 0;
         private string _logCount;
+        private bool _isBusy;
         private IEnumerable<MenuItem> _exts;
         private IEnumerable<MenuItem> _programs;
 
@@ -46,54 +44,41 @@ namespace Comander.ViewModel
             _logger.NotifyEvent += AddLogInfo;
             _io1 = io1;
             _io2 = io2;
-            Uri keymapUri = new Uri(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"Manuals\keymap.html"));
-            Uri syntaxUri = new Uri(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"Manuals\syntax.html"));
+            string keymapPath = Path.Combine(AppContext.BaseDirectory, "Manuals", "keymap.html");
+            string syntaxPath = Path.Combine(AppContext.BaseDirectory, "Manuals", "syntax.html");
 
-            SwitchCommand = new ExecuteCommand(SwitchCommanders, _logger);
-            RefreshCommand = new ExecuteCommand(RefreshCommanders, _logger);
-            SplitFileCommand = new ExecuteCommand(SplitFile, _logger);
-            JoinFileCommand = new ExecuteCommand(JoinFile, _logger);
-            ReadLogsCommand = new ExecuteCommand(() => Process.Start("explorer.exe", Path.Combine(Path.GetTempPath(), @"mmcommander")), _logger);
-            ClearLogCommand = new ExecuteCommand(ClearLog);
-            NextLogCommand = new ExecuteCommand(NextLog);
-            PreviusLogCommand = new ExecuteCommand(BackLog);
-            CompareDirCommand = new ExecuteCommand(CompareDirectories);
-            AboutCommand = new ExecuteCommand(() => (new AboutWindow(string.Format("Product version: {0}\nCreated by Michał Marszałek.",
-                _assemblyVersionResolver.GetProductVersion(GetType())))).ShowDialog());
-            KeyMapCommand = new ExecuteCommand(() =>  Process.Start(_configReader["web"].Value, keymapUri.AbsoluteUri), _logger);
-            SyntaxCommand = new ExecuteCommand(() => Process.Start(_configReader["web"].Value, syntaxUri.AbsoluteUri), _logger);
-            DuplicateCommand = new ExecuteCommand(DuplicateCommanders);
+            SwitchCommand = new RelayCommand(SwitchCommanders);
+            RefreshCommand = new RelayCommand(RefreshCommanders);
+            SplitFileCommand = new RelayCommand(() => WindowHost.Show(() => new SplitWindow(_logger)));
+            JoinFileCommand = new AsyncRelayCommand(JoinFile);
+            ReadLogsCommand = new RelayCommand(() => Shell.Open(Path.Combine(Path.GetTempPath(), "mmcommander")));
+            ClearLogCommand = new RelayCommand(ClearLog);
+            NextLogCommand = new RelayCommand(NextLog);
+            PreviusLogCommand = new RelayCommand(BackLog);
+            CompareDirCommand = new RelayCommand(CompareDirectories);
+            AboutCommand = new AsyncRelayCommand(() => WindowHost.ShowDialog(() => new AboutWindow(string.Format("Product version: {0}\nCreated by Michał Marszałek.",
+                _assemblyVersionResolver.GetProductVersion(GetType())))));
+            KeyMapCommand = new RelayCommand(() => Shell.Open(keymapPath));
+            SyntaxCommand = new RelayCommand(() => Shell.Open(syntaxPath));
+            DuplicateCommand = new RelayCommand(DuplicateCommanders);
 
-            SearchCommand = new ExecuteCommand(Search,_logger);
-            IMessanger messanger = Messanger.Messanger.GetInstance();
-            messanger.Register(typeof(WindowCloseEventArgs),OnClose);
+            SearchCommand = new RelayCommand(() => WindowHost.Show(() => new SearchWindow(_io1, _logger)));
+            var messanger = WeakReferenceMessenger.Default;
+            messanger.Register<WindowCloseEventArgs>(this, (_, _) => OnClose());
+            messanger.Register<PulseMessage>(this, (_, _) => Dispatcher.UIThread.Post(() => IsBusy = true));
+            messanger.Register<WaitMessage>(this, (_, _) => Dispatcher.UIThread.Post(() => IsBusy = false));
 
             Exts = genericCommandManager.GetCommands().Select(t => new MenuItem
             {
                 Header = t.Name,
                 Command = t
-            });
+            }).ToList();
 
             Programs = _configReader.GetPrograms().Select(t => new MenuItem
             {
                 Header = t.Name,
-                Command = new RunCommand(t)
-            });
-        }
-
-        private void Search()
-        {
-            try
-            {
-                SearchWindow window = new SearchWindow(_io1);
-                window.Width = 600;
-                window.Height = 250;
-                window.Show();
-            }
-            catch (Exception e)
-            {
-                _logger.Error(e);
-            }
+                Command = new RelayCommand(() => Shell.Run(t))
+            }).ToList();
         }
 
         private void CompareDirectories()
@@ -102,20 +87,25 @@ namespace Comander.ViewModel
             _io1.Files = new ObservableCollection<IMetadataFileStructure>(fileMarker.Mark());
         }
 
+        // Loggers raise this from any thread; the collection is bound to the UI.
         private void AddLogInfo(LogInfo info, string message)
         {
-            LogsCollection.Add(new LogMsg(info, message));
-            NextLog();
+            Dispatcher.UIThread.Post(() =>
+            {
+                LogsCollection.Add(new LogMsg(info, message));
+                NextLog();
+            });
         }
 
-        public void OnClose(object e)
+        public void OnClose()
         {
             try
             {
                 _configReader.SavePaths(_io1.ActualPath, _io2.ActualPath);
             }
-            catch
+            catch (Exception e)
             {
+                _logger.Error("Cannot save settings", e);
             }
         }
 
@@ -137,12 +127,6 @@ namespace Comander.ViewModel
             _io2.LoadDrivers();
         }
 
-        private void SplitFile()
-        {
-            SplitWindow splitWindow = new SplitWindow(_logger);
-            splitWindow.Show();
-        }
-
         private void JoinFileProcessor(string joinPath, string destinationPath, string joinedFileName)
         {
             Task.Run(() =>
@@ -154,24 +138,22 @@ namespace Comander.ViewModel
                     string fileName = Path.GetFileName(joinPath);
                     fileName = regex.Replace(fileName, "");
                     fileManager.Join(Path.GetDirectoryName(joinPath), fileName, Path.Combine(destinationPath, joinedFileName));
-                    Application.Current.Dispatcher.Invoke(() => _logger.Info("Join was finished without errors."));
+                    _logger.Info("Join was finished without errors.");
                 }
                 catch (Exception ex)
                 {
-                    Application.Current.Dispatcher.Invoke(() => _logger.Info(ex));
+                    _logger.Error(ex);
                 }
             });
         }
 
-        private void JoinFile()
+        private async Task JoinFile()
         {
-            JoinWindow joinWindow = new JoinWindow();
-            joinWindow.ShowDialog();
-            if (joinWindow.JoinParameter != null)
+            var parameter = await WindowHost.ShowDialog<JoinFileDTO>(() => new JoinWindow());
+            if (parameter != null)
             {
                 _logger.Info("Join in progress...");
-                JoinFileProcessor(joinWindow.JoinParameter.JoinPath, 
-                    joinWindow.JoinParameter.DestinationPath, joinWindow.JoinParameter.FileName);
+                JoinFileProcessor(parameter.JoinPath, parameter.DestinationPath, parameter.FileName);
             }
         }
 
@@ -232,7 +214,7 @@ namespace Comander.ViewModel
             set
             {
                 _io1 = value;
-                OnPropertyChanged("Io1");
+                OnPropertyChanged();
             }
         }
 
@@ -242,7 +224,7 @@ namespace Comander.ViewModel
             set
             {
                 _io2 = value;
-                OnPropertyChanged("Io2");
+                OnPropertyChanged();
             }
         }
 
@@ -252,7 +234,7 @@ namespace Comander.ViewModel
             set
             {
                 _logsCollection = value;
-                OnPropertyChanged("LogsCollection");
+                OnPropertyChanged();
             }
         }
 
@@ -263,7 +245,7 @@ namespace Comander.ViewModel
             {
                 if (Equals(value, _currentLogMsg)) return;
                 _currentLogMsg = value;
-                OnPropertyChanged("CurrentLogMsg");
+                OnPropertyChanged();
             }
         }
 
@@ -274,8 +256,14 @@ namespace Comander.ViewModel
             {
                 if (value == _logCount) return;
                 _logCount = value;
-                OnPropertyChanged("LogCount");
+                OnPropertyChanged();
             }
+        }
+
+        public bool IsBusy
+        {
+            get { return _isBusy; }
+            set { SetProperty(ref _isBusy, value); }
         }
 
         public IEnumerable<MenuItem> Exts
@@ -305,15 +293,5 @@ namespace Comander.ViewModel
         }
         #endregion
 
-        #region INotifyPropertyChanged
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        [NotifyPropertyChangedInvocator]
-        protected virtual void OnPropertyChanged([CallerMemberName]string propertyName = "")
-        {
-            PropertyChangedEventHandler handler = PropertyChanged;
-            if (handler != null) handler(this, new PropertyChangedEventArgs(propertyName));
-        }
-        #endregion
     }
 }

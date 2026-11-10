@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Globalization;
-using System.Windows.Data;
+using Avalonia.Data.Converters;
 
 namespace Comander.Converters
 {
@@ -13,13 +13,13 @@ namespace Comander.Converters
                 bool isSelected = (bool) value;
                 if (isSelected)
                 {
-                    return @"..\Icons\checked.png";
+                    return Icons.Load("checked.png");
                 }
-                return @"..\Icons\unchecked.png";
+                return Icons.Load("unchecked.png");
             }
             catch
             {
-                return @"..\Icons\unchecked.png";
+                return Icons.Load("unchecked.png");
             }
         }
 

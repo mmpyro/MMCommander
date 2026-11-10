@@ -1,0 +1,11 @@
+<view:HidenWindowBase x:Class="Comander.View.PluginWindow"
+        xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:view="clr-namespace:Comander.View"
+        Title="Plugins" Height="120" Width="300">
+    <ListBox Name="PluginListView" FontWeight="Bold" ItemsSource="{Binding PluginNames}">
+        <ListBox.KeyBindings>
+            <KeyBinding Gesture="Enter" Command="{Binding PluginInvokeCommand}" CommandParameter="{Binding #PluginListView.SelectedItem}"/>
+        </ListBox.KeyBindings>
+    </ListBox>
+</view:HidenWindowBase>

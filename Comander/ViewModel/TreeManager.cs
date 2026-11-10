@@ -1,109 +1,62 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.IO;
-using System.Runtime.CompilerServices;
-using Comander.Annotations;
-using System.Windows.Input;
-using Comander.ViewModel.Commands;
+using System.Linq;
+using CommunityToolkit.Mvvm.ComponentModel;
 
 namespace Comander.ViewModel
 {
     public class File
     {
+        private List<File> _files;
+
         public string Name
         {
             get
             {
-                if (!string.IsNullOrEmpty(Path))
-                {
-                    return GetFileName(Path);
-                }
-                return null;
+                if (string.IsNullOrEmpty(Path))
+                    return null;
+                var name = System.IO.Path.GetFileName(Path.TrimEnd(System.IO.Path.DirectorySeparatorChar));
+                return string.IsNullOrEmpty(name) ? Path : name;
             }
         }
-        public string Path{ get; set; }
-        public bool  IsDir { get; set; }
-        public List<File> Files { get; set; }
 
-        public File()
-        {
-            Files = new List<File>();
-        }
+        public string Path { get; set; }
+        public bool IsDir { get; set; }
 
-        private static string GetFileName(string fullName)
-        {
-            return System.IO.Path.GetFileName(fullName);
-        }
+        // Children are listed only when the tree asks for them, so opening the tree on "/" or "C:\" doesn't hang (BUG-23).
+        public List<File> Files => _files ??= IsDir ? LoadChildren(Path) : new List<File>();
 
-        public static File CreateFolderTree(string rootFolder)
+        private static List<File> LoadChildren(string folder)
         {
-            File fld = new File { Path = rootFolder, IsDir = true };
-            foreach (var file in Directory.GetFiles(rootFolder))
+            try
             {
-                var fi = new FileInfo(file);
-                fld.Files.Add(new File
-                {
-                    Path = fi.FullName,
-                    IsDir = false
-                });
+                return Directory.GetDirectories(folder).Select(d => new File { Path = d, IsDir = true })
+                    .Concat(Directory.GetFiles(folder).Select(f => new File { Path = f, IsDir = false }))
+                    .ToList();
             }
-
-            foreach (var dir in Directory.GetDirectories(rootFolder))
+            catch (Exception e) when (e is UnauthorizedAccessException || e is IOException)
             {
-                try
-                {
-                    fld.Files.Add(CreateFolderTree(dir));
-                }
-                catch
-                {
-                }
+                return new List<File>();
             }
-            return fld;
         }
     }
 
-    public class TreeManager : INotifyPropertyChanged
+    public class TreeManager : ObservableObject
     {
-        private List<File> _files;
         private readonly IOManager _manager;
 
         public TreeManager(string path, IOManager manager)
         {
-            Folders = new List<File>();
-            Folders.Add(File.CreateFolderTree(path));
+            Folders = new List<File> { new File { Path = path, IsDir = true } };
             _manager = manager;
         }
 
         public void SetItemChange(File file)
         {
-            if (file.IsDir)
-                _manager.ActualPath = file.Path;
-            else
-            {
-                _manager.ActualPath = Path.GetDirectoryName(file.Path);
-            }
+            _manager.ActualPath = file.IsDir ? file.Path : System.IO.Path.GetDirectoryName(file.Path);
         }
 
-        public List<File> Folders
-        {
-            get { return _files; }
-            set
-            {
-                _files = value;
-                OnPropertyChanged("Folders");
-            }
-        }
-
-        #region INotifyPropertyChanged
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        [NotifyPropertyChangedInvocator]
-        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = "")
-        {
-            PropertyChangedEventHandler handler = PropertyChanged;
-            if (handler != null) handler(this, new PropertyChangedEventArgs(propertyName));
-        }
-        #endregion
+        public List<File> Folders { get; }
     }
 }
