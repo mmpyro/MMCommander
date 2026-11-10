@@ -1,0 +1,45 @@
+name: CI
+
+on:
+  pull_request:
+    branches: [master]
+  push:
+    branches: [master]
+  workflow_call:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    name: test (${{ matrix.os }})
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-dotnet@v5
+        with:
+          global-json-file: global.json
+
+      # Also fails on vulnerable NuGet packages: the SDK's restore audit (NU1901-1904) becomes an error.
+      - name: Build (warnings are errors, except CS0067)
+        run: dotnet build MMComander.sln -c Release -p:TreatWarningsAsErrors=true -p:WarningsNotAsErrors=CS0067
+
+      - name: Test
+        run: dotnet test MMComander.sln -c Release --no-build --logger trx --results-directory TestResults
+
+      - name: Upload test results
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results-${{ matrix.os }}
+          path: TestResults

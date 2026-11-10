@@ -31,6 +31,16 @@ dotnet publish Comander -c Release -r linux-x64 --self-contained -p:PublishSingl
 
 Keep `Config.xml`, `Commands.xml`, `Manuals/` and `Plugins/` next to the binary. The app reads them from `AppContext.BaseDirectory`, so it works from any working directory.
 
+## CI and releases
+
+- **Pull requests to `master`** run `.github/workflows/ci.yml` on Linux, Windows and macOS. The build fails on any warning except CS0067 and on any vulnerable NuGet package, and every test must pass.
+- **Pushing a tag such as `v2.0.0`** runs `.github/workflows/release.yml`. It runs the same tests, builds `win-x64`, `linux-x64` and `osx-arm64` archives, then creates a GitHub Release with generated notes, the archives and `SHA256SUMS.txt`. The version comes from the tag.
+- **To try the release build without releasing**, use Actions → Release → Run workflow. The archives appear as workflow artifacts.
+
+```sh
+git tag v2.0.0 && git push origin v2.0.0
+```
+
 ## Keyboard
 
 The keys work in the focused file panel.

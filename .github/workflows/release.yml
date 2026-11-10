@@ -1,0 +1,105 @@
+name: Release
+
+# A pushed tag vX.Y.Z builds every platform and publishes a GitHub Release.
+# "Run workflow" (manual) builds the same archives as a dry run, without a release.
+on:
+  push:
+    tags: ['v*.*.*']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    uses: ./.github/workflows/ci.yml
+
+  build:
+    name: build (${{ matrix.rid }})
+    needs: test
+    strategy:
+      matrix:
+        include:
+          - { os: windows-latest, rid: win-x64 }
+          - { os: ubuntu-latest, rid: linux-x64 }
+          - { os: macos-latest, rid: osx-arm64 }
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-dotnet@v5
+        with:
+          global-json-file: global.json
+
+      - name: Version from tag
+        shell: bash
+        run: |
+          if [[ "$GITHUB_REF_TYPE" == tag ]]; then v="${GITHUB_REF_NAME#v}"; else v="0.0.0-dev"; fi
+          echo "VERSION=$v" >> "$GITHUB_ENV"
+          echo "PKG=MMCommander-$v-${{ matrix.rid }}" >> "$GITHUB_ENV"
+
+      # Config.xml, Commands.xml, Manuals/ and Plugins/ are read next to the binary, so the whole folder ships.
+      - name: Publish
+        shell: bash
+        run: >
+          dotnet publish Comander -c Release -r ${{ matrix.rid }} --self-contained
+          -p:PublishSingleFile=true -p:Version=$VERSION -p:DebugType=None
+          -o "out/$PKG"
+
+      - name: Archive (zip)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: Compress-Archive -Path "out/$env:PKG" -DestinationPath "$env:PKG.zip"
+
+      - name: Archive (tar.gz)
+        if: runner.os != 'Windows'
+        run: tar -czf "$PKG.tar.gz" -C out "$PKG"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.rid }}
+          path: ${{ env.PKG }}.*
+          if-no-files-found: error
+
+  release:
+    needs: build
+    if: github.ref_type == 'tag'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/download-artifact@v4
+        with:
+          path: dist
+          merge-multiple: true
+
+      - name: Checksums
+        working-directory: dist
+        run: sha256sum * > SHA256SUMS.txt && cat SHA256SUMS.txt
+
+      - name: Create release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          cat > notes.md <<'EOF'
+          ## Download
+
+          | Platform | File |
+          |---|---|
+          | Windows (x64) | `*-win-x64.zip` |
+          | Linux (x64) | `*-linux-x64.tar.gz` |
+          | macOS (Apple silicon) | `*-osx-arm64.tar.gz` |
+
+          Unpack the archive and run `Comander` (`Comander.exe` on Windows). Keep the folder together: the app reads `Config.xml`, `Commands.xml` and `Manuals/` from it.
+
+          Verify the download: `sha256sum -c SHA256SUMS.txt --ignore-missing` (macOS: `shasum -a 256 -c SHA256SUMS.txt --ignore-missing`).
+
+          macOS: the build is not notarized. After unpacking, run `xattr -dr com.apple.quarantine <folder>` once.
+          EOF
+          prerelease=""
+          if [[ "$GITHUB_REF_NAME" == *-* ]]; then prerelease="--prerelease"; fi
+          gh release create "$GITHUB_REF_NAME" dist/* --title "MMCommander ${GITHUB_REF_NAME#v}" \
+            --notes "$(cat notes.md)" --generate-notes $prerelease

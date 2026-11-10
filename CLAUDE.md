@@ -15,7 +15,10 @@ dotnet test ComanderTest --filter FullyQualifiedName~ProxyIOTest  # one class
 dotnet test IOLibTest --filter Name=Split_Over2GB_WritesAllParts  # [Explicit] 2.2 GB test, never runs by default
 MMC_SCREENSHOTS=/some/dir dotnet test ComanderTest   # save PNGs of each headless-rendered window
 dotnet publish Comander -c Release -r osx-arm64 --self-contained -p:PublishSingleFile=true
+git tag vX.Y.Z && git push origin vX.Y.Z           # .github/workflows/release.yml builds 3 platforms and publishes the Release
 ```
+
+CI (`.github/workflows/ci.yml`) runs on PRs to `master` on Linux, Windows and macOS: `dotnet build -c Release -p:TreatWarningsAsErrors=true -p:WarningsNotAsErrors=CS0067`, then `dotnet test`. Keep both green locally before pushing.
 
 There is no linter. The only accepted build warning is CS0067 in `LogLib/FileLogger.cs`.
 
