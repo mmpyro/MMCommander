@@ -8,7 +8,7 @@ using ZipLib;
 namespace Comander.View
 {
     // ShowDialog<UnZipRequest>: null when closed without executing. The archive format is detected on extraction.
-    public partial class UnZipWindow : Window
+    public partial class UnZipWindow : DialogWindow
     {
         private readonly IMetadataFileStructure _file;
 
@@ -17,6 +17,8 @@ namespace Comander.View
             _file = file;
             InitializeComponent();
             ExtractDirRadio.Content = "Extract to " + Path.GetFileNameWithoutExtension(file.Name);
+            ArchiveText.Text = file.FullName;
+            ToolTip.SetTip(ArchiveText, file.FullName);
         }
 
         // Single password box: extraction never needs a confirmation (BUG-05).
@@ -26,5 +28,7 @@ namespace Comander.View
                 Parameters = new ZipParameters(_file.FullName, PasswordBox.Text ?? string.Empty),
                 ExtractType = ExtractDirRadio.IsChecked == true ? ExtractType.ToSpecificDir : ExtractType.Here
             });
+
+        private void Cancel_OnClick(object sender, RoutedEventArgs e) => Close();
     }
 }

@@ -18,7 +18,7 @@ namespace Comander.View
     }
 
     // ShowDialog<JoinFileDTO>: null when closed without executing.
-    public partial class JoinWindow : Window
+    public partial class JoinWindow : DialogWindow
     {
         public JoinWindow()
         {
@@ -47,5 +47,7 @@ namespace Comander.View
             Close(new JoinFileDTO(JoinPathTextBox.Text, PathTextBox.Text, FileNameTextBox.Text));
 
         private void FileNameTextBox_OnTextChanged(object sender, TextChangedEventArgs e) => Verify();
+
+        private void Cancel_OnClick(object sender, RoutedEventArgs e) => Close();
     }
 }

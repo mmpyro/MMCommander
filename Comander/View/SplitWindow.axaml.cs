@@ -9,7 +9,7 @@ using LogLib;
 
 namespace Comander.View
 {
-    public partial class SplitWindow : Window
+    public partial class SplitWindow : DialogWindow
     {
         private readonly ILogger _logger;
         private int _fileSize = 0;
@@ -107,5 +107,7 @@ namespace Comander.View
             if (FileSizeTextBlock != null)
                 ShowFileSize(_fileSize);
         }
+
+        private void Cancel_OnClick(object sender, RoutedEventArgs e) => Close();
     }
 }

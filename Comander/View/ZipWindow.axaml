@@ -1,24 +1,45 @@
-<Window x:Class="Comander.View.ZipWindow"
-        xmlns="https://github.com/avaloniaui"
-        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="Zip" Icon="/Icons/icon.png" Height="280" Width="420" CanResize="False" WindowStartupLocation="CenterOwner">
-    <Grid ColumnDefinitions="140,*,50" RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto" Margin="10">
-        <Grid.Styles>
-            <Style Selector="TextBlock"><Setter Property="VerticalAlignment" Value="Center"/></Style>
-            <Style Selector="Grid > Control"><Setter Property="Margin" Value="0,0,0,6"/></Style>
-        </Grid.Styles>
-        <TextBlock Text="Archive name:"/>
-        <TextBox Grid.Column="1" Grid.ColumnSpan="2" Name="ArchiveNameTextBox" TextChanged="ArchiveNameTextBox_OnTextChanged"/>
-        <TextBlock Grid.Row="1" Text="Destination:"/>
-        <TextBox Grid.Row="1" Grid.Column="1" IsReadOnly="True" Name="ArchivePathTextBox"/>
-        <Button Grid.Row="1" Grid.Column="2" Content="..." Click="Browse_OnClick"/>
-        <TextBlock Grid.Row="2" Text="Password:"/>
-        <TextBox Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="2" Name="PasswordBox" PasswordChar="*"/>
-        <TextBlock Grid.Row="3" Text="Confirm password:"/>
-        <TextBox Grid.Row="3" Grid.Column="1" Grid.ColumnSpan="2" Name="PasswordBox1" PasswordChar="*"/>
-        <TextBlock Grid.Row="4" Text="Type:"/>
-        <ComboBox Grid.Row="4" Grid.Column="1" Name="TypeBox" HorizontalAlignment="Stretch"/>
-        <TextBlock Grid.Row="5" Grid.ColumnSpan="2" Name="StatusTextBlock" Classes="error" TextWrapping="Wrap"/>
-        <Button Grid.Row="5" Grid.Column="1" Grid.ColumnSpan="2" HorizontalAlignment="Right" Name="ExecuteButton" Content="Execute" IsEnabled="False" Click="Execute_OnClick"/>
-    </Grid>
-</Window>
+<local:DialogWindow x:Class="Comander.View.ZipWindow"
+                    xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:local="clr-namespace:Comander.View"
+                    Title="Create archive" Width="480" SizeToContent="Height">
+    <!-- Pack the selection: returns ZipParameters, or null on Cancel / Esc. -->
+    <StackPanel Margin="18" Spacing="14">
+        <StackPanel Spacing="4">
+            <TextBlock Classes="title" Text="Create archive"/>
+            <TextBlock Classes="muted" Text="Packs the selected files and folders"/>
+        </StackPanel>
+        <StackPanel Spacing="6">
+            <TextBlock Classes="muted" FontSize="12" Text="Archive name"/>
+            <TextBox Name="ArchiveNameTextBox" FontFamily="{DynamicResource Font.Mono}" FontSize="12" TextChanged="ArchiveNameTextBox_OnTextChanged"/>
+        </StackPanel>
+        <StackPanel Spacing="6">
+            <TextBlock Classes="muted" FontSize="12" Text="Destination"/>
+            <Grid ColumnDefinitions="*,Auto" ColumnSpacing="6">
+                <TextBox Name="ArchivePathTextBox" IsReadOnly="True" FontFamily="{DynamicResource Font.Mono}" FontSize="12"/>
+                <Button Grid.Column="1" Content="Browse…" Click="Browse_OnClick"/>
+            </Grid>
+        </StackPanel>
+        <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
+            <StackPanel Spacing="6">
+                <TextBlock Classes="muted" FontSize="12" Text="Password (Zip only)"/>
+                <TextBox Name="PasswordBox" PasswordChar="•"/>
+            </StackPanel>
+            <StackPanel Grid.Column="1" Spacing="6">
+                <TextBlock Classes="muted" FontSize="12" Text="Confirm password"/>
+                <TextBox Name="PasswordBox1" PasswordChar="•"/>
+            </StackPanel>
+        </Grid>
+        <StackPanel Spacing="6">
+            <TextBlock Classes="muted" FontSize="12" Text="Format"/>
+            <ComboBox Name="TypeBox" HorizontalAlignment="Stretch"/>
+        </StackPanel>
+        <DockPanel>
+            <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" Spacing="8">
+                <Button Classes="footer" Content="Cancel" Click="Cancel_OnClick"/>
+                <Button Name="ExecuteButton" Classes="footer accent" Content="Create" IsDefault="True" IsEnabled="False" Click="Execute_OnClick"/>
+            </StackPanel>
+            <TextBlock Name="StatusTextBlock" Classes="error" FontSize="12" TextWrapping="Wrap" VerticalAlignment="Center"/>
+        </DockPanel>
+    </StackPanel>
+</local:DialogWindow>

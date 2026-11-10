@@ -7,7 +7,7 @@ using ZipLib;
 namespace Comander.View
 {
     // ShowDialog<ZipParameters>: null when closed without executing.
-    public partial class ZipWindow : Window
+    public partial class ZipWindow : DialogWindow
     {
         public ZipWindow(string directoryPath = "")
         {
@@ -56,5 +56,7 @@ namespace Comander.View
         }
 
         private void ArchiveNameTextBox_OnTextChanged(object sender, TextChangedEventArgs e) => Verify();
+
+        private void Cancel_OnClick(object sender, RoutedEventArgs e) => Close();
     }
 }

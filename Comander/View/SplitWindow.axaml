@@ -1,24 +1,44 @@
-<Window x:Class="Comander.View.SplitWindow"
-        xmlns="https://github.com/avaloniaui"
-        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="Split file" Icon="/Icons/icon.png" Height="240" Width="480" CanResize="False" WindowStartupLocation="CenterOwner">
-    <Grid ColumnDefinitions="130,*,100" RowDefinitions="Auto,Auto,Auto,Auto,Auto" Margin="10">
-        <Grid.Styles>
-            <Style Selector="TextBlock"><Setter Property="VerticalAlignment" Value="Center"/></Style>
-            <Style Selector="Grid > Control"><Setter Property="Margin" Value="0,0,0,6"/></Style>
-        </Grid.Styles>
-        <TextBlock Text="File to split:"/>
-        <TextBox Grid.Column="1" ToolTip.Tip="File to split" Name="SplitPathTextBox" IsReadOnly="True"/>
-        <Button Grid.Column="2" Click="BrowseButton1_OnClick" Content="..."/>
-        <TextBlock Grid.Row="1" Text="Part size:"/>
-        <TextBox Grid.Row="1" Grid.Column="1" ToolTip.Tip="Size of one part" Name="NumericTextBox" TextChanged="PartSize_OnTextChanged"/>
-        <ComboBox Grid.Row="1" Grid.Column="2" Name="UnitComboBox" HorizontalAlignment="Stretch" SelectionChanged="UnitComboBox_OnSelectionChanged"/>
-        <TextBlock Grid.Row="2" Text="Destination path:"/>
-        <TextBox Grid.Row="2" Grid.Column="1" ToolTip.Tip="Destination folder" Name="PathTextBox" IsReadOnly="True"/>
-        <Button Grid.Row="2" Grid.Column="2" Click="BrowseButton_OnClick" Content="..."/>
-        <TextBlock Grid.Row="3" Name="FileSizeTextBlock"/>
-        <TextBlock Grid.Row="3" Grid.Column="1" Name="PartsTextBlock"/>
-        <TextBlock Grid.Row="4" Grid.ColumnSpan="2" Name="StatusBlock"/>
-        <Button Grid.Row="4" Grid.Column="2" Click="ExecuteButton_OnClick" Name="ExecuteButton" Content="Execute" IsEnabled="False"/>
-    </Grid>
-</Window>
+<local:DialogWindow x:Class="Comander.View.SplitWindow"
+                    xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:local="clr-namespace:Comander.View"
+                    Title="Split file" Width="500" SizeToContent="Height">
+    <StackPanel Margin="18" Spacing="14">
+        <StackPanel Spacing="4">
+            <TextBlock Classes="title" Text="Split file"/>
+            <TextBlock Classes="muted" Text="Cuts a file into parts of a fixed size"/>
+        </StackPanel>
+        <StackPanel Spacing="6">
+            <TextBlock Classes="muted" FontSize="12" Text="File to split"/>
+            <Grid ColumnDefinitions="*,Auto" ColumnSpacing="6">
+                <TextBox Name="SplitPathTextBox" IsReadOnly="True" FontFamily="{DynamicResource Font.Mono}" FontSize="12"/>
+                <Button Grid.Column="1" Content="Browse…" Click="BrowseButton1_OnClick"/>
+            </Grid>
+        </StackPanel>
+        <StackPanel Spacing="6">
+            <TextBlock Classes="muted" FontSize="12" Text="Part size"/>
+            <Grid ColumnDefinitions="*,90" ColumnSpacing="6">
+                <TextBox Name="NumericTextBox" FontFamily="{DynamicResource Font.Mono}" FontSize="12" TextChanged="PartSize_OnTextChanged"/>
+                <ComboBox Grid.Column="1" Name="UnitComboBox" HorizontalAlignment="Stretch" SelectionChanged="UnitComboBox_OnSelectionChanged"/>
+            </Grid>
+        </StackPanel>
+        <StackPanel Spacing="6">
+            <TextBlock Classes="muted" FontSize="12" Text="Destination"/>
+            <Grid ColumnDefinitions="*,Auto" ColumnSpacing="6">
+                <TextBox Name="PathTextBox" IsReadOnly="True" FontFamily="{DynamicResource Font.Mono}" FontSize="12"/>
+                <Button Grid.Column="1" Content="Browse…" Click="BrowseButton_OnClick"/>
+            </Grid>
+        </StackPanel>
+        <StackPanel Orientation="Horizontal" Spacing="16">
+            <TextBlock Name="FileSizeTextBlock" Classes="muted" FontSize="12"/>
+            <TextBlock Name="PartsTextBlock" Classes="muted" FontSize="12"/>
+        </StackPanel>
+        <DockPanel>
+            <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" Spacing="8">
+                <Button Classes="footer" Content="Cancel" Click="Cancel_OnClick"/>
+                <Button Name="ExecuteButton" Classes="footer accent" Content="Split" IsDefault="True" IsEnabled="False" Click="ExecuteButton_OnClick"/>
+            </StackPanel>
+            <TextBlock Name="StatusBlock" Classes="muted" FontSize="12" VerticalAlignment="Center"/>
+        </DockPanel>
+    </StackPanel>
+</local:DialogWindow>

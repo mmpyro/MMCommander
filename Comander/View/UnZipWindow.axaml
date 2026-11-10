@@ -1,14 +1,25 @@
-<Window x:Class="Comander.View.UnZipWindow"
-        xmlns="https://github.com/avaloniaui"
-        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="UnZip" Icon="/Icons/icon.png" Height="200" Width="380" CanResize="False" WindowStartupLocation="CenterOwner">
-    <StackPanel Margin="10" Spacing="6">
-        <RadioButton Name="ExtractHereRadio" IsChecked="True" Content="Extract here" GroupName="target"/>
-        <RadioButton Name="ExtractDirRadio" GroupName="target"/>
-        <Grid ColumnDefinitions="100,*">
-            <TextBlock Text="Password:" VerticalAlignment="Center"/>
-            <TextBox Grid.Column="1" Name="PasswordBox" PasswordChar="*" PlaceholderText="only for encrypted archives"/>
-        </Grid>
-        <Button Name="ExecuteButton" HorizontalAlignment="Right" Content="Execute" IsDefault="True" Click="Execute_OnClick"/>
+<local:DialogWindow x:Class="Comander.View.UnZipWindow"
+                    xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:local="clr-namespace:Comander.View"
+                    Title="Extract archive" Width="440" SizeToContent="Height">
+    <!-- Returns UnZipRequest, or null on Cancel / Esc. The format is detected on extraction. -->
+    <StackPanel Margin="18" Spacing="14">
+        <StackPanel Spacing="4">
+            <TextBlock Classes="title" Text="Extract archive"/>
+            <TextBlock Name="ArchiveText" Classes="muted mono" TextTrimming="PrefixCharacterEllipsis"/>
+        </StackPanel>
+        <StackPanel Spacing="8">
+            <RadioButton Name="ExtractHereRadio" IsChecked="True" Content="Extract here" GroupName="target"/>
+            <RadioButton Name="ExtractDirRadio" GroupName="target"/>
+        </StackPanel>
+        <StackPanel Spacing="6">
+            <TextBlock Classes="muted" FontSize="12" Text="Password"/>
+            <TextBox Name="PasswordBox" PasswordChar="•" PlaceholderText="only for encrypted archives"/>
+        </StackPanel>
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Spacing="8">
+            <Button Classes="footer" Content="Cancel" Click="Cancel_OnClick"/>
+            <Button Name="ExecuteButton" Classes="footer accent" Content="Extract" IsDefault="True" Click="Execute_OnClick"/>
+        </StackPanel>
     </StackPanel>
-</Window>
+</local:DialogWindow>

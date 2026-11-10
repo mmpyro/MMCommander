@@ -1,14 +1,21 @@
 <local:DialogWindow x:Class="Comander.View.ConfirmWindow"
-        xmlns="https://github.com/avaloniaui"
-        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:local="clr-namespace:Comander.View"
-        Title="Confirm" Height="150" Width="330">
-    <Grid RowDefinitions="*,Auto" ColumnDefinitions="Auto,*" Margin="10">
-        <Image Name="Image" Width="40" Height="40" Margin="0,0,10,0"/>
-        <TextBlock Name="InfoTextBlock" Grid.Column="1" TextWrapping="Wrap" FontWeight="Bold" TextAlignment="Center" VerticalAlignment="Center"/>
-        <StackPanel Grid.Row="1" Grid.ColumnSpan="2" Orientation="Horizontal" HorizontalAlignment="Center" Spacing="40">
-            <Button Name="AcceptButton" IsDefault="True" Click="AcceptButton_OnClick"><Image Width="24" Height="24" Source="/Icons/appbar.check.png"/></Button>
-            <Button IsCancel="True" Click="CancelButton_OnClick"><Image Width="24" Height="24" Source="/Icons/Cancel.png"/></Button>
+                    xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:local="clr-namespace:Comander.View"
+                    Title="Confirm" Width="420" SizeToContent="Height">
+    <!-- Yes/no question: Enter = OK (true), Esc = Cancel (false). -->
+    <StackPanel Margin="18" Spacing="14">
+        <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12">
+            <Path Classes="icon" Width="22" Height="22" VerticalAlignment="Top" Data="{StaticResource Icon.Warning}"
+                  TextElement.Foreground="{DynamicResource Brush.Warning}"/>
+            <StackPanel Grid.Column="1" Spacing="4">
+                <TextBlock Classes="title" Text="Please confirm"/>
+                <TextBlock Name="InfoTextBlock" Classes="muted" TextWrapping="Wrap"/>
+            </StackPanel>
+        </Grid>
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Spacing="8">
+            <Button Classes="footer" Content="Cancel" IsCancel="True" Click="CancelButton_OnClick"/>
+            <Button Name="AcceptButton" Classes="footer accent" Content="OK" IsDefault="True" Click="AcceptButton_OnClick"/>
         </StackPanel>
-    </Grid>
+    </StackPanel>
 </local:DialogWindow>
