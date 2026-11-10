@@ -26,7 +26,7 @@ namespace ComanderTest
             Assert.That(frame, Is.Not.Null, name);
             var dir = Environment.GetEnvironmentVariable("MMC_SCREENSHOTS");
             if (!string.IsNullOrEmpty(dir))
-                frame.Save(Path.Combine(dir, name + ".png"));
+                frame.Save(Path.Combine(dir, name + ".png"), Avalonia.Media.Imaging.PngBitmapEncoderOptions.Default);
             window.Close();
         }
 
@@ -41,7 +41,7 @@ namespace ComanderTest
             Assert.That(frame, Is.Not.Null);
             var dir = Environment.GetEnvironmentVariable("MMC_SCREENSHOTS");
             if (!string.IsNullOrEmpty(dir))
-                frame.Save(Path.Combine(dir, "MainWindow.png"));
+                frame.Save(Path.Combine(dir, "MainWindow.png"), Avalonia.Media.Imaging.PngBitmapEncoderOptions.Default);
         }
 
         [AvaloniaTest]

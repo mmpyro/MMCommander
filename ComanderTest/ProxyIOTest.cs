@@ -60,7 +60,7 @@ namespace ComanderTest
         public async Task BusyLock_IsReleased_WhenRefreshAfterOperationThrows()
         {
             _panel.OnUnsetBusy = () => throw new InvalidOperationException("refresh failed");
-            Assert.ThrowsAsync<InvalidOperationException>(Copy);
+            await Assert.ThatAsync(Copy, Throws.InstanceOf<InvalidOperationException>());
 
             _panel.OnUnsetBusy = null;
             _dialogs.OverrideAnswer = CopyOption.OverrideSingle;
