@@ -1,10 +1,9 @@
 using System;
 using System.Collections.Generic;
-using System.ComponentModel.Composition;
-using System.ComponentModel.Composition.Hosting;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.Loader;
 using CommanderPlugin;
 using LogLib;
 using System.Threading.Tasks;
@@ -15,9 +14,6 @@ namespace Comander.Core
 {
     public interface IPluginManager
     {
-        [ImportMany(typeof (ICommanderPlugin))]
-        IEnumerable<Lazy<ICommanderPlugin, IOperationName>> Plugins { get; set; }
-
         void LoadPlugins(string path);
         IEnumerable<string> GetMethods();
 
@@ -29,7 +25,6 @@ namespace Comander.Core
 
     public class NullPluginManager : IPluginManager
     {
-        public IEnumerable<Lazy<ICommanderPlugin, IOperationName>> Plugins { get; set; }
         public void LoadPlugins(string path)
         {
 
@@ -42,58 +37,52 @@ namespace Comander.Core
 
         public Task InvokeMethod(string name, string dir, IEnumerable<string> files)
         {
-            return Task.Run(() => { });
+            return Task.CompletedTask;
         }
     }
 
     public class PluginManager : IPluginManager
     {
         private readonly ILogger _logger;
-
-        [ImportMany(typeof(ICommanderPlugin))]
-        public IEnumerable<Lazy<ICommanderPlugin, IOperationName>> Plugins { get; set; }
+        private readonly List<ICommanderPlugin> _plugins = new List<ICommanderPlugin>();
 
         public PluginManager(ILogger logger)
         {
             _logger = logger;
         }
 
-        // Loads only *.dll files; a file that fails to load is logged and skipped, not fatal for the others (BUG-20).
+        // Plugins/<Name>/<Name>.dll (with its own dependencies) or a single Plugins/*.dll.
+        // A file that fails to load is logged and skipped, not fatal for the others (BUG-20).
         public void LoadPlugins(string path)
         {
-            var catalog = new AggregateCatalog();
-            if (Directory.Exists(path))
+            if (!Directory.Exists(path))
+                return;
+            var files = Directory.GetFiles(path, "*.dll")
+                .Concat(Directory.GetDirectories(path).Select(d => Path.Combine(d, Path.GetFileName(d) + ".dll")).Where(File.Exists));
+            foreach (var file in files)
             {
-                foreach (var file in Directory.GetFiles(path, "*.dll"))
+                try
                 {
-                    try
-                    {
-                        var ac = new AssemblyCatalog(Assembly.LoadFrom(file));
-                        ac.Parts.ToArray();
-                        catalog.Catalogs.Add(ac);
-                    }
-                    catch (Exception e)
-                    {
-                        _logger.Error("Cannot load plugin " + file, e);
-                    }
+                    var assembly = new PluginLoadContext(file).LoadFromAssemblyPath(Path.GetFullPath(file));
+                    foreach (var type in assembly.GetTypes().Where(t => t.IsClass && !t.IsAbstract && typeof(ICommanderPlugin).IsAssignableFrom(t)))
+                        _plugins.Add((ICommanderPlugin)Activator.CreateInstance(type));
+                }
+                catch (Exception e)
+                {
+                    _logger.Error("Cannot load plugin " + file, e);
                 }
             }
-
-            var container = new CompositionContainer(catalog);
-            container.ComposeParts(this);
         }
 
         public IEnumerable<string> GetMethods()
         {
-            if(Plugins != null && Plugins.Any())
-                return Plugins.Select(t => t.Metadata.Name);
-            return new List<string>();
+            return _plugins.Select(p => p.Name).ToList();
         }
 
         public async Task InvokeMethod(string name, string dir, IEnumerable<string> files)
         {
-            var plugin = Plugins.Single(t => t.Metadata.Name.Equals(name));
-            var response = await plugin.Value.InvokeAsync(dir,files);
+            var plugin = _plugins.First(p => p.Name == name);
+            var response = await plugin.InvokeAsync(dir, files);
             ReportExecutionStatus(name, response);
         }
 
@@ -108,6 +97,34 @@ namespace Comander.Core
                 _logger.Error(response.ErrorMessage);
             }
             WeakReferenceMessenger.Default.Send(new RefreshMessage());
+        }
+    }
+
+    // Each plugin gets its own load context, so its dependencies can differ from the app's.
+    // CommanderPlugin is always taken from the app, or the plugin's ICommanderPlugin would be a different type.
+    internal class PluginLoadContext : AssemblyLoadContext
+    {
+        private static readonly string Contract = typeof(ICommanderPlugin).Assembly.GetName().Name;
+        private readonly AssemblyDependencyResolver _resolver;
+
+        public PluginLoadContext(string pluginPath) : base(Path.GetFileNameWithoutExtension(pluginPath))
+        {
+            _resolver = new AssemblyDependencyResolver(Path.GetFullPath(pluginPath));
+        }
+
+        // null = fall back to the app's copy (shared framework, Avalonia, CommanderPlugin...).
+        protected override Assembly Load(AssemblyName name)
+        {
+            if (name.Name == Contract)
+                return null;
+            var path = _resolver.ResolveAssemblyToPath(name);
+            return path == null ? null : LoadFromAssemblyPath(path);
+        }
+
+        protected override IntPtr LoadUnmanagedDll(string name)
+        {
+            var path = _resolver.ResolveUnmanagedDllToPath(name);
+            return path == null ? IntPtr.Zero : LoadUnmanagedDllFromPath(path);
         }
     }
 }

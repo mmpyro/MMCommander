@@ -63,20 +63,19 @@ Shared build settings are in `Directory.Build.props`: net10.0, `LangVersion late
 
 ## Plugins
 
-Plugins are discovered with MEF (`System.ComponentModel.Composition`). At startup, `PluginManager` loads every `*.dll` in `<app folder>/Plugins`. A file that fails to load is logged and skipped.
+At startup, `PluginManager` loads `<app folder>/Plugins/<Name>/<Name>.dll` (a plugin with its own dependencies) and any single `Plugins/*.dll`. Each plugin gets its own `AssemblyLoadContext`, so its dependencies can differ from the app's. `CommanderPlugin.dll` is always the app's copy. Every public class that implements `ICommanderPlugin` and has a parameterless constructor is created once. A file that fails to load is logged and skipped.
 
 A minimal plugin:
 
 ```csharp
 using System.Collections.Generic;
-using System.ComponentModel.Composition;
 using System.Threading.Tasks;
 using CommanderPlugin;
 
-[Export(typeof(ICommanderPlugin))]
-[ExportMetadata("Name", "Count files")]   // shown in the F3 plugin list
 public class CountFiles : ICommanderPlugin
 {
+    public string Name => "Count files";   // shown in the Ctrl+P plugin list
+
     public Task<Response> InvokeAsync(string dir, IEnumerable<string> files)
     {
         // dir = current panel folder, files = selected full paths
@@ -85,7 +84,9 @@ public class CountFiles : ICommanderPlugin
 }
 ```
 
-Build it against `CommanderPlugin.csproj` (net10.0) and copy the DLL to `Plugins/`. The panels refresh after a plugin finishes. A `Response` with `Fail` status, or an exception, is logged.
+Build it against `CommanderPlugin.csproj` (net10.0), then copy the build output to `Plugins/CountFiles/`. The DLL name must match the folder name. The panels refresh after a plugin finishes. A `Response` with `Fail` status, or an exception, is logged.
+
+Plugins run in the app's process with the user's rights. Install only plugins you trust.
 
 ## Tests
 

@@ -61,5 +61,34 @@ namespace ComanderTest
             Assert.That(manager.GetMethods(), Is.Empty);
             Assert.That(_errors, Has.Count.EqualTo(1).And.Some.Contains("broken.dll"));
         }
+
+        // A plugin in its own folder loads in its own context, even when it ships its own CommanderPlugin.dll copy.
+        [Test]
+        public async Task LoadPlugins_FolderPlugin_ListedAndRuns()
+        {
+            var folder = Directory.CreateDirectory(Path.Combine(_root, "Sample")).FullName;
+            File.Copy(typeof(TouchPlugin).Assembly.Location, Path.Combine(folder, "Sample.dll"));
+            File.Copy(typeof(CommanderPlugin.ICommanderPlugin).Assembly.Location, Path.Combine(folder, "CommanderPlugin.dll"));
+            var manager = new PluginManager(_logger);
+
+            manager.LoadPlugins(_root);
+            Assert.That(manager.GetMethods(), Is.EqualTo(new[] { "Touch" }));
+            await manager.InvokeMethod("Touch", _root, new string[0]);
+
+            Assert.That(File.Exists(Path.Combine(_root, "touched.txt")), Is.True);
+            Assert.That(_errors, Is.Empty);
+        }
+    }
+
+    // Loaded by LoadPlugins_FolderPlugin_ListedAndRuns from a copy of this assembly.
+    public class TouchPlugin : CommanderPlugin.ICommanderPlugin
+    {
+        public string Name => "Touch";
+
+        public Task<CommanderPlugin.Response> InvokeAsync(string dir, IEnumerable<string> files)
+        {
+            File.WriteAllText(Path.Combine(dir, "touched.txt"), "");
+            return Task.FromResult(new CommanderPlugin.Response(CommanderPlugin.OperationStatus.Success));
+        }
     }
 }

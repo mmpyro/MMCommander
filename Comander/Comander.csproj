@@ -12,7 +12,6 @@
     <PackageReference Include="Avalonia.Themes.Fluent" Version="12.1.6" />
     <PackageReference Include="Avalonia.Controls.DataGrid" Version="12.1.2" />
     <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.2" />
-    <PackageReference Include="System.ComponentModel.Composition" Version="10.0.14" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="../CommanderPlugin/CommanderPlugin.csproj" />

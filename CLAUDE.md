@@ -36,7 +36,7 @@ Project graph: `Comander` (the Avalonia app) references `IOLib` (file model and 
 - **Listing:** `IOManager.LoadFiles` lists on the thread pool and drops stale results with a `CancellationTokenSource`. `DirectoryManager` throws on unreadable folders (the panel logs "Cannot open X"). Search skips unreadable folders and reparse points instead.
 - **Files vs folders:** `MetaDataFileFactory` (Comander) and `FileFactory` (IOLib) decide by `Directory.Exists`/attributes, never by extension. Files without an extension (`Makefile`) are files.
 - **Messaging:** `WeakReferenceMessenger.Default` carries view signals. The message classes are in `Comander/Messages/` (focus, busy pulse/wait, refresh).
-- **Plugins:** MEF (`System.ComponentModel.Composition`). `PluginManager` loads `*.dll` from `<app dir>/Plugins` and logs and skips bad files. If loading fails, `NullPluginManager` is used.
+- **Plugins:** no MEF. `PluginManager` loads `Plugins/<Name>/<Name>.dll` and `Plugins/*.dll`, each in its own `PluginLoadContext` (`AssemblyLoadContext` + `AssemblyDependencyResolver`), and creates every public `ICommanderPlugin` class. `CommanderPlugin.dll` is always taken from the app, never from the plugin folder, or the interface types would not match. Bad files are logged and skipped. If loading fails, `NullPluginManager` is used.
 - **Config:** default `Config.xml`, `Commands.xml`, `Manuals/` and `Plugins/` sit next to the binary and are read from `AppContext.BaseDirectory`. The user `Config.xml` (panel paths, shortcuts) lives in the OS app-data folder and is written atomically on exit.
 
 ## Avalonia gotchas in this repo

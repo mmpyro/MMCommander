@@ -10,7 +10,7 @@ It does copy, move, delete and rename with overwrite prompts. It also has
 - a small filter language
 - folder shortcuts and per-panel history
 - user-defined external commands
-- MEF plugins
+- Plugins (.NET class libraries)
 
 ## Quick start
 
@@ -128,7 +128,7 @@ Extraction refuses entries that would land outside the target folder (zip-slip).
 
 ## Plugins
 
-Drop a .NET 10 class library into `Plugins/` next to the binary. See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md#plugins).
+Put a .NET 10 class library in `Plugins/<Name>/` next to the binary. Plugins run with your full user rights, so install only ones you trust. See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md#plugins).
 
 ## Known limits
 
