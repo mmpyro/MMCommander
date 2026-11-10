@@ -2,13 +2,14 @@
 using IOLib;
 using IOLibTest.helpers;
 using NUnit.Framework;
+using NUnit.Framework.Legacy;
 
 namespace IOLibTest
 {
     [TestFixture]
     public class DeleteDirectoryTest
     {
-        private readonly string DirectoryPath = Path.Combine(Path.GetTempPath(), "test_dir");
+        private readonly string DirectoryPath = Path.Combine(TestPaths.Root, "test_dir");
 
         [SetUp]
         public void Before()
@@ -25,7 +26,7 @@ namespace IOLibTest
             //When
             dir.Delete();
             //Then
-            Assert.IsFalse(Directory.Exists(DirectoryPath));
+            ClassicAssert.IsFalse(Directory.Exists(DirectoryPath));
         }
 
         [TearDown]

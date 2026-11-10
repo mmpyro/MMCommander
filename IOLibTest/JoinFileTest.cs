@@ -3,14 +3,15 @@ using System.Linq;
 using IOLib;
 using IOLibTest.helpers;
 using NUnit.Framework;
+using NUnit.Framework.Legacy;
 
 namespace IOLibTest
 {
     [TestFixture]
     public class JoinFileTest
     {
-        private readonly string DestinationPath = Path.Combine(Path.GetTempPath(), "test_dir");
-        private readonly string FilePath = Path.Combine(Path.GetTempPath(), "test_dir\\file.txt");
+        private readonly string DestinationPath = Path.Combine(TestPaths.Root, "test_dir");
+        private readonly string FilePath = Path.Combine(TestPaths.Root, "test_dir/file.txt");
         private IFileFactory _fileFactory;
             
         [SetUp]
@@ -34,8 +35,8 @@ namespace IOLibTest
             var directoryInfo = new DirectoryInfo(DestinationPath);
             var files = directoryInfo.GetFiles();
             //Then
-            Assert.AreEqual(11, files.Length);
-            Assert.AreEqual(1000,files.Max(t => t.Length));
+            ClassicAssert.AreEqual(11, files.Length);
+            ClassicAssert.AreEqual(1000,files.Max(t => t.Length));
         }
 
         [TearDown]

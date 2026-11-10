@@ -2,13 +2,14 @@
 using IOLib;
 using IOLibTest.helpers;
 using NUnit.Framework;
+using NUnit.Framework.Legacy;
 
 namespace IOLibTest
 {
     [TestFixture]
     public class CopyDirectoryTest
     {
-        private readonly string DirectoryPath = Path.Combine(Path.GetTempPath(), "test_dir");
+        private readonly string DirectoryPath = Path.Combine(TestPaths.Root, "test_dir");
 
         [SetUp]
         public void Before()
@@ -29,8 +30,8 @@ namespace IOLibTest
             //When
             dir1.OverrideCopy(dir2);
             //Then
-            Assert.IsTrue(Directory.Exists(Path.Combine(Path.Combine(DirectoryPath, "dir2"), "dir1")));
-            Assert.IsTrue(File.Exists(Path.Combine(Path.Combine(DirectoryPath, "dir2"), "dir1\\file.txt")));
+            ClassicAssert.IsTrue(Directory.Exists(Path.Combine(Path.Combine(DirectoryPath, "dir2"), "dir1")));
+            ClassicAssert.IsTrue(File.Exists(Path.Combine(Path.Combine(DirectoryPath, "dir2"), "dir1/file.txt")));
         }
 
         [TearDown]

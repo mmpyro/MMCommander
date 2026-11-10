@@ -3,14 +3,15 @@ using System.Linq;
 using IOLib;
 using IOLibTest.helpers;
 using NUnit.Framework;
+using NUnit.Framework.Legacy;
 
 namespace IOLibTest
 {
     [TestFixture]
     public class FileSplitTest
     {
-        private readonly string DestinationPath = Path.Combine(Path.GetTempPath(), "test_dir");
-        private readonly string FilePath = Path.Combine(Path.GetTempPath(), "test_dir\\file.txt");
+        private readonly string DestinationPath = Path.Combine(TestPaths.Root, "test_dir");
+        private readonly string FilePath = Path.Combine(TestPaths.Root, "test_dir/file.txt");
 
         [SetUp]
         public void Before()
@@ -31,8 +32,8 @@ namespace IOLibTest
             var directoryInfo = new DirectoryInfo(DestinationPath);
             var files = directoryInfo.GetFiles().Where(t => t.Name.Contains("file")).ToArray();
             //Then
-            Assert.AreEqual(10, files.Length);
-            Assert.AreEqual(100,files[0].Length);
+            ClassicAssert.AreEqual(10, files.Length);
+            ClassicAssert.AreEqual(100,files[0].Length);
         }
 
         [TearDown]

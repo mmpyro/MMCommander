@@ -3,6 +3,7 @@ using System.Diagnostics;
 using IOLib;
 using IOLibTest.helpers;
 using NUnit.Framework;
+using NUnit.Framework.Legacy;
 using System.IO;
 
 namespace IOLibTest
@@ -10,7 +11,7 @@ namespace IOLibTest
     [TestFixture]
     public class FileDeleteTest
     {
-        private readonly string filePath = Path.Combine(Path.GetTempPath(), "file.dat");
+        private readonly string filePath = Path.Combine(TestPaths.Root, "file.dat");
 
         [SetUp]
         public void Before()
@@ -28,7 +29,7 @@ namespace IOLibTest
             file.Delete();
             //Then
             Debug.WriteLine(file.FullName);
-            Assert.IsFalse(FileHelper.Exist(filePath));
+            ClassicAssert.IsFalse(FileHelper.Exist(filePath));
         }
 
         [TearDown]

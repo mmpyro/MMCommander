@@ -9,7 +9,7 @@ namespace IOLibTest
     [TestFixture]
     public class FileCreateTest
     {
-        private readonly string filePath = Path.Combine(Path.GetTempPath(), "file.dat");
+        private readonly string filePath = Path.Combine(TestPaths.Root, "file.dat");
 
         [SetUp]
         public void Before()

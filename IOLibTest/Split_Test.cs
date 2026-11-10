@@ -3,6 +3,7 @@ using System.IO;
 using IOLib;
 using Moq;
 using NUnit.Framework;
+using NUnit.Framework.Legacy;
 
 namespace IOLibTest
 {
@@ -64,7 +65,7 @@ namespace IOLibTest
             //When
             int result = size*(int) FileSizeUnit.KB;
             //Then
-            Assert.AreEqual(1024 ,result);
+            ClassicAssert.AreEqual(1024 ,result);
         }
 
         [Test]
@@ -75,12 +76,11 @@ namespace IOLibTest
             //When
             int result = size * (int)FileSizeUnit.MB;
             //Then
-            Assert.AreEqual(1024*1024, result);
+            ClassicAssert.AreEqual(1024*1024, result);
         }
 
         [TestCase(101)]
         [TestCase(100)]
-        [ExpectedException(typeof(ArgumentException))]
         public void SplitVerifySize_Test(int size)
         {
             //Given
@@ -89,9 +89,8 @@ namespace IOLibTest
             IAbstractFileStructure file = new FakeFile();
             ((FakeFile) file).SetSize(100);
             //When
-            fileManager.Split( file, size, FileSizeUnit.B,string.Empty);
             //Then
-            
+            Assert.Throws<ArgumentException>(() => fileManager.Split( file, size, FileSizeUnit.B,string.Empty));
         }
     }
 }

@@ -2,13 +2,14 @@
 using IOLib;
 using IOLibTest.helpers;
 using NUnit.Framework;
+using NUnit.Framework.Legacy;
 
 namespace IOLibTest
 {
     [TestFixture]
     public class FileMoveTest
     {
-        private readonly string DestinationPath = Path.Combine(Path.GetTempPath(), "test_dir");
+        private readonly string DestinationPath = Path.Combine(TestPaths.Root, "test_dir");
 
         [SetUp]
         public void Before()
@@ -29,7 +30,7 @@ namespace IOLibTest
             file.Move(dir);
             //Then
             string destinationFilePath = Path.Combine(DestinationPath, dst2);
-            Assert.IsTrue(FileHelper.Exist(destinationFilePath));
+            ClassicAssert.IsTrue(FileHelper.Exist(destinationFilePath));
             Assert.That(file.FullName, Is.EqualTo(destinationFilePath));
         }
 

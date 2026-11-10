@@ -2,13 +2,14 @@
 using IOLib;
 using IOLibTest.helpers;
 using NUnit.Framework;
+using NUnit.Framework.Legacy;
 
 namespace IOLibTest
 {
     [TestFixture]
     public class FileRenameTest
     {
-        private readonly string DestinationPath = Path.Combine(Path.GetTempPath(), "test_dir");
+        private readonly string DestinationPath = Path.Combine(TestPaths.Root, "test_dir");
         private const string OldName = "file.txt";
         private const string NewName = "myFile.dat";
 
@@ -28,7 +29,7 @@ namespace IOLibTest
             file.Rename(NewName);
             //Then
             string newNameFullPath = Path.Combine(DestinationPath, NewName);
-            Assert.IsTrue(File.Exists(newNameFullPath));
+            ClassicAssert.IsTrue(File.Exists(newNameFullPath));
             Assert.That(file.FullName, Is.EqualTo(newNameFullPath));
         }
 

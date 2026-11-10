@@ -196,7 +196,8 @@ namespace IOLib
 
         private void CopyFileInUse(IAbstractFileStructure destinationDirectory, IOException e)
         {
-            if (e.Message.Contains("in use"))
+            // cmd.exe copy fallback for files locked by another process; Windows only
+            if (OperatingSystem.IsWindows() && e.Message.Contains("in use"))
             {
                 var process = new Process();
                 process.StartInfo.UseShellExecute = false;

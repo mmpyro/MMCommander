@@ -2,14 +2,15 @@
 using IOLib;
 using IOLibTest.helpers;
 using NUnit.Framework;
+using NUnit.Framework.Legacy;
 
 namespace IOLibTest
 {
     [TestFixture]
     public class DirRenameTest
     {
-        private readonly string OldDirectory = Path.Combine(Path.GetTempPath(), "test_dir");
-        private readonly string NewDirectory = Path.Combine(Path.GetTempPath(), "myDir");
+        private readonly string OldDirectory = Path.Combine(TestPaths.Root, "test_dir");
+        private readonly string NewDirectory = Path.Combine(TestPaths.Root, "myDir");
 
         [SetUp]
         public void Before()
@@ -27,7 +28,7 @@ namespace IOLibTest
             //When
             dir.Rename("myDir");
             //Then
-            Assert.IsTrue(Directory.Exists(NewDirectory));
+            ClassicAssert.IsTrue(Directory.Exists(NewDirectory));
         }
 
         [TearDown]

@@ -1,6 +1,7 @@
 ﻿using System.Text.RegularExpressions;
 using IOLib;
 using NUnit.Framework;
+using System.Threading.Tasks;
 using System.IO;
 using IOLibTest.helpers;
 using System;
@@ -10,7 +11,7 @@ namespace IOLibTest
     [TestFixture]
     public class FileSearchTest
     {
-        private readonly string DirectoryPath = Path.Combine(Path.GetTempPath(), "test_dir");
+        private readonly string DirectoryPath = Path.Combine(TestPaths.Root, "test_dir");
 
         [SetUp]
         public void Before()
@@ -52,7 +53,7 @@ namespace IOLibTest
         }
 
         [Test]
-        public async void FileSearchContains_AsyncTest()
+        public async Task FileSearchContains_AsyncTest()
         {   
             //Given
             int foundedFiles = 0;
@@ -68,7 +69,7 @@ namespace IOLibTest
         }
 
         [Test]
-        public async void FileSearchRegex_AsyncTest()
+        public async Task FileSearchRegex_AsyncTest()
         {
             Console.WriteLine(DirectoryPath);
             //Given
@@ -99,7 +100,7 @@ namespace IOLibTest
         }
 
         [Test]
-        public async void FileSearchRegexRecursive_AsyncTest()
+        public async Task FileSearchRegexRecursive_AsyncTest()
         {
             //Given
             int foundedFiles = 0;

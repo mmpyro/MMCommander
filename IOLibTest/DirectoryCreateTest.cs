@@ -8,7 +8,7 @@ namespace IOLibTest
     [TestFixture]
     public class DirectoryCreateTest
     {
-        private readonly string DirectoryPath = Path.Combine(Path.GetTempPath(), "test_dir");
+        private readonly string DirectoryPath = Path.Combine(TestPaths.Root, "test_dir");
 
         [SetUp]
         public void Before()

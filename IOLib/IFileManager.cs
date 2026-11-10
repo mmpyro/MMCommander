@@ -66,7 +66,7 @@ namespace IOLib
             using (Stream input = File.OpenRead(abstractFile.FullName))
             {
                 input.Position = input.Seek(partSize*index, SeekOrigin.Begin);
-                using (Stream output = File.Create(destinationPath + "\\" + Path.GetFileNameWithoutExtension(abstractFile.Name) + "__" + index))
+                using (Stream output = File.Create(Path.Combine(destinationPath, Path.GetFileNameWithoutExtension(abstractFile.Name) + "__" + index)))
                 {
                     int remaining = partSize, bytesRead;
                     while (remaining > 0 && (bytesRead = input.Read(buffer, 0,

@@ -19,7 +19,7 @@ namespace IOLinqTest
         private readonly Mock<IFileFactory> _mock = new Mock<IFileFactory>();
         private SyntaxParser _parser;
 
-        [TestFixtureSetUp]
+        [OneTimeSetUp]
         public void Initialize()
         {
             _names = new string[] { "file", "File", "FILE", "aa", "#$^&&*^*", "wasd562f" };
