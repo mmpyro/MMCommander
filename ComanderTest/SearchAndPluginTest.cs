@@ -29,7 +29,11 @@ namespace ComanderTest
         }
 
         [TearDown]
-        public void After() => Directory.Delete(_root, true);
+        public void After()
+        {
+            try { Directory.Delete(_root, true); }
+            catch (UnauthorizedAccessException) when (OperatingSystem.IsWindows()) { } // loaded plugin DLLs stay locked until the process exits
+        }
 
         // BUG-14 regression: after a search the Search button must be usable again.
         [AvaloniaTest]

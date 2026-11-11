@@ -47,12 +47,15 @@ namespace ZipLib
             if (ArchiveFactory.IsArchive(zipParameters.ArchiveName, out var type) && type == ArchiveType.SevenZip)
             {
                 // 7z needs random access, so it can't go through the streaming reader.
-                using var archive = ArchiveFactory.OpenArchive(zipParameters.ArchiveName, readerOptions);
+                using var archiveStream = File.OpenRead(zipParameters.ArchiveName);
+                using var archive = ArchiveFactory.OpenArchive(archiveStream, readerOptions);
                 archive.WriteToDirectory(dir, options);
                 return;
             }
+            // Our own stream, so a failed extraction (wrong password) can't leave the archive locked on Windows.
+            using var stream = File.OpenRead(zipParameters.ArchiveName);
             // The reader also unpacks the tar inside .tar.gz / .tar.bz2.
-            using var reader = ReaderFactory.OpenReader(zipParameters.ArchiveName, readerOptions);
+            using var reader = ReaderFactory.OpenReader(stream, readerOptions);
             reader.WriteAllToDirectory(dir, options);
         }
 
