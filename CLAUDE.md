@@ -14,6 +14,7 @@ dotnet test IOLibTest --filter Name=JoinFile_Test             # one test
 dotnet test ComanderTest --filter FullyQualifiedName~ProxyIOTest  # one class
 dotnet test IOLibTest --filter Name=Split_Over2GB_WritesAllParts  # [Explicit] 2.2 GB test, never runs by default
 MMC_SCREENSHOTS=/some/dir dotnet test ComanderTest   # save PNGs of each headless-rendered window
+sh docs/make-screenshots.sh                     # regenerate the README images (docs/images) from a demo folder; needs ffmpeg
 dotnet publish Comander -c Release -r osx-arm64 --self-contained -p:PublishSingleFile=true
 git tag vX.Y.Z && git push origin vX.Y.Z           # .github/workflows/release.yml builds 3 platforms and publishes the Release
 ```
@@ -48,7 +49,7 @@ Project graph: `Comander` (the Avalonia app) references `IOLib` (file model and 
 - `DataGridTextColumn` bindings are **two-way by default**. Always add `Mode=OneWay` to read-only columns. A two-way column once wrote back through private setters and reset `IsDirectory` on every row.
 - **Keys and commands:** every shortcut lives in `Core/CommandRegistry.cs` (`AppCommand` + `KeyMap`). Don't add XAML `KeyBinding`s. Panel-scope keys run from `FilePane.axaml.cs` while a grid has focus; app-scope keys run from a tunnelling handler in `MainWindow.axaml.cs`. Menus show `{Binding KeyMap[id]}`. `KeyMapTest` fails if two commands share a key. Help → Keyboard shortcuts opens Settings on the Keyboard page.
 - Each panel is `Comander/Controls/FilePane.axaml` (tabs, breadcrumb, list, footer). Its grid key bindings are run from a tunnelling `KeyDown` handler in `FilePane.axaml.cs`, because DataGrid swallows Enter/Tab/Home/Escape itself. Row state classes: `dir`, `marked`; the pane card gets `active`. The toolbar, menus and F-key bar bind to `MainVM.ActivePanel`.
-- Colours, fonts and radii are tokens in `Themes/Dark.axaml` (`Brush.*`, `Font.UI`/`Font.Mono`, `Radius.*`), used only through `DynamicResource`. Don't hard-code colours in views. The redesign plan is `docs/redesign-plan.md` and the visual spec is `docs/design/*.dc.html`.
+- Colours, fonts and radii are tokens in `Themes/Dark.axaml` (`Brush.*`, `Font.UI`/`Font.Mono`, `Radius.*`), used only through `DynamicResource`. Don't hard-code colours in views. The visual spec is `docs/design/*.dc.html`.
 - `Themes/Theme.axaml` has a global `TextBlock` style (Text.Primary). Text roles are classes (`muted`, `secondary`, `mono`, `title`, `warn`, `error`). Row styles must target `DataGridRow.<class> TextBlock`, not the row. Folder rows get the `dir` class in `LoadingRow`.
 - Icons are stroke geometries in `Themes/Icons.axaml`: `<Path Classes="icon" Data="{StaticResource Icon.X}"/>`. The stroke follows the inherited `Foreground`.
 - **Settings:** `Core/AppSettings.Current` (loaded in `App.CreateMainVm`, saved as `<Settings>` key/values in the user Config.xml). `Apply` rewrites the token brushes in the Dark theme dictionary, so everything on `DynamicResource` follows live. Converters read `AppSettings.Current`. UI tests must never press Done in the Settings window or toggle "Ask before moving to Trash": both write the user's real Config.xml.

@@ -56,12 +56,13 @@ namespace Comander
             base.OnFrameworkInitializationCompleted();
         }
 
-        public static MainVM CreateMainVm(ILogger logger)
+        // userConfigPath: tests and docs pass a throwaway config so the real user Config.xml is never read.
+        public static MainVM CreateMainVm(ILogger logger, string userConfigPath = null)
         {
             IPluginManager pluginManager = CreatePluginManager(logger);
             IPathResolver pathResolver = new PathResolver();
             var shortcutManager = new ShortcutManager();
-            var configReader = new ConfigReader(shortcutManager);
+            var configReader = new ConfigReader(shortcutManager, ConfigReader.DefaultConfigPath, userConfigPath ?? ConfigReader.UserConfigPath);
             var settings = AppSettings.Load(configReader);
             settings.Apply(Current);
             // Settings > Appearance applies live: every change rewrites the token brushes.
