@@ -609,6 +609,7 @@ namespace ComanderTest
         [AvaloniaTest]
         public void F8_MovesToTrash_ShiftF8_DeletesPermanently()
         {
+            if (OperatingSystem.IsWindows()) Assert.Ignore("Recycle Bin is not redirected in tests");
             var trash = Directory.CreateDirectory(Path.Combine(_root, "trash-under-test")).FullName;
             IOLib.Trash.MacTrashDir = trash;
             IOLib.Trash.LinuxTrashDir = trash;
