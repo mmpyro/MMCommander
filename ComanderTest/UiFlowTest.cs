@@ -662,7 +662,9 @@ namespace ComanderTest
 
             vm.SyncCommand.Execute(null);
             Answer<ConfirmWindow>(Avalonia.Input.Key.Enter);
-            PumpUntil(() => File.Exists(Path.Combine(_root, "only-right.txt")) && File.Exists(Path.Combine(_dest, "notes.md")));
+            // 30 s: slow CI runners (macOS) can take longer than the 5 s default to finish the sync job.
+            PumpUntil(() => File.Exists(Path.Combine(_root, "only-right.txt")) && File.Exists(Path.Combine(_dest, "notes.md"))
+                            && File.Exists(Path.Combine(_dest, "file.txt")), 30000);
             Assert.That(File.ReadAllText(Path.Combine(_dest, "file.txt")), Is.EqualTo("hello"));
             Assert.That(Directory.Exists(Path.Combine(_dest, "child")), Is.True, "folders only on the left are copied too");
             window.Close();
