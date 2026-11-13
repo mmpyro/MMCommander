@@ -1,4 +1,6 @@
-﻿namespace Comander.Core
+using System.Threading;
+
+namespace Comander.Core
 {
     public interface IStateMonitor
     {
@@ -6,37 +8,13 @@
         void Exit();
     }
 
+    // One shared instance (App.CreateMainVm) lets a single operation run at a time across both panels.
     public class StateMonitor : IStateMonitor
     {
-        private static bool _isBusy = false;
-        private static object obj = new object();
+        private int _busy;
 
-        public bool Enter()
-        {
-            if (_isBusy == false)
-            {
-                lock (obj)
-                {
-                    if (_isBusy == false)
-                    {
-                        _isBusy = true;
-                        return true;
-                    }
-                }
-            }
-            return false;
-        }
+        public bool Enter() => Interlocked.CompareExchange(ref _busy, 1, 0) == 0;
 
-        public void Exit()
-        {
-            if (_isBusy)
-            {
-                lock (obj)
-                {
-                    if (_isBusy)
-                        _isBusy = false;
-                }
-            }
-        }
+        public void Exit() => Interlocked.Exchange(ref _busy, 0);
     }
 }

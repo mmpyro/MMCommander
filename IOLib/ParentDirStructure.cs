@@ -23,22 +23,7 @@ namespace IOLib
             }
         }
 
-        public override void Copy(IAbstractFileStructure destinationDirectory, Func<string,string, bool> allowOverride)
-        {
-            //do nothing
-        }
-
         public override void Delete()
-        {
-            //do nothing
-        }
-
-        public override void Move(IAbstractFileStructure destinationDirectory)
-        {
-            //do nothing
-        }
-
-        public override void OverrideCopy(IAbstractFileStructure destinationDirectory)
         {
             //do nothing
         }

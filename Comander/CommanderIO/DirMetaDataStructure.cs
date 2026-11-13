@@ -6,7 +6,6 @@ namespace Comander.CommanderIO
 {
     public class DirMetaDataStructure : IMetadataFileStructure
     {
-        private readonly IFileFactory _fileFactory;
         private DirectoryInfo _fileInfo;
         private DirStructure _filestructure;
 
@@ -15,22 +14,20 @@ namespace Comander.CommanderIO
             MetaData = new MetaData();
         }
 
-        public DirMetaDataStructure(string path, IFileFactory fileFactory) : this()
+        public DirMetaDataStructure(string path) : this()
         {
-            _fileFactory = fileFactory;
             Init(new DirectoryInfo(path));
         }
 
-        public DirMetaDataStructure(DirectoryInfo directoryInfo, IFileFactory fileFactory) : this()
+        public DirMetaDataStructure(DirectoryInfo directoryInfo) : this()
         {
-            _fileFactory = fileFactory;
             Init(directoryInfo);
         }
 
         private void Init(DirectoryInfo fileInfo)
         {
             _fileInfo = fileInfo;
-            _filestructure = new DirStructure(fileInfo, _fileFactory);
+            _filestructure = new DirStructure(fileInfo);
             Name = fileInfo.Name;
             FullName = fileInfo.FullName;
             Ext = fileInfo.Extension ?? string.Empty;
@@ -57,21 +54,6 @@ namespace Comander.CommanderIO
         public void Delete()
         {
             _filestructure.Delete();
-        }
-
-        public void Move(IAbstractFileStructure destinationDirectory)
-        {
-            _filestructure.Move(destinationDirectory);
-        }
-
-        public void Copy(IAbstractFileStructure destinationDirectory, Func<string,string, bool> allowOverride)
-        {
-            _filestructure.Copy(destinationDirectory, allowOverride);
-        }
-
-        public void OverrideCopy(IAbstractFileStructure destinationDirectory)
-        {
-           _filestructure.OverrideCopy(destinationDirectory);
         }
 
         public void Rename(string newName)

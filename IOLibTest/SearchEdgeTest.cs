@@ -56,6 +56,15 @@ namespace IOLibTest
             Assert.That(Search("data", MatchOptions.WholeWord, false), Is.EqualTo(new[] { "data.js" }));
         }
 
+        // A lone '*' or "name*" used to crash with IndexOutOfRange.
+        [TestCase("*", new[] { "Data.txt", "data.js", "metadata.js" })]
+        [TestCase("data*", new[] { "data.js" })]
+        [TestCase("*.js", new[] { "data.js", "metadata.js" })]
+        public void Glob_MatchesWholeName(string phrase, string[] expected)
+        {
+            Assert.That(Search(phrase, MatchOptions.Contains, false), Is.EquivalentTo(expected));
+        }
+
         // BUG-12: recursion used to drop MatchOptions and RegexOptions.
         [Test]
         public void Recursive_KeepsOptionsInSubfolders()

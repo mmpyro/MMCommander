@@ -206,5 +206,61 @@ namespace ComanderTest
             Assert.That(_panel.Errors, Is.Empty, "the file was selected, so the confirm was reached");
             Assert.That(File.ReadAllText(existing), Is.EqualTo("keep"));
         }
+
+        [Test]
+        public async Task Zip_ExistingArchive_Confirmed_ReplacesIt()
+        {
+            var existing = Path.Combine(_target, "out.zip");
+            File.WriteAllText(existing, "keep");
+            var file = Msg(Path.Combine(_source, "a.txt"));
+            file.PermanentSelect();
+            _panel.Files.Add(file);
+            _dialogs.ZipAnswer = new ZipParameters(Path.Combine(_target, "out"), "");
+            _dialogs.ConfirmAnswer = true;
+
+            await _proxy.ZipFiles();
+
+            Assert.That(_panel.Errors, Is.Empty);
+            using var zip = System.IO.Compression.ZipFile.OpenRead(existing);
+            Assert.That(zip.Entries.Select(e => e.Name), Is.EqualTo(new[] { "a.txt" }));
+        }
+
+        // A wrong password used to fail half-way into the panel folder; now it fails inside the temp folder.
+        [Test]
+        public async Task Unzip_WrongPassword_KeepsExistingFile_AndRemovesTemp()
+        {
+            var archive = Path.Combine(_root, "sec.zip");
+            new ZipAdapter().CompressFilesWithEncryption(new ZipParameters(Path.Combine(_root, "sec"), "right"), Path.Combine(_source, "a.txt"));
+            _panel.ActualPath = _target;
+            _dialogs.ConflictAnswer = new ConflictAnswer(ConflictDecision.Replace);
+            _dialogs.UnzipAnswer = new UnZipRequest { Parameters = new ZipParameters(archive, "wrong"), ExtractType = ExtractType.Here };
+
+            await _proxy.UnZipFiles();
+
+            Assert.That(File.ReadAllText(Path.Combine(_target, "a.txt")), Is.EqualTo("old"));
+            Assert.That(_dialogs.ConflictQuestions, Is.Zero, "nothing reached the target");
+            Assert.That(_panel.Errors, Has.Count.EqualTo(1));
+            Assert.That(Directory.GetDirectories(_target, ".mmc-unzip-*"), Is.Empty);
+        }
+
+        // An invalid filter used to match nothing silently; now "copy only matching" stops before writing anything.
+        [Test]
+        public async Task Copy_OnlyMatchingInvalidFilter_CopiesNothing_AndReleasesBusyLock()
+        {
+            File.WriteAllText(Path.Combine(Directory.CreateDirectory(Path.Combine(_source, "tree")).FullName, "b.txt"), "b");
+            var parser = new IOLinq.SyntaxParser();
+            // Same predicate as IOManager.FilterPredicate.
+            _panel.Filter = path => parser.Perform("ext ==", new IAbstractFileStructure[] { new FileStructure(path) }).Count > 0;
+            _dialogs.CopyAnswer = m => new CopyRequest { Destination = m.Destination, OnlyMatchingFilter = true };
+
+            await Assert.ThatAsync(() => _proxy.CopyFile(new[] { Msg(Path.Combine(_source, "tree")) }, Msg(_target)),
+                Throws.InstanceOf<InvalidDataException>());
+            Assert.That(Directory.Exists(Path.Combine(_target, "tree")), Is.False);
+
+            _panel.Filter = null;
+            _dialogs.CopyAnswer = null;
+            await _proxy.CopyFile(new[] { Msg(Path.Combine(_source, "tree")) }, Msg(_target));
+            Assert.That(File.ReadAllText(Path.Combine(_target, "tree", "b.txt")), Is.EqualTo("b"));
+        }
     }
 }

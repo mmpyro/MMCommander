@@ -221,6 +221,31 @@ namespace IOLibTest
             Assert.That(File.ReadAllText(Path.Combine(_src, "tree", "b.txt")), Is.EqualTo("b"));
         }
 
+        // A move must keep its source when part of it could not be read. The existing target folder
+        // forces the copy path (a free name would be a plain rename that never lists the folder).
+        [Test, UnsupportedOSPlatform("windows")]
+        public void Move_UnreadableSubfolder_KeepsSource()
+        {
+            Assume.That(OperatingSystem.IsWindows(), Is.False, "uses Unix permissions");
+            Write(_src, "tree/a.txt", "a");
+            Directory.CreateDirectory(Path.Combine(_dst, "tree"));
+            var locked = Directory.CreateDirectory(Path.Combine(_src, "tree", "locked")).FullName;
+            File.SetUnixFileMode(locked, UnixFileMode.None);
+            TransferResult result;
+            try
+            {
+                result = new TransferEngine(new TransferOptions()).Move(new[] { Path.Combine(_src, "tree") }, _dst);
+            }
+            finally
+            {
+                File.SetUnixFileMode(locked, UnixFileMode.UserRead | UnixFileMode.UserWrite | UnixFileMode.UserExecute);
+            }
+
+            Assert.That(result.Errors, Has.Count.EqualTo(1));
+            Assert.That(File.ReadAllText(Path.Combine(_src, "tree", "a.txt")), Is.EqualTo("a"), "source kept");
+            Assert.That(Directory.Exists(locked), Is.True, "unread folder kept");
+        }
+
         [Test, UnsupportedOSPlatform("windows")]
         public void Copy_UnreadableSubfolder_CopiesTheRest()
         {

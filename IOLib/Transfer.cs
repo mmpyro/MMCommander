@@ -167,7 +167,7 @@ namespace IOLib
                         // Falls back to copy + delete below.
                     }
                 }
-                Plan(src, target, r, plan, result, rootFailed);
+                Plan(src, target, r, false, plan, result, rootFailed);
             }
 
             long total = plan.Where(i => !i.IsDir && !i.IsLink).Sum(i => i.Size), done = 0;
@@ -217,13 +217,16 @@ namespace IOLib
             }
 
             if (move)
+            {
+                var planned = new HashSet<int>(plan.Select(i => i.Root));
                 for (int r = 0; r < roots.Count; r++)
-                    if (!rootFailed[r] && (File.Exists(roots[r]) || Directory.Exists(roots[r])) && plan.Any(i => i.Root == r))
+                    if (!rootFailed[r] && (File.Exists(roots[r]) || Directory.Exists(roots[r])) && planned.Contains(r))
                         DeleteSource(roots[r], result);
+            }
             return result;
         }
 
-        private void Plan(string src, string target, int root, List<Item> plan, TransferResult result, bool[] rootFailed)
+        private void Plan(string src, string target, int root, bool nested, List<Item> plan, TransferResult result, bool[] rootFailed)
         {
             var info = Directory.Exists(src) ? (FileSystemInfo)new DirectoryInfo(src) : new FileInfo(src);
             bool isLink = info.LinkTarget != null && !_options.FollowSymlinks;
@@ -244,11 +247,11 @@ namespace IOLib
                     return;
                 }
                 foreach (var child in children)
-                    Plan(child.FullName, Path.Combine(target, child.Name), root, plan, result, rootFailed);
+                    Plan(child.FullName, Path.Combine(target, child.Name), root, true, plan, result, rootFailed);
                 return;
             }
             // The include filter only applies inside folders; a marked file is always copied.
-            if (plan.Any(i => i.Root == root) && _options.Include != null && !_options.Include(src))
+            if (nested && _options.Include != null && !_options.Include(src))
                 return;
             plan.Add(new Item { Source = src, Target = target, IsLink = isLink, Size = isLink ? 0 : ((FileInfo)info).Length, Root = root });
         }
@@ -418,7 +421,7 @@ namespace IOLib
         private static bool SameVolume(string a, string b) =>
             string.Equals(Path.GetPathRoot(a), Path.GetPathRoot(b), StringComparison.OrdinalIgnoreCase);
 
-        private static bool IsSameOrInside(string path, string dir)
+        internal static bool IsSameOrInside(string path, string dir)
         {
             var relative = Path.GetRelativePath(dir, path);
             return relative == "." || !(relative == ".." || relative.StartsWith(".." + Path.DirectorySeparatorChar) || Path.IsPathRooted(relative));

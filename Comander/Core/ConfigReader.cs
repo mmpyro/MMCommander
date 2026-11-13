@@ -67,9 +67,17 @@ namespace Comander.Core
 
         private void ReadConfig()
         {
-            var serializer = new XmlSerializer(typeof (Configuration));
-            using var textReader = new StreamReader(File.Exists(_userPath) ? _userPath : _defaultPath);
-            _configuration = (Configuration)serializer.Deserialize(textReader);
+            _configuration = Load(File.Exists(_userPath) ? _userPath : _defaultPath);
+            // Programs belong to the shipped defaults; the copy saved in the user file must not freeze them.
+            if (File.Exists(_userPath))
+                _configuration.AppSection = Load(_defaultPath).AppSection;
+        }
+
+        private static Configuration Load(string path)
+        {
+            var serializer = new XmlSerializer(typeof(Configuration));
+            using var textReader = new StreamReader(path);
+            return (Configuration)serializer.Deserialize(textReader);
         }
 
         private void ReadShortCuts()

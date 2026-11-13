@@ -42,7 +42,7 @@ namespace IOLibTest
             Assert.That(File.ReadAllText(output), Is.EqualTo(string.Concat(Enumerable.Range(0, 11).Select(i => i + ";"))));
         }
 
-        // The Join window passes the first part ("movie__0"); the old [0-9]*$ strip left "movie__" and found nothing.
+        // The Join window passes the first part; parts keep the extension so movie.bin and movie.txt can't collide.
         [Test]
         public void Split_ThenJoinFromFirstPart_RestoresFile()
         {
@@ -52,9 +52,39 @@ namespace IOLibTest
             _manager.Split(_factory.CreateFileMsg(file), 4, FileSizeUnit.B, parts);
             var output = Path.Combine(_root, "joined.bin");
 
-            _manager.Join(parts, FileManager.PartBaseName(Path.Combine(parts, "movie__0")), output);
+            _manager.Join(parts, FileManager.PartBaseName(Path.Combine(parts, "movie.bin__0")), output);
 
             Assert.That(File.ReadAllText(output), Is.EqualTo("0123456789"));
+        }
+
+        // Parts used to drop the extension: movie.bin and movie.txt both wrote movie__0 and mixed their parts.
+        [Test]
+        public void Split_TwoFilesWithSameStem_BothJoinBack()
+        {
+            var bin = Path.Combine(_root, "movie.bin");
+            var txt = Path.Combine(_root, "movie.txt");
+            File.WriteAllText(bin, "BBBBBBBBBB");
+            File.WriteAllText(txt, "tttttttttttt");
+            var parts = Directory.CreateDirectory(Path.Combine(_root, "parts")).FullName;
+            _manager.Split(_factory.CreateFileMsg(bin), 4, FileSizeUnit.B, parts);
+            _manager.Split(_factory.CreateFileMsg(txt), 4, FileSizeUnit.B, parts);
+
+            _manager.Join(parts, "movie.bin", Path.Combine(_root, "bin.out"));
+            _manager.Join(parts, "movie.txt", Path.Combine(_root, "txt.out"));
+
+            Assert.That(File.ReadAllText(Path.Combine(_root, "bin.out")), Is.EqualTo("BBBBBBBBBB"));
+            Assert.That(File.ReadAllText(Path.Combine(_root, "txt.out")), Is.EqualTo("tttttttttttt"));
+        }
+
+        [Test]
+        public void Join_MissingPart_Throws_AndWritesNothing()
+        {
+            foreach (var i in new[] { 0, 1, 3 })
+                Write("movie__" + i, i + ";");
+            var output = Path.Combine(_root, "joined");
+
+            Assert.Throws<ArgumentException>(() => _manager.Join(_root, "movie", output));
+            Assert.That(File.Exists(output), Is.False);
         }
 
         // BUG-07: 3 GB overflowed int and the size check passed with a negative number.

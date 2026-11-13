@@ -26,18 +26,6 @@ namespace IOLibTest
         {
         }
 
-        public void Move(IAbstractFileStructure destinationDirectory)
-        {
-        }
-
-        public void Copy(IAbstractFileStructure destinationDirectory, Func<string, bool> allowOverride)
-        {
-        }
-
-        public void OverrideCopy(IAbstractFileStructure destinationDirectory)
-        {
-        }
-
         public void Rename(string newName)
         {
         }
@@ -47,10 +35,6 @@ namespace IOLibTest
             Size = size;
         }
 
-        public void Copy(IAbstractFileStructure destinationDirectory, Func<string, string, bool> allowOverride)
-        {
-            
-        }
     }
 
     [TestFixture]

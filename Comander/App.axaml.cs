@@ -69,7 +69,7 @@ namespace Comander
             settings.PropertyChanged += (_, _) => settings.Apply(Current);
             var fileFactory = new MetaDataFileFactory();
             var fileSystemManager = new FileSystemManager(new FileManager(fileFactory), new DriveManager(), new DirectoryManager(fileFactory), new FileNameComparer());
-            var syntaxParser = new SyntaxParser(fileFactory);
+            var syntaxParser = new SyntaxParser();
             var monitor = new StateMonitor();
             var dialogs = new DialogService(configReader);
             var jobs = new JobQueue(monitor);

@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Comander.Converters;
 using Comander.Core;
@@ -75,6 +76,7 @@ namespace Comander.ViewModel
         private int _modeIndex, _filterIndex;
         private bool _recursive, _isScanning;
         private string _planText = string.Empty;
+        private CancellationTokenSource _scan = new CancellationTokenSource();
 
         public CompareVM(string left, string right, JobQueue jobs, IDialogService dialogs, ILogger logger, Action refreshPanels)
         {
@@ -141,21 +143,31 @@ namespace Comander.ViewModel
 
         public async Task Rescan()
         {
+            // A newer scan (mode or recursive toggled) cancels this one; its late result must not win.
+            _scan.Cancel();
+            var scan = _scan = new CancellationTokenSource();
             IsScanning = true;
             try
             {
                 var mode = (CompareMode)_modeIndex;
-                var rows = await Task.Run(() => DirComparer.Compare(LeftPath, RightPath, mode, _recursive));
+                var recursive = _recursive;
+                var rows = await Task.Run(() => DirComparer.Compare(LeftPath, RightPath, mode, recursive, scan.Token));
+                if (scan != _scan) return;
                 _all = rows.Select(r => new CompareRowVM(r)).ToList();
+            }
+            catch (OperationCanceledException)
+            {
+                return;
             }
             catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
             {
+                if (scan != _scan) return;
                 _logger.Error("Cannot compare folders", ex);
                 _all = new List<CompareRowVM>();
             }
             finally
             {
-                IsScanning = false;
+                if (scan == _scan) IsScanning = false;
             }
             int diff = _all.Count(r => r.IsDifferent || r.Row.Kind is CompareKind.NewerLeft or CompareKind.NewerRight);
             Chips = new List<CompareChip>

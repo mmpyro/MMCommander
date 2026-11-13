@@ -28,7 +28,7 @@ namespace ComanderTest
         [Test]
         public void Size_ShowsDashForFolders()
         {
-            var dir = new DirMetaDataStructure(Path.GetTempPath(), null);
+            var dir = new DirMetaDataStructure(Path.GetTempPath());
             Assert.That(new FileSizeConverter().Convert(dir, typeof(string), null, CultureInfo.InvariantCulture), Is.EqualTo("—"));
         }
 

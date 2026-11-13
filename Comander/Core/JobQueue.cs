@@ -1,5 +1,5 @@
 using System;
-using System.Collections.ObjectModel;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
@@ -173,7 +173,7 @@ namespace Comander.Core
             _monitor = monitor;
         }
 
-        public ObservableCollection<TransferJob> Pending { get; } = new ObservableCollection<TransferJob>();
+        private readonly Queue<TransferJob> _pending = new Queue<TransferJob>();
 
         public TransferJob Current
         {
@@ -191,7 +191,7 @@ namespace Comander.Core
         {
             lock (_gate)
             {
-                Pending.Add(job);
+                _pending.Enqueue(job);
                 if (!_running)
                 {
                     _running = true;
@@ -208,14 +208,13 @@ namespace Comander.Core
                 TransferJob job;
                 lock (_gate)
                 {
-                    if (Pending.Count == 0)
+                    if (_pending.Count == 0)
                     {
                         _running = false;
                         Dispatcher.UIThread.Post(() => Current = null);
                         return;
                     }
-                    job = Pending[0];
-                    Pending.RemoveAt(0);
+                    job = _pending.Dequeue();
                 }
                 // Zip, split and friends share the lock; wait for them instead of failing.
                 bool entered;

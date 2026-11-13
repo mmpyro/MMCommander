@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using System.Text.RegularExpressions;
 using Comander.Core;
 using NUnit.Framework;
 
@@ -78,6 +79,17 @@ namespace ComanderTest
             Assert.That(loaded.DefaultPolicy, Is.EqualTo(IOLib.ConflictPolicy.KeepBoth));
             Assert.That(reread.KeyBindings["copy"], Is.EqualTo("F5"));
             AppSettings.Load(null);
+        }
+
+        // The user file used to keep its own copy of the programs, so editing the shipped Config.xml did nothing.
+        [Test]
+        public void UserConfig_DoesNotFreezePrograms()
+        {
+            new ConfigReader(new ShortcutManager(), _defaultPath, _userPath).SavePaths(_root, _root);
+            File.WriteAllText(_defaultPath, Regex.Replace(File.ReadAllText(_defaultPath), "(<Program name=\"notepad\"[^>]*>)[^<]*", "$1new-editor"));
+
+            var reread = new ConfigReader(new ShortcutManager(), _defaultPath, _userPath);
+            Assert.That(reread["notepad"].Value, Is.EqualTo("new-editor"));
         }
     }
 }

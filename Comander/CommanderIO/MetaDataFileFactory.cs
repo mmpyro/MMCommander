@@ -7,11 +7,6 @@ namespace Comander.CommanderIO
 {
     public class MetaDataFileFactory : IFileFactory
     {
-        public List<IAbstractFileStructure> CreateEmptyFileList()
-        {
-            return new List<IAbstractFileStructure>();
-        }
-
         public IAbstractFileStructure CreateFileMsg(string fullPath)
         {
             FileAttributes attr = File.GetAttributes(fullPath);
@@ -29,7 +24,7 @@ namespace Comander.CommanderIO
 
         public IAbstractFileStructure CreateFileMsg(DirectoryInfo directoryInfo)
         {
-            return new DirMetaDataStructure(directoryInfo, this);
+            return new DirMetaDataStructure(directoryInfo);
         }
 
         public IAbstractFileStructure CreateParentDirectoryMsg(DirectoryInfo directoryInfo)
@@ -39,7 +34,7 @@ namespace Comander.CommanderIO
 
         public IAbstractFileStructure GetDirectoryFromPath(string path)
         {
-            return new DirMetaDataStructure(new DirectoryInfo(path), this);
+            return new DirMetaDataStructure(new DirectoryInfo(path));
         }
     }
 }

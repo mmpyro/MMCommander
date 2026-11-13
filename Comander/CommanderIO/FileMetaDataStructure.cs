@@ -56,25 +56,6 @@ namespace Comander.CommanderIO
            _filestructure.Delete();
         }
 
-        public void Move(IAbstractFileStructure destinationDirectory)
-        {
-            if (destinationDirectory.IsDirectory)
-            {
-                string destFileName = Path.Combine(destinationDirectory.FullName, Name);
-                File.Move(FullName, destFileName);
-            }
-        }
-
-        public  void Copy(IAbstractFileStructure destinationDirectory, Func<string,string, bool> allowOverride)
-        {
-            _filestructure.Copy(destinationDirectory, allowOverride);  
-        }
-
-        public  void OverrideCopy(IAbstractFileStructure destinationDirectory)
-        {
-           _filestructure.OverrideCopy(destinationDirectory);
-        }
-
         public  void Rename(string newName)
         {
             string localization = FullName.Substring(0, FullName.Length - Name.Length);
