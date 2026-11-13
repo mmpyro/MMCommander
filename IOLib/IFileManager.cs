@@ -102,8 +102,8 @@ namespace IOLib
 
         public void CreateFile(string path)
         {
-            var stream = File.Create(path);
-            stream.Close();
+            // CreateNew: an existing file throws instead of being emptied.
+            using (new FileStream(path, FileMode.CreateNew)) { }
             File.SetAttributes(path, FileAttributes.Normal);
         }
 
@@ -131,6 +131,9 @@ namespace IOLib
 
             }
         }
+
+        // "movie__0" -> "movie": the name Join expects, from any part the user picked.
+        public static string PartBaseName(string partPath) => Regex.Replace(Path.GetFileName(partPath), @"__\d+$", "");
 
         /// <summary>
         /// Join file which was splited

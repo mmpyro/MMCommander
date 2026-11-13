@@ -171,5 +171,40 @@ namespace ComanderTest
 
             Assert.That(File.ReadAllText(Path.Combine(_target, "my.archive", "a.txt")), Is.EqualTo("new"));
         }
+
+        // Extract here used to overwrite existing files without asking.
+        [Test]
+        public async Task Unzip_Here_AsksBeforeOverwriting()
+        {
+            var archive = Path.Combine(_root, "pack.zip");
+            new ZipAdapter().CompressFiles(new ZipParameters(Path.Combine(_root, "pack"), ""), Path.Combine(_source, "a.txt"));
+            _panel.ActualPath = _target;
+            _dialogs.ConflictAnswer = new ConflictAnswer(ConflictDecision.Skip);
+            _dialogs.UnzipAnswer = new UnZipRequest { Parameters = new ZipParameters(archive, ""), ExtractType = ExtractType.Here };
+
+            await _proxy.UnZipFiles();
+
+            Assert.That(_dialogs.ConflictQuestions, Is.EqualTo(1));
+            Assert.That(File.ReadAllText(Path.Combine(_target, "a.txt")), Is.EqualTo("old"));
+            Assert.That(Directory.GetDirectories(_target, ".mmc-unzip-*"), Is.Empty);
+        }
+
+        // Zip used to replace an archive with the same name without asking.
+        [Test]
+        public async Task Zip_ExistingArchive_NotConfirmed_KeepsIt()
+        {
+            var existing = Path.Combine(_target, "out.zip");
+            File.WriteAllText(existing, "keep");
+            var file = Msg(Path.Combine(_source, "a.txt"));
+            file.PermanentSelect();
+            _panel.Files.Add(file);
+            _dialogs.ZipAnswer = new ZipParameters(Path.Combine(_target, "out"), "");
+            _dialogs.ConfirmAnswer = false;
+
+            await _proxy.ZipFiles();
+
+            Assert.That(_panel.Errors, Is.Empty, "the file was selected, so the confirm was reached");
+            Assert.That(File.ReadAllText(existing), Is.EqualTo("keep"));
+        }
     }
 }

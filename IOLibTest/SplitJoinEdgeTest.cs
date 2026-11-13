@@ -42,6 +42,21 @@ namespace IOLibTest
             Assert.That(File.ReadAllText(output), Is.EqualTo(string.Concat(Enumerable.Range(0, 11).Select(i => i + ";"))));
         }
 
+        // The Join window passes the first part ("movie__0"); the old [0-9]*$ strip left "movie__" and found nothing.
+        [Test]
+        public void Split_ThenJoinFromFirstPart_RestoresFile()
+        {
+            var file = Path.Combine(_root, "movie.bin");
+            File.WriteAllText(file, "0123456789");
+            var parts = Directory.CreateDirectory(Path.Combine(_root, "parts")).FullName;
+            _manager.Split(_factory.CreateFileMsg(file), 4, FileSizeUnit.B, parts);
+            var output = Path.Combine(_root, "joined.bin");
+
+            _manager.Join(parts, FileManager.PartBaseName(Path.Combine(parts, "movie__0")), output);
+
+            Assert.That(File.ReadAllText(output), Is.EqualTo("0123456789"));
+        }
+
         // BUG-07: 3 GB overflowed int and the size check passed with a negative number.
         [Test]
         public void Split_PartLargerThanFile_InGigabytes_Throws()

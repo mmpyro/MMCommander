@@ -1,7 +1,6 @@
 using System;
 using System.Collections.ObjectModel;
 using System.IO;
-using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows.Input;
 using Avalonia.Controls;
@@ -153,10 +152,7 @@ namespace Comander.ViewModel
                 try
                 {
                     FileManager fileManager = new FileManager(new FileFactory());
-                    Regex regex = new Regex(@"[0-9]*$");
-                    string fileName = Path.GetFileName(joinPath);
-                    fileName = regex.Replace(fileName, "");
-                    fileManager.Join(Path.GetDirectoryName(joinPath), fileName, Path.Combine(destinationPath, joinedFileName));
+                    fileManager.Join(Path.GetDirectoryName(joinPath), FileManager.PartBaseName(joinPath), Path.Combine(destinationPath, joinedFileName));
                     _logger.Info("Join was finished without errors.");
                 }
                 catch (Exception ex)

@@ -22,7 +22,9 @@ namespace ComanderTest
         public DeleteRequest DeleteAnswer { get; set; } = new DeleteRequest { Permanent = true };
         public DeleteDialogModel LastDelete { get; private set; }
 
-        public Task<bool> Confirm(string message) => Task.FromResult(true);
+        public bool ConfirmAnswer { get; set; } = true;
+        public Task<bool> Confirm(string message) => Task.FromResult(ConfirmAnswer);
+        public ZipParameters ZipAnswer { get; set; }
         public string TextAnswer { get; set; }
         public UnZipRequest UnzipAnswer { get; set; }
 
@@ -47,7 +49,7 @@ namespace ComanderTest
         }
 
         public void ShowProgress(TransferJob job) { }
-        public Task<ZipParameters> AskZip(string directory) => Task.FromResult<ZipParameters>(null);
+        public Task<ZipParameters> AskZip(string directory) => Task.FromResult(ZipAnswer);
         public Task<UnZipRequest> AskUnzip(IMetadataFileStructure archive) => Task.FromResult(UnzipAnswer);
         public Task<IReadOnlyList<string>> GetClipboardFiles() => Task.FromResult<IReadOnlyList<string>>(new List<string>());
         public Task SetClipboardFiles(IEnumerable<string> paths) => Task.CompletedTask;

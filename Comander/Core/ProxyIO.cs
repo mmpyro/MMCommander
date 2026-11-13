@@ -127,9 +127,9 @@ namespace Comander.Core
                 create(path);
                 _ioManager.LogDebug(debugMessage + path);
             }
-            catch
+            catch (Exception ex)
             {
-                _ioManager.LogError(errorMessage);
+                _ioManager.LogError(ex, errorMessage);
             }
             finally
             {
@@ -236,7 +236,12 @@ namespace Comander.Core
                 return;
             }
             var zipParameters = await _dialogs.AskZip(_ioManager.ActualPath);
-            if (zipParameters == null || !Enter())
+            if (zipParameters == null)
+                return;
+            var archive = ZipAdapter.ArchivePath(zipParameters);
+            if (File.Exists(archive) && !await _dialogs.Confirm(Path.GetFileName(archive) + " already exists. Replace it?"))
+                return;
+            if (!Enter())
                 return;
             _ioManager.Notify("Zip in progress...");
             bool encrypt = !string.IsNullOrEmpty(zipParameters.Password);
@@ -285,24 +290,42 @@ namespace Comander.Core
             if (request == null || !Enter())
                 return;
             var zipParameters = request.Parameters;
+            var target = request.ExtractType == ExtractType.Here
+                ? _ioManager.ActualPath
+                : Path.Combine(_ioManager.ActualPath, Path.GetFileNameWithoutExtension(zipParameters.ArchiveName));
+            // Extract into a temp folder on the same volume, then move in with the F5 conflict rules:
+            // nothing is overwritten without asking, and a failed extraction (wrong password) touches no existing file.
+            var temp = Path.Combine(_ioManager.ActualPath, ".mmc-unzip-" + Guid.NewGuid().ToString("N"));
             await RunBusy(() =>
             {
                 try
                 {
-                    var zipper = new ZipAdapter();
-                    if (request.ExtractType == ExtractType.Here)
-                        zipper.UnCompressFile(zipParameters, _ioManager.ActualPath);
-                    else
-                    {
-                        string extractionPath = Path.Combine(_ioManager.ActualPath, Path.GetFileNameWithoutExtension(zipParameters.ArchiveName));
-                        _fileManager.CreateDirectory(extractionPath);
-                        zipper.UnCompressFile(zipParameters, extractionPath);
-                    }
-                    _ioManager.LogInfo(string.Format("UnZip {0} was finished without errors.", _ioManager.ActualPath));
+                    new ZipAdapter().UnCompressFile(zipParameters, temp);
+                    _fileManager.CreateDirectory(target);
+                    var result = new TransferEngine(new TransferOptions(), c => _dialogs.AskConflict(c).GetAwaiter().GetResult())
+                        .Move(Directory.GetFileSystemEntries(temp), target);
+                    foreach (var error in result.Errors)
+                        _ioManager.LogError("Cannot unzip " + error);
+                    if (result.Cancelled)
+                        _ioManager.LogInfo("Unzip cancelled.");
+                    else if (result.Errors.Count == 0)
+                        _ioManager.LogInfo(string.Format("UnZip {0} was finished without errors.", target));
                 }
                 catch (Exception ex)
                 {
                     _ioManager.LogError(ex, "Unzip failed");
+                }
+                finally
+                {
+                    try
+                    {
+                        if (Directory.Exists(temp))
+                            Directory.Delete(temp, true);
+                    }
+                    catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+                    {
+                        _ioManager.LogError(ex, "Cannot remove " + temp);
+                    }
                 }
             });
         }

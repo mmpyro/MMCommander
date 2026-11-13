@@ -146,8 +146,15 @@ namespace IOLib
                     rootFailed[r] = true;
                     continue;
                 }
+                // Moving onto itself would copy over the source and then delete it.
+                if (move && target == Path.TrimEndingDirectorySeparator(src))
+                {
+                    result.Errors.Add(string.Format("{0} is already in {1}", src, dest));
+                    rootFailed[r] = true;
+                    continue;
+                }
                 // A plain rename is enough for a move to a free name on the same volume.
-                if (move && !File.Exists(target) && !Directory.Exists(target) && SameVolume(src, dest) && !string.Equals(src, target))
+                if (move && !File.Exists(target) && !Directory.Exists(target) && SameVolume(src, dest))
                 {
                     try
                     {
@@ -155,12 +162,12 @@ namespace IOLib
                         result.Copied++;
                         continue;
                     }
-                    catch (IOException)
+                    catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
                     {
                         // Falls back to copy + delete below.
                     }
                 }
-                Plan(src, target, r, plan);
+                Plan(src, target, r, plan, result, rootFailed);
             }
 
             long total = plan.Where(i => !i.IsDir && !i.IsLink).Sum(i => i.Size), done = 0;
@@ -216,7 +223,7 @@ namespace IOLib
             return result;
         }
 
-        private void Plan(string src, string target, int root, List<Item> plan)
+        private void Plan(string src, string target, int root, List<Item> plan, TransferResult result, bool[] rootFailed)
         {
             var info = Directory.Exists(src) ? (FileSystemInfo)new DirectoryInfo(src) : new FileInfo(src);
             bool isLink = info.LinkTarget != null && !_options.FollowSymlinks;
@@ -224,8 +231,20 @@ namespace IOLib
             {
                 plan.Add(new Item { Source = src, Target = target, IsDir = true, IsLink = isLink, Root = root });
                 if (isLink) return;
-                foreach (var child in dir.EnumerateFileSystemInfos())
-                    Plan(child.FullName, Path.Combine(target, child.Name), root, plan);
+                FileSystemInfo[] children;
+                try
+                {
+                    children = dir.GetFileSystemInfos();
+                }
+                catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+                {
+                    // One unreadable folder must not stop the rest; a move keeps its source.
+                    result.Errors.Add(string.Format("{0}: {1}", src, ex.Message));
+                    rootFailed[root] = true;
+                    return;
+                }
+                foreach (var child in children)
+                    Plan(child.FullName, Path.Combine(target, child.Name), root, plan, result, rootFailed);
                 return;
             }
             // The include filter only applies inside folders; a marked file is always copied.
