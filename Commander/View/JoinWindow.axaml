@@ -1,0 +1,35 @@
+<local:DialogWindow x:Class="Commander.View.JoinWindow"
+                    xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:local="clr-namespace:Commander.View"
+                    Title="Join file" Width="500" SizeToContent="Height">
+    <!-- Returns JoinFileDTO, or null on Cancel / Esc. -->
+    <StackPanel Margin="18" Spacing="14">
+        <StackPanel Spacing="4">
+            <TextBlock Classes="title" Text="Join file"/>
+            <TextBlock Classes="muted" Text="Rebuilds a file from its split parts"/>
+        </StackPanel>
+        <StackPanel Spacing="6">
+            <TextBlock Classes="muted" FontSize="12" Text="First part"/>
+            <Grid ColumnDefinitions="*,Auto" ColumnSpacing="6">
+                <TextBox Name="JoinPathTextBox" IsReadOnly="True" FontFamily="{DynamicResource Font.Mono}" FontSize="12"/>
+                <Button Grid.Column="1" Content="Browse…" Click="BrowseButton1_OnClick"/>
+            </Grid>
+        </StackPanel>
+        <StackPanel Spacing="6">
+            <TextBlock Classes="muted" FontSize="12" Text="File name (with extension)"/>
+            <TextBox Name="FileNameTextBox" FontFamily="{DynamicResource Font.Mono}" FontSize="12" TextChanged="FileNameTextBox_OnTextChanged"/>
+        </StackPanel>
+        <StackPanel Spacing="6">
+            <TextBlock Classes="muted" FontSize="12" Text="Destination"/>
+            <Grid ColumnDefinitions="*,Auto" ColumnSpacing="6">
+                <TextBox Name="PathTextBox" IsReadOnly="True" FontFamily="{DynamicResource Font.Mono}" FontSize="12"/>
+                <Button Grid.Column="1" Content="Browse…" Click="BrowseButton2_OnClick"/>
+            </Grid>
+        </StackPanel>
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Spacing="8">
+            <Button Classes="footer" Content="Cancel" Click="Cancel_OnClick"/>
+            <Button Name="ExecuteButton" Classes="footer accent" Content="Join" IsDefault="True" IsEnabled="False" Click="ExecuteButton_OnClick"/>
+        </StackPanel>
+    </StackPanel>
+</local:DialogWindow>

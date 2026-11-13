@@ -1,0 +1,25 @@
+<local:DialogWindow x:Class="Commander.View.UnZipWindow"
+                    xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:local="clr-namespace:Commander.View"
+                    Title="Extract archive" Width="440" SizeToContent="Height">
+    <!-- Returns UnZipRequest, or null on Cancel / Esc. The format is detected on extraction. -->
+    <StackPanel Margin="18" Spacing="14">
+        <StackPanel Spacing="4">
+            <TextBlock Classes="title" Text="Extract archive"/>
+            <TextBlock Name="ArchiveText" Classes="muted mono" TextTrimming="PrefixCharacterEllipsis"/>
+        </StackPanel>
+        <StackPanel Spacing="8">
+            <RadioButton Name="ExtractHereRadio" IsChecked="True" Content="Extract here" GroupName="target"/>
+            <RadioButton Name="ExtractDirRadio" GroupName="target"/>
+        </StackPanel>
+        <StackPanel Spacing="6">
+            <TextBlock Classes="muted" FontSize="12" Text="Password"/>
+            <TextBox Name="PasswordBox" PasswordChar="•" PlaceholderText="only for encrypted archives"/>
+        </StackPanel>
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Spacing="8">
+            <Button Classes="footer" Content="Cancel" Click="Cancel_OnClick"/>
+            <Button Name="ExecuteButton" Classes="footer accent" Content="Extract" IsDefault="True" Click="Execute_OnClick"/>
+        </StackPanel>
+    </StackPanel>
+</local:DialogWindow>

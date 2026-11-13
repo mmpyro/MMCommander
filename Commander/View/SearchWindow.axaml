@@ -1,0 +1,7 @@
+<local:DialogWindow x:Class="Search.SearchWindow"
+                    xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:local="clr-namespace:Commander.View"
+                    Title="Find files" Width="600" Height="520" WindowStartupLocation="CenterOwner">
+    <ContentControl Name="PageHost"/>
+</local:DialogWindow>

@@ -79,8 +79,8 @@ Each plugin goes in its own folder under `Plugins/` next to the app binary. **Th
 # published app (self-contained build)
 dotnet publish MyPlugin -c Release -o <app folder>/Plugins/MyPlugin
 
-# when you run from source with `dotnet run --project Comander`
-dotnet publish MyPlugin -c Release -o Comander/bin/Debug/net10.0/Plugins/MyPlugin
+# when you run from source with `dotnet run --project Commander`
+dotnet publish MyPlugin -c Release -o Commander/bin/Debug/net10.0/Plugins/MyPlugin
 ```
 
 Then restart the app. Plugins load only at startup.
@@ -88,7 +88,7 @@ Then restart the app. Plugins load only at startup.
 Installing the sample works the same way:
 
 ```sh
-dotnet publish SamplePlugins/Sha256Sums -c Release -o Comander/bin/Debug/net10.0/Plugins/Sha256Sums
+dotnet publish SamplePlugins/Sha256Sums -c Release -o Commander/bin/Debug/net10.0/Plugins/Sha256Sums
 ```
 
 A single `Plugins/MyPlugin.dll` with no folder also works, but only for a plugin with no dependencies of its own.
@@ -108,7 +108,7 @@ var response = await new MyPlugin().InvokeAsync(dir, new[] { file });
 Assert.That(response.Status, Is.EqualTo(OperationStatus.Success));
 ```
 
-`ComanderTest/SearchAndPluginTest.cs` (`Sha256Sums_*`) goes one step further. It installs the sample into a temp `Plugins/Sha256Sums/` folder, loads it with the real `PluginManager`, runs it, and checks `SHA256SUMS` against a known SHA-256 test vector.
+`CommanderTest/SearchAndPluginTest.cs` (`Sha256Sums_*`) goes one step further. It installs the sample into a temp `Plugins/Sha256Sums/` folder, loads it with the real `PluginManager`, runs it, and checks `SHA256SUMS` against a known SHA-256 test vector.
 
 ## Limits
 

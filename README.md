@@ -28,7 +28,7 @@ Download the archive for your system from [Releases](https://github.com/mmpyro/M
 | macOS (Apple silicon) | `MMCommander-<version>-osx-arm64.tar.gz` |
 
 1. Check the download: `sha256sum -c SHA256SUMS.txt --ignore-missing` (on macOS use `shasum -a 256` instead of `sha256sum`).
-2. Unpack the archive and run `Comander` (`Comander.exe` on Windows). Keep the folder together: the app reads `Config.xml`, `Commands.xml` and `Manuals/` from it.
+2. Unpack the archive and run `Commander` (`Commander.exe` on Windows). Keep the folder together: the app reads `Config.xml`, `Commands.xml` and `Manuals/` from it.
 3. On macOS the build is not notarized, so run `xattr -dr com.apple.quarantine <folder>` once before the first start.
 
 Each build is self-contained, so you don't need to install .NET. To build it yourself, see [Development](#development).
@@ -200,17 +200,17 @@ Put a .NET 10 class library in `Plugins/<Name>/` next to the binary, then press 
 You need the .NET SDK 10. `global.json` pins 10.0.403 and rolls forward to newer feature bands.
 
 ```sh
-dotnet run --project Comander          # start the app
-dotnet test MMComander.sln             # run all tests (about 210)
+dotnet run --project Commander          # start the app
+dotnet test MMCommander.sln             # run all tests (about 210)
 sh docs/make-screenshots.sh            # regenerate the images in docs/images (needs ffmpeg)
 ```
 
 Publish a self-contained single-file build:
 
 ```sh
-dotnet publish Comander -c Release -r osx-arm64 --self-contained -p:PublishSingleFile=true
-dotnet publish Comander -c Release -r win-x64   --self-contained -p:PublishSingleFile=true
-dotnet publish Comander -c Release -r linux-x64 --self-contained -p:PublishSingleFile=true
+dotnet publish Commander -c Release -r osx-arm64 --self-contained -p:PublishSingleFile=true
+dotnet publish Commander -c Release -r win-x64   --self-contained -p:PublishSingleFile=true
+dotnet publish Commander -c Release -r linux-x64 --self-contained -p:PublishSingleFile=true
 ```
 
 Keep `Config.xml`, `Commands.xml`, `Manuals/` and `Plugins/` next to the binary. The app reads them from `AppContext.BaseDirectory`, so it works from any working directory.
@@ -227,7 +227,7 @@ Design notes: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
 git tag v2.0.0 && git push origin v2.0.0
 ```
 
-The images in this README come from `ComanderTest/DocsScreenshots.cs`. It renders the real app headless, with a demo folder and a throwaway config.
+The images in this README come from `CommanderTest/DocsScreenshots.cs`. It renders the real app headless, with a demo folder and a throwaway config.
 
 ## Known limits
 
