@@ -68,25 +68,18 @@ namespace IOLib
         public FileType Type => FileType.Normal;
 
         public abstract void Delete();
-        public abstract void Move(IAbstractFileStructure destinationDirectory);
-        public abstract void Copy(IAbstractFileStructure destinationDirectory, Func<string,string, bool> allowOverride);
-        public abstract void OverrideCopy(IAbstractFileStructure destinationDirectory);
         public abstract void Rename(string newName);
     }
 
     public class DirStructure : DirAbstractStructure
     {
-        private readonly IFileFactory _fileFactory;
-
-        public DirStructure(string path, IFileFactory fileFactory)
+        public DirStructure(string path)
         {
-            _fileFactory = fileFactory;
             _fileInfo = new DirectoryInfo(path);
         }
 
-        public DirStructure(DirectoryInfo directoryInfo, IFileFactory fileFactory)
+        public DirStructure(DirectoryInfo directoryInfo)
         {
-            _fileFactory = fileFactory;
             _fileInfo = directoryInfo;
         }
 
@@ -99,39 +92,6 @@ namespace IOLib
         {
             ClearAttributes(FullName);
             Directory.Delete(FullName, true);
-        }
-
-        public override void Move(IAbstractFileStructure destinationDirectory)
-        {
-            string newPath = Path.Combine(destinationDirectory.FullName, Name);
-            Directory.Move(FullName, newPath);
-            Init(newPath);
-        }
-
-        // Each nested file goes through FileStructure.Copy, so allowOverride is asked for every conflict (BUG-01).
-        public override void Copy(IAbstractFileStructure destinationDirectory, Func<string,string, bool> allowOverride)
-        {
-            if (IsSameOrInside(destinationDirectory.FullName, FullName))
-                throw new IOException(string.Format("Cannot copy {0} into itself ({1})", FullName, destinationDirectory.FullName));
-            string destinationPath = Path.Combine(destinationDirectory.FullName, Name);
-            Directory.CreateDirectory(destinationPath);
-            var destination = _fileFactory.CreateFileMsg(destinationPath);
-            foreach (var file in Directory.GetFiles(FullName))
-                _fileFactory.CreateFileMsg(file).Copy(destination, allowOverride);
-            foreach (var dir in Directory.GetDirectories(FullName))
-                _fileFactory.CreateFileMsg(dir).Copy(destination, allowOverride);
-        }
-
-        public override void OverrideCopy(IAbstractFileStructure destinationDirectory)
-        {
-            Copy(destinationDirectory, (_, _) => true);
-        }
-
-        // BUG-16: true when path is dir itself or anywhere below it.
-        private static bool IsSameOrInside(string path, string dir)
-        {
-            var relative = Path.GetRelativePath(dir, path);
-            return relative == "." || !(relative == ".." || relative.StartsWith(".." + Path.DirectorySeparatorChar) || Path.IsPathRooted(relative));
         }
 
         public override void Rename(string newName)

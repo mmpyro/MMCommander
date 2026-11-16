@@ -1,0 +1,23 @@
+/* Landing hero and media frames. Material's own variables only, so light and dark both work. */
+.mmc-hero {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+.mmc-hero h1 {
+  margin-bottom: 0.4rem;
+  font-weight: 700;
+}
+.mmc-hero p.mmc-pitch {
+  font-size: 1.1rem;
+  color: var(--md-default-fg-color--light);
+}
+.md-typeset img,
+.md-typeset video {
+  max-width: 100%;
+  height: auto;
+  border-radius: 8px;
+  box-shadow: var(--md-shadow-z2);
+}
+.md-typeset figure {
+  max-width: 100%;
+}

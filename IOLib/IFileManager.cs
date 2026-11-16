@@ -17,7 +17,6 @@ namespace IOLib
     public interface IFileManager
     {
         void CreateFile(string path);
-        bool FileExist(string path);
         void Split(IAbstractFileStructure abstractFile, long partSize, FileSizeUnit unit, string destinationPath);
         void Join(string sourcePath, string fileName, string destinationFileName);
     }
@@ -37,42 +36,21 @@ namespace IOLib
             return checked(size*(long)unit);
         }
 
-        private int CreateBufferSize(FileSizeUnit unit)
-        {
-            switch (unit)
-            {
-                case FileSizeUnit.KB:
-                    return 10240;
-                case FileSizeUnit.MB:
-                    return 20*1024;
-                default:
-                    return 100;
-            }
-        }
-
-        private int CreateBufferSize(long fileSize)
-        {
-            if(fileSize > (int)FileSizeUnit.MB)
-                return 20 * 1024;
-            else if (fileSize > (int) FileSizeUnit.KB)
-                return 10240;
-            return 100;
-        }
+        private const int BufferSize = 81920;
 
         private void DevideFile(IAbstractFileStructure abstractFile, long size, FileSizeUnit unit, string destinationPath, int index)
         {
-            int BUFFER_SIZE = CreateBufferSize(unit);
-            byte[] buffer = new byte[BUFFER_SIZE];
+            byte[] buffer = new byte[BufferSize];
             long partSize = ConvertFileSize(size, unit);
             using (Stream input = File.OpenRead(abstractFile.FullName))
             {
                 input.Position = input.Seek(partSize*index, SeekOrigin.Begin);
-                using (Stream output = File.Create(Path.Combine(destinationPath, Path.GetFileNameWithoutExtension(abstractFile.Name) + "__" + index)))
+                using (Stream output = File.Create(Path.Combine(destinationPath, abstractFile.Name + "__" + index)))
                 {
                     long remaining = partSize;
                     int bytesRead;
                     while (remaining > 0 && (bytesRead = input.Read(buffer, 0,
-                            (int)Math.Min(remaining, BUFFER_SIZE))) > 0)
+                            (int)Math.Min(remaining, BufferSize))) > 0)
                     {
                         output.Write(buffer, 0, bytesRead);
                         remaining -= bytesRead;
@@ -81,35 +59,11 @@ namespace IOLib
             }
         }
 
-        private void JoinFile(string fullfileName,FileStream fileStream)
-        {
-            long partSize = new FileInfo(fullfileName).Length;
-            int BUFFER_SIZE = CreateBufferSize(partSize);
-            byte[] buffer = new byte[BUFFER_SIZE];
-            using (Stream input = File.OpenRead(fullfileName))
-            {
-                fileStream.Position = fileStream.Seek(fileStream.Length, SeekOrigin.Begin);
-                long remaining = partSize;
-                int bytesRead;
-                while (remaining > 0 && (bytesRead = input.Read(buffer, 0,
-                        (int)Math.Min(remaining, BUFFER_SIZE))) > 0)
-                {
-                    fileStream.Write(buffer, 0, bytesRead);
-                    remaining -= bytesRead;
-                }
-            }
-        }
-
         public void CreateFile(string path)
         {
-            var stream = File.Create(path);
-            stream.Close();
+            // CreateNew: an existing file throws instead of being emptied.
+            using (new FileStream(path, FileMode.CreateNew)) { }
             File.SetAttributes(path, FileAttributes.Normal);
-        }
-
-        public bool FileExist(string path)
-        {
-            return File.Exists(path);
         }
 
         /// <summary>
@@ -122,7 +76,7 @@ namespace IOLib
         {
             if (partSize <= 0 || ConvertFileSize(partSize, unit) >= abstractFile.Size)
             {
-                throw new ArgumentException("Split size can'AbstractFileStructure be grater than file size");
+                throw new ArgumentException("Split size must be smaller than the file size");
             }
             else
             {
@@ -131,6 +85,9 @@ namespace IOLib
 
             }
         }
+
+        // "movie.bin__0" -> "movie.bin": the name Join expects, from any part the user picked.
+        public static string PartBaseName(string partPath) => Regex.Replace(Path.GetFileName(partPath), @"__\d+$", "");
 
         /// <summary>
         /// Join file which was splited
@@ -145,16 +102,21 @@ namespace IOLib
             var parts = Directory.GetFiles(sourcePath)
                 .Select(path => (path, match: part.Match(Path.GetFileName(path))))
                 .Where(t => t.match.Success)
-                .OrderBy(t => long.Parse(t.match.Groups[1].Value))
-                .Select(t => t.path)
+                .Select(t => (t.path, index: long.Parse(t.match.Groups[1].Value)))
+                .OrderBy(t => t.index)
                 .ToList();
             if (parts.Count < 2)
                 throw new ArgumentException("Join need at least two files");
-            using (FileStream fileStream = File.Create(destinationFileName))
+            // A gap would silently produce a broken file.
+            for (int i = 0; i < parts.Count; i++)
+                if (parts[i].index != i)
+                    throw new ArgumentException(string.Format("Part {0}__{1} is missing", fileName, i));
+            using (FileStream output = File.Create(destinationFileName))
             {
-                foreach (string file in parts)
+                foreach (var file in parts)
                 {
-                    JoinFile(file, fileStream);
+                    using (var input = File.OpenRead(file.path))
+                        input.CopyTo(output);
                 }
             }
         }

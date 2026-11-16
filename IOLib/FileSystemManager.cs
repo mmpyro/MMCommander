@@ -6,15 +6,9 @@ namespace IOLib
     public interface IFileSystemManager
     {
         List<IAbstractFileStructure> GetAllStructures(string path);
-        List<IAbstractFileStructure> GetFilesFromPath(string path);
-        List<IAbstractFileStructure> GetDirectoriesFromPath(string path);
-        Task<List<IAbstractFileStructure>> GetFilesFromPathAsync(string path);
-        Task<List<IAbstractFileStructure>> GetDirectoriesFromPathAsync(string path);
         Task<List<IAbstractFileStructure>> GetAllStructuresAsync(string path);
         void CreateDirectory(string path);
         void CreateFile(string path);
-        void Split(IAbstractFileStructure abstractFile, long partSize, FileSizeUnit unit, string destinationPath);
-        void Join(string sourcePath, string fileName, string destinationFileName);
         IAbstractFileStructure GetDirFromPath(string path);
         IEnumerable<DriveStruct> GetDrives();
         DriveSpace GetSpace(string path);
@@ -53,26 +47,6 @@ namespace IOLib
             });
         }
 
-        public List<IAbstractFileStructure> GetFilesFromPath(string path)
-        {
-            return _directoryManager.GetFilesFromPath(path);
-        }
-
-        public List<IAbstractFileStructure> GetDirectoriesFromPath(string path)
-        {
-            return _directoryManager.GetDirectoriesFromPath(path);
-        }
-
-        public Task<List<IAbstractFileStructure>> GetFilesFromPathAsync(string path)
-        {
-            return _directoryManager.GetFilesFromPathAsync(path);
-        }
-
-        public Task<List<IAbstractFileStructure>> GetDirectoriesFromPathAsync(string path)
-        {
-            return _directoryManager.GetDirectoriesFromPathAsync(path);
-        }
-
         public void CreateDirectory(string path)
         {
             _directoryManager.CreateDirectory(path);
@@ -81,16 +55,6 @@ namespace IOLib
         public void CreateFile(string path)
         {
             _fileManager.CreateFile(path);
-        }
-
-        public void Split(IAbstractFileStructure abstractFile, long partSize, FileSizeUnit unit, string destinationPath)
-        {
-            _fileManager.Split(abstractFile, partSize, unit, destinationPath);
-        }
-
-        public void Join(string sourcePath, string fileName, string destinationFileName)
-        {
-            _fileManager.Join(sourcePath, fileName, destinationFileName);
         }
 
         public IAbstractFileStructure GetDirFromPath(string path)

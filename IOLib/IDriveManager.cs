@@ -24,10 +24,9 @@ namespace IOLib
             try
             {
                 var full = Path.GetFullPath(path);
-                var comparison = OperatingSystem.IsWindows() ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal;
-                // The deepest mount point that contains the path (e.g. /Volumes/USB before /).
+                // The deepest mount point that contains the path (e.g. /Volumes/USB before /, but not for /Volumes/USB2).
                 var drive = DriveInfo.GetDrives()
-                    .Where(d => d.IsReady && full.StartsWith(d.RootDirectory.FullName, comparison))
+                    .Where(d => d.IsReady && TransferEngine.IsSameOrInside(full, d.RootDirectory.FullName))
                     .OrderByDescending(d => d.RootDirectory.FullName.Length)
                     .FirstOrDefault();
                 return drive == null ? null : new DriveSpace(drive.AvailableFreeSpace, drive.TotalSize, drive.Name, Label(drive));

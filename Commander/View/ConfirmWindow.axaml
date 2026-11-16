@@ -1,0 +1,21 @@
+<local:DialogWindow x:Class="Commander.View.ConfirmWindow"
+                    xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:local="clr-namespace:Commander.View"
+                    Title="Confirm" Width="420" SizeToContent="Height">
+    <!-- Yes/no question: Enter = OK (true), Esc = Cancel (false). -->
+    <StackPanel Margin="18" Spacing="14">
+        <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12">
+            <Path Classes="icon" Width="22" Height="22" VerticalAlignment="Top" Data="{StaticResource Icon.Warning}"
+                  TextElement.Foreground="{DynamicResource Brush.Warning}"/>
+            <StackPanel Grid.Column="1" Spacing="4">
+                <TextBlock Classes="title" Text="Please confirm"/>
+                <TextBlock Name="InfoTextBlock" Classes="muted" TextWrapping="Wrap"/>
+            </StackPanel>
+        </Grid>
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Spacing="8">
+            <Button Classes="footer" Content="Cancel" IsCancel="True" Click="CancelButton_OnClick"/>
+            <Button Name="AcceptButton" Classes="footer accent" Content="OK" IsDefault="True" Click="AcceptButton_OnClick"/>
+        </StackPanel>
+    </StackPanel>
+</local:DialogWindow>

@@ -43,7 +43,7 @@ jobs:
       - name: Publish
         shell: bash
         run: >
-          dotnet publish Comander -c Release -r ${{ matrix.rid }} --self-contained
+          dotnet publish Commander -c Release -r ${{ matrix.rid }} --self-contained
           -p:PublishSingleFile=true -p:Version=$VERSION -p:DebugType=None
           -o "out/$PKG"
 
@@ -93,7 +93,7 @@ jobs:
           | Linux (x64) | `*-linux-x64.tar.gz` |
           | macOS (Apple silicon) | `*-osx-arm64.tar.gz` |
 
-          Unpack the archive and run `Comander` (`Comander.exe` on Windows). Keep the folder together: the app reads `Config.xml`, `Commands.xml` and `Manuals/` from it.
+          Unpack the archive and run `Commander` (`Commander.exe` on Windows). Keep the folder together: the app reads `Config.xml`, `Commands.xml` and `Manuals/` from it.
 
           Verify the download: `sha256sum -c SHA256SUMS.txt --ignore-missing` (macOS: `shasum -a 256 -c SHA256SUMS.txt --ignore-missing`).
 

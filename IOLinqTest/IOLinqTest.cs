@@ -4,7 +4,6 @@ using System.Diagnostics;
 using System.Linq;
 using IOLib;
 using IOLinq;
-using Moq;
 using NUnit.Framework;
 
 namespace IOLinqTest
@@ -16,7 +15,6 @@ namespace IOLinqTest
         private string[] _exts;
         private string[][] _parameters;
         private FileFakeCreator _fileFakeCreator;
-        private readonly Mock<IFileFactory> _mock = new Mock<IFileFactory>();
         private SyntaxParser _parser;
 
         [OneTimeSetUp]
@@ -26,8 +24,7 @@ namespace IOLinqTest
             _exts = new string[] { "txt", "exe", "pdf", "xml", "html", "js" };
             _parameters = (from name in _names join ext in _exts on 1 equals 1 select new string[] { name, ext }).ToArray();
             _fileFakeCreator = new FileFakeCreator();
-            _mock.Setup(t => t.CreateEmptyFileList()).Returns(new List<IAbstractFileStructure>());
-            _parser = new SyntaxParser(_mock.Object);
+            _parser = new SyntaxParser();
         }
 
         [TestCase("exe")]
@@ -83,7 +80,6 @@ namespace IOLinqTest
         }
 
         [TestCase("File", 18)]
-        [TestCase("#$^&&*^*", 0)]
         [TestCase("wasd562f", 6)]
         public void FilterByName(string value, int count)
         {
@@ -108,6 +104,17 @@ namespace IOLinqTest
             Assert.That(result.Count, Is.EqualTo(count));
         }
 
+        // An invalid filter used to return an empty list, so the panel looked empty with no error.
+        [TestCase("ext ==")]
+        [TestCase("name == aa &")]
+        [TestCase("nonsense")]
+        [TestCase("name == #$^&&*^*")]
+        public void InvalidSyntax_Throws(string value)
+        {
+            var list = _fileFakeCreator.CreateFiles(_parameters).ToArray();
+            Assert.Throws<System.IO.InvalidDataException>(() => _parser.Perform(value, list));
+        }
+
         [TestCase("name == aa & ext == pdf", 1)]
         [TestCase("name == aa | ext == pdf", 11)]
         [TestCase("name == aa & ext != pdf", 5)]
@@ -130,7 +137,7 @@ namespace IOLinqTest
         public void Perform_InParallel_GivesSameResultAsSerial()
         {
             var files = _fileFakeCreator.CreateFiles(_parameters).ToArray();
-            var queries = new[] { "ext == js", "ext -> (xml, html)", "ext != js", "ext == exe || ext == pdf" };
+            var queries = new[] { "ext == js", "ext -> (xml, html)", "ext != js", "ext == exe | ext == pdf" };
             var expected = queries.Select(q => _parser.Perform(q, files).Count).ToArray();
             var results = new System.Collections.Concurrent.ConcurrentBag<(int query, int count)>();
             System.Threading.Tasks.Parallel.For(0, 400, new System.Threading.Tasks.ParallelOptions { MaxDegreeOfParallelism = 8 },
