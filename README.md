@@ -28,8 +28,12 @@ Download the archive for your system from [Releases](https://github.com/mmpyro/M
 | macOS (Apple silicon) | `MMCommander-<version>-osx-arm64.tar.gz` |
 
 1. Check the download: `sha256sum -c SHA256SUMS.txt --ignore-missing` (on macOS use `shasum -a 256` instead of `sha256sum`).
-2. Unpack the archive and run `Comander` (`Comander.exe` on Windows). Keep the folder together: the app reads `Config.xml`, `Commands.xml` and `Manuals/` from it.
-3. On macOS the build is not notarized, so run `xattr -dr com.apple.quarantine <folder>` once before the first start.
+2. Unpack the archive. Keep the folder together: the app reads `Config.xml`, `Commands.xml` and `Manuals/` from it.
+3. **macOS only:** the build is not signed or notarized, so a browser download is blocked with *"Apple could not verify "Comander" is free of malware"*. Clear the download flag once before the first start:
+   ```sh
+   xattr -dr com.apple.quarantine ~/Downloads/MMCommander-<version>-osx-arm64
+   ```
+4. Run `Comander` from a terminal (`Comander.exe` on Windows). On Windows, SmartScreen may show *"Windows protected your PC"*: choose **More info → Run anyway**.
 
 Each build is self-contained, so you don't need to install .NET. To build it yourself, see [Development](#development).
 
