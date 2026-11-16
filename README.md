@@ -13,6 +13,7 @@ Built on .NET 10, Avalonia 12 and CommunityToolkit.Mvvm. Released under the [MIT
 - **Filter language.** For example `ext -> (png, pdf) & name like report`. [→ Filter](#filter)
 - **Thumbnail view** for image folders. [→ Thumbnails](#thumbnails)
 - **Compare and synchronize directories.** [→ Compare](#compare-directories)
+- **Compare files** side by side, edit both sides and save. [→ Compare files](#compare-files)
 - **Archives.** Create zip (optionally AES-256), tar.gz and tar.bz2; extract 7z, rar and more. [→ Archives](#archives)
 - **Themes and shortcuts.** Choose Dark or Black (OLED), five accent colours, and rebind any key. [→ Settings](#settings-and-themes)
 - **Plugins** written as plain .NET class libraries. [→ Plugins](#plugins)
@@ -86,6 +87,26 @@ The view switch on the toolbar (the list and grid icons) shows the active panel 
 
 **Shift+F2** compares the two panels by name, size and date, or by content. It can include subfolders. The window shows what exists only on one side, what is newer, and what is identical. **Synchronize…** copies the differences in the direction of the arrows.
 
+### Compare files
+
+**Shift+F3** compares two files line by line. If two files are marked in the active panel, it compares those. Otherwise it compares the file under the cursor in the left panel with the one in the right panel. Changed lines are aligned side by side, and the exact characters that differ are highlighted.
+
+You can also edit the files in this window. Nothing is written until you press **Save**.
+
+| Key | Action |
+|---|---|
+| F7 / Shift+F7 | Next / previous difference |
+| Tab | Switch between the left and right side |
+| Alt+Right / Alt+Left | Copy the difference under the cursor to the right / left |
+| Enter or F2, or double-click | Edit the line. While editing, Enter splits the line, Backspace at the start joins it with the line above, and Up/Down move to the next line |
+| Ctrl+Y | Delete the line |
+| Ctrl+Z | Undo |
+| Ctrl+S | Save the changed files. If a file changed on disk in the meantime, it asks first |
+| F5 | Read both files again |
+
+- **Line endings and encoding are kept:** if you save a file without changing it, the bytes are the same as before.
+- **Binary files:** if either file is not text (or is over 20 MB), the window shows a read-only hex comparison. It counts the differing bytes and lists the first 4 MB.
+
 ### Settings and themes
 
 | Settings → Appearance | Black (OLED) theme, teal accent |
@@ -127,6 +148,7 @@ The keys work in the focused file panel.
 | Alt+Left | Back | Alt+Right | Forward |
 | Ctrl+Tab | Next tab | Ctrl+L | Type a path |
 | Ctrl+K | Command palette | Shift+F2 | Compare directories |
+| Shift+F3 | Compare files | | |
 
 On macOS every Ctrl shortcut also works with ⌘, except Ctrl+H and Ctrl+Tab. Help → Keyboard shortcuts opens the list in Settings, where you can change any key. You can also add a key in the user `Config.xml`:
 
@@ -183,7 +205,7 @@ In `Config.xml`, each space-separated token in `args` is one argument, and `{pat
 <Program name="notepad" os="osx" args="-t {path}">open</Program>
 ```
 
-In `Commands.xml`, `{s}` is the file selected in the left panel and `{d}` the file selected in the right one:
+In `Commands.xml`, `{s}` is the file selected in the left panel and `{d}` the file selected in the right one. For example, to use an external diff tool instead of the built-in one ([Shift+F3](#compare-files)):
 
 ```xml
 <Command name="Compare Files"><Parameter>kdiff3 -args {s} {d}</Parameter></Command>

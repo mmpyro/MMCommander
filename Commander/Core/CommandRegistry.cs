@@ -107,6 +107,7 @@ namespace Commander.Core
             P("plugins", "Plugins…", Tools, p => p.PluginCommand, "Ctrl+P"),
             A("search", "Search files…", Tools, vm => vm.SearchCommand),
             A("compare", "Compare directories", Tools, vm => vm.CompareDirCommand, "Shift+F2"),
+            A("diff", "Compare files", Tools, vm => vm.CompareFilesCommand, "Shift+F3"),
             A("sync", "Synchronize directories", Tools, vm => vm.SyncDirsCommand),
             A("split", "Split file…", Tools, vm => vm.SplitFileCommand),
             A("join", "Join files…", Tools, vm => vm.JoinFileCommand),

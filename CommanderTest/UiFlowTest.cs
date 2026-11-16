@@ -671,6 +671,205 @@ namespace CommanderTest
         }
     
         [AvaloniaTest]
+        public void ShiftF3_FileDiff_ShowsDifferences_EditsAndSaves()
+        {
+            File.WriteAllText(Path.Combine(_dest, "file.txt"), "hallo\nextra\n");
+            Open(_root, _dest);
+            ClickRow(2, "file.txt");
+            ClickRow(1, "file.txt");
+            Key(Avalonia.Input.Key.F3, RawInputModifiers.Shift);
+            var window = Dialog<FileDiffWindow>();
+            var vm = (Commander.ViewModel.FileDiffVM)window.DataContext;
+            PumpUntil(() => vm.Rows.Count > 0);
+            ShotOf(window, "file-diff");
+            Assert.That(vm.Rows.Select(r => r.Kind), Is.EqualTo(new[] { IOLib.DiffKind.Changed, IOLib.DiffKind.OnlyRight }));
+            Assert.That(vm.Rows[0].LeftSpans, Is.EqualTo(new[] { (1, 1) }), "only the differing letter is highlighted");
+            var line = window.GetVisualDescendants().OfType<Commander.Controls.DiffLine>().First(l => l.Line == "hello");
+            Assert.That(((Avalonia.Controls.Documents.Run)line.Inlines[1]).Background, Is.Not.Null, "the differing letter has a background");
+
+            void Press(Key key, RawInputModifiers mods = RawInputModifiers.None)
+            {
+                window.KeyPress(key, mods, PhysicalKey.None, null);
+                window.KeyRelease(key, mods, PhysicalKey.None, null);
+                Pump();
+            }
+
+            // Edit the left line in place, then undo it.
+            Press(Avalonia.Input.Key.Enter);
+            Assert.That(vm.IsEditing, Is.True);
+            window.KeyTextInput("!");
+            Pump();
+            Press(Avalonia.Input.Key.Escape);
+            Assert.That(vm.IsEditing, Is.False);
+            Assert.That(window.IsVisible, Is.True, "Esc while editing ends the edit, not the window");
+            Assert.That(vm.Rows[0].Left, Is.EqualTo("hello!"));
+            Press(Avalonia.Input.Key.Z, RawInputModifiers.Control);
+            Assert.That(vm.Rows[0].Left, Is.EqualTo("hello"));
+
+            // Copy the difference to the right and save.
+            Press(Avalonia.Input.Key.Right, RawInputModifiers.Alt);
+            Press(Avalonia.Input.Key.S, RawInputModifiers.Control);
+            PumpUntil(() => !vm.HasChanges);
+            Assert.That(File.ReadAllText(Path.Combine(_dest, "file.txt")), Is.EqualTo("hello\n"));
+            Assert.That(File.ReadAllText(Path.Combine(_root, "file.txt")), Is.EqualTo("hello"), "the left file is untouched");
+            window.Close();
+        }
+
+        private static void PressIn(Window window, Key key, RawInputModifiers mods = RawInputModifiers.None)
+        {
+            window.KeyPress(key, mods, PhysicalKey.None, null);
+            window.KeyRelease(key, mods, PhysicalKey.None, null);
+            Pump();
+        }
+
+        private (FileDiffWindow Window, Commander.ViewModel.FileDiffVM Vm) OpenFileDiff()
+        {
+            Key(Avalonia.Input.Key.F3, RawInputModifiers.Shift);
+            var window = (FileDiffWindow)Dialog<FileDiffWindow>();
+            var vm = (Commander.ViewModel.FileDiffVM)window.DataContext;
+            PumpUntil(() => vm.Rows.Count > 0);
+            return (window, vm);
+        }
+
+        [AvaloniaTest] // T16
+        public void ShiftF3_TwoMarkedFiles_ComparesThoseTwo()
+        {
+            Open(_root, _dest);
+            ClickRow(1, "file.txt");
+            Key(Avalonia.Input.Key.S);
+            ClickRow(1, "notes.md");
+            Key(Avalonia.Input.Key.S);
+            var (window, vm) = OpenFileDiff();
+            Assert.That(vm.LeftPath, Is.EqualTo(Path.Combine(_root, "file.txt")));
+            Assert.That(vm.RightPath, Is.EqualTo(Path.Combine(_root, "notes.md")));
+            window.Close();
+        }
+
+        [AvaloniaTest] // T17
+        public void ShiftF3_SameFileInBothPanels_LogsAnError_AndOpensNothing()
+        {
+            Open(_root, _root);
+            ClickRow(2, "file.txt");
+            ClickRow(1, "file.txt");
+            Key(Avalonia.Input.Key.F3, RawInputModifiers.Shift);
+            PumpUntil(() => _vm.LogsCollection.Any(l => l.Message.Contains("Compare files")));
+            Assert.That(_vm.LogsCollection.Any(l => l.Message.Contains("Compare files")), Is.True, "error logged");
+            Assert.That(_window.OwnedWindows.OfType<FileDiffWindow>(), Is.Empty);
+        }
+
+        [AvaloniaTest] // T18
+        public void ShiftF3_OneMarkedFile_ComparesTheCursorFiles()
+        {
+            File.WriteAllText(Path.Combine(_dest, "file.txt"), "hallo");
+            Open(_root, _dest);
+            ClickRow(2, "file.txt");
+            ClickRow(1, "notes.md");
+            Key(Avalonia.Input.Key.S);
+            ClickRow(1, "file.txt");
+            var (window, vm) = OpenFileDiff();
+            Assert.That(vm.LeftPath, Is.EqualTo(Path.Combine(_root, "file.txt")));
+            Assert.That(vm.RightPath, Is.EqualTo(Path.Combine(_dest, "file.txt")));
+            window.Close();
+        }
+
+        [AvaloniaTest] // T30
+        public void FileDiff_CloseWithUnsavedEdit_Asks_NoKeepsItOpen_YesDiscards()
+        {
+            File.WriteAllText(Path.Combine(_dest, "file.txt"), "hallo");
+            Open(_root, _dest);
+            ClickRow(2, "file.txt");
+            ClickRow(1, "file.txt");
+            var (window, vm) = OpenFileDiff();
+            PressIn(window, Avalonia.Input.Key.Enter);
+            window.KeyTextInput("!");
+            Pump();
+            PressIn(window, Avalonia.Input.Key.Escape);
+            Assert.That(vm.HasChanges, Is.True);
+
+            window.Close();
+            Answer<ConfirmWindow>(Avalonia.Input.Key.Escape);
+            Assert.That(window.IsVisible, Is.True, "No keeps the window and the edit");
+            Assert.That(vm.HasChanges, Is.True);
+
+            window.Close();
+            Answer<ConfirmWindow>(Avalonia.Input.Key.Enter);
+            PumpUntil(() => !window.IsVisible);
+            Assert.That(window.IsVisible, Is.False);
+            Assert.That(File.ReadAllText(Path.Combine(_root, "file.txt")), Is.EqualTo("hello"), "nothing saved");
+        }
+
+        [AvaloniaTest] // T31
+        public void FileDiff_EditingKeys_JoinSplitDownTabUndoEsc()
+        {
+            File.WriteAllText(Path.Combine(_root, "a.txt"), "one\ntwo\nthree\n");
+            File.WriteAllText(Path.Combine(_dest, "a.txt"), "one\nTWO\nthree\n");
+            Open(_root, _dest);
+            ClickRow(2, "a.txt");
+            ClickRow(1, "a.txt");
+            var (window, vm) = OpenFileDiff();
+            Assert.That(vm.CursorIndex, Is.EqualTo(1), "starts on the difference");
+            string LeftText() => string.Join("|", vm.Rows.Where(r => r.LeftNo >= 0).Select(r => r.Left));
+
+            PressIn(window, Avalonia.Input.Key.F2);
+            Assert.That(vm.IsEditing, Is.True, "F2 edits");
+            PressIn(window, Avalonia.Input.Key.Home);
+            PressIn(window, Avalonia.Input.Key.Back);
+            Assert.That(LeftText(), Is.EqualTo("onetwo|three"), "Backspace at the start joins");
+            PressIn(window, Avalonia.Input.Key.Enter);
+            Assert.That(LeftText(), Is.EqualTo("one|two|three"), "Enter splits at the caret");
+            PressIn(window, Avalonia.Input.Key.Down);
+            Assert.That(vm.IsEditing, Is.True, "Down keeps editing");
+            Assert.That(vm.Current.LeftNo, Is.EqualTo(2));
+            PressIn(window, Avalonia.Input.Key.Escape);
+            Assert.That(vm.IsEditing, Is.False);
+            Assert.That(window.IsVisible, Is.True);
+
+            PressIn(window, Avalonia.Input.Key.Tab);
+            Assert.That(vm.ActiveSide, Is.EqualTo(1), "Tab switches side");
+            PressIn(window, Avalonia.Input.Key.Z, RawInputModifiers.Meta);
+            Assert.That(LeftText(), Is.EqualTo("onetwo|three"), "Cmd+Z undoes the split");
+            PressIn(window, Avalonia.Input.Key.Z, RawInputModifiers.Control);
+            Assert.That(LeftText(), Is.EqualTo("one|two|three"));
+            Assert.That(vm.HasChanges, Is.False);
+
+            // No KeyRelease: Esc closes the window on the press.
+            window.KeyPress(Avalonia.Input.Key.Escape, RawInputModifiers.None, PhysicalKey.None, null);
+            PumpUntil(() => !window.IsVisible);
+            Assert.That(window.IsVisible, Is.False, "Esc when not editing closes");
+        }
+
+        [AvaloniaTest] // T32
+        public void FileDiff_ClickOnTheRightHalf_EditsTheRightSide()
+        {
+            File.WriteAllText(Path.Combine(_dest, "file.txt"), "hallo");
+            Open(_root, _dest);
+            ClickRow(2, "file.txt");
+            ClickRow(1, "file.txt");
+            var (window, vm) = OpenFileDiff();
+            var list = window.FindControl<ListBox>("RowList");
+            var row = (Control)list.ContainerFromIndex(0);
+            var p = row.TranslatePoint(new Point(row.Bounds.Width * 0.75, row.Bounds.Height / 2), window).Value;
+            window.MouseDown(p, MouseButton.Left);
+            window.MouseUp(p, MouseButton.Left);
+            Pump();
+            Assert.That(vm.ActiveSide, Is.EqualTo(1));
+            PressIn(window, Avalonia.Input.Key.F2);
+            Assert.That(vm.Current.IsEditingRight, Is.True);
+            PressIn(window, Avalonia.Input.Key.Escape);
+            window.Close();
+        }
+
+        [AvaloniaTest]
+        public void ShiftF3_OnAFolder_LogsAnError_AndOpensNothing()
+        {
+            Open(_root, _dest);
+            ClickRow(1, "child");
+            Key(Avalonia.Input.Key.F3, RawInputModifiers.Shift);
+            Pump();
+            Assert.That(_window.OwnedWindows.OfType<FileDiffWindow>(), Is.Empty);
+        }
+
+        [AvaloniaTest]
         public void Settings_AccentAppliesLive_ShortcutRecording_AndCancelReverts()
         {
             Open(_root, _dest);

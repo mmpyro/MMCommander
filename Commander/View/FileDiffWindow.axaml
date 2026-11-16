@@ -1,0 +1,105 @@
+<local:DialogWindow x:Class="Commander.View.FileDiffWindow"
+                    xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:local="clr-namespace:Commander.View"
+                    xmlns:controls="clr-namespace:Commander.Controls"
+                    Width="1100" Height="700" MinWidth="640" MinHeight="360">
+    <!-- DataContext is a ViewModel.FileDiffVM. Keys are handled in FileDiffWindow.axaml.cs. -->
+    <Window.Styles>
+        <Style Selector="ListBox#RowList ListBoxItem">
+            <Setter Property="Padding" Value="0"/>
+            <Setter Property="MinHeight" Value="0"/>
+        </Style>
+        <Style Selector="Grid.row.changed"><Setter Property="Background" Value="{DynamicResource Brush.Compare.DiffBg}"/></Style>
+        <Style Selector="Grid.row.onlyLeft"><Setter Property="Background" Value="{DynamicResource Brush.Compare.LeftRow}"/></Style>
+        <Style Selector="Grid.row.onlyRight"><Setter Property="Background" Value="{DynamicResource Brush.Compare.RightRow}"/></Style>
+        <Style Selector="Border.filler"><Setter Property="Background" Value="{DynamicResource Brush.Bg.Base}"/></Style>
+        <Style Selector="Border.cursor"><Setter Property="Background" Value="Transparent"/></Style>
+        <Style Selector="ListBoxItem:selected Border.cursor"><Setter Property="Background" Value="{DynamicResource Brush.Accent}"/></Style>
+        <Style Selector="TextBox.lineEdit">
+            <Setter Property="MinHeight" Value="0"/>
+            <Setter Property="Height" Value="22"/>
+            <Setter Property="Padding" Value="4,0"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+        </Style>
+        <Style Selector="TextBlock.side.active">
+            <Setter Property="Foreground" Value="{DynamicResource Brush.Accent}"/>
+        </Style>
+    </Window.Styles>
+    <DockPanel Margin="18">
+        <!-- Title + actions -->
+        <DockPanel DockPanel.Dock="Top" Margin="0,0,0,12">
+            <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" Spacing="6" VerticalAlignment="Center">
+                <Button Content="↑ Prev" ToolTip.Tip="Previous difference (Shift+F7)" Command="{Binding PrevDiffCommand}"/>
+                <Button Content="↓ Next" ToolTip.Tip="Next difference (F7)" Command="{Binding NextDiffCommand}"/>
+                <Button Content="← Copy" ToolTip.Tip="Copy this difference to the left (Alt+Left)" Command="{Binding CopyToLeftCommand}"/>
+                <Button Content="Copy →" ToolTip.Tip="Copy this difference to the right (Alt+Right)" Command="{Binding CopyToRightCommand}"/>
+                <Button Content="Undo" ToolTip.Tip="Ctrl+Z" Command="{Binding UndoCommand}"/>
+                <Button Content="Reload" ToolTip.Tip="Read both files again (F5)" Command="{Binding ReloadCommand}"/>
+                <Button Content="Save" Classes="accent" ToolTip.Tip="Save changed files (Ctrl+S)" Command="{Binding SaveCommand}"/>
+            </StackPanel>
+            <StackPanel Orientation="Horizontal" Spacing="14" VerticalAlignment="Center">
+                <TextBlock Classes="title" Text="Compare files" VerticalAlignment="Center"/>
+                <TextBlock Name="StatusText" Classes="secondary" Text="{Binding Status}" VerticalAlignment="Center"/>
+            </StackPanel>
+        </DockPanel>
+        <!-- Footer -->
+        <DockPanel DockPanel.Dock="Bottom" Margin="0,12,0,0">
+            <Button Name="CloseButton" DockPanel.Dock="Right" Classes="footer" Content="Close"/>
+            <TextBlock Classes="muted" FontSize="12" VerticalAlignment="Center" TextTrimming="CharacterEllipsis"
+                       Text="F7 next · Tab side · Enter edit line · Alt+←/→ copy · Ctrl+Y delete line · Ctrl+Z undo · Ctrl+S save"/>
+        </DockPanel>
+        <!-- One horizontal scroll for both sides -->
+        <ScrollBar DockPanel.Dock="Bottom" Orientation="Horizontal" AllowAutoHide="False" Margin="0,4,0,0"
+                   Minimum="0" Maximum="{Binding ScrollMax}" ViewportSize="400" SmallChange="20" LargeChange="200"
+                   Value="{Binding HOffset, Mode=TwoWay}"/>
+        <!-- Paths header -->
+        <Grid DockPanel.Dock="Top" ColumnDefinitions="*,*" Margin="0,0,0,6">
+            <DockPanel>
+                <TextBlock DockPanel.Dock="Left" Classes="muted side" Classes.active="{Binding IsLeftActive}" FontSize="11" FontWeight="SemiBold" Margin="12,0,8,0" Text="LEFT" VerticalAlignment="Center"/>
+                <TextBlock DockPanel.Dock="Right" Classes="warn" Text="modified" Margin="8,0" IsVisible="{Binding LeftDirty}" VerticalAlignment="Center"/>
+                <TextBlock Classes="mono secondary" Text="{Binding LeftPath}" TextTrimming="PrefixCharacterEllipsis" ToolTip.Tip="{Binding LeftPath}"/>
+            </DockPanel>
+            <DockPanel Grid.Column="1">
+                <TextBlock DockPanel.Dock="Left" Classes="muted side" Classes.active="{Binding IsRightActive}" FontSize="11" FontWeight="SemiBold" Margin="12,0,8,0" Text="RIGHT" VerticalAlignment="Center"/>
+                <TextBlock DockPanel.Dock="Right" Classes="warn" Text="modified" Margin="8,0" IsVisible="{Binding RightDirty}" VerticalAlignment="Center"/>
+                <TextBlock Classes="mono secondary" Text="{Binding RightPath}" TextTrimming="PrefixCharacterEllipsis" ToolTip.Tip="{Binding RightPath}"/>
+            </DockPanel>
+        </Grid>
+        <Border Background="{DynamicResource Brush.Bg.Pane}" BorderBrush="{DynamicResource Brush.Border.Subtle}" BorderThickness="1" CornerRadius="{DynamicResource Radius.Pane}" ClipToBounds="True">
+            <Panel>
+                <ListBox Name="RowList" ItemsSource="{Binding Rows}" SelectedIndex="{Binding CursorIndex, Mode=TwoWay}" Background="Transparent"
+                         ScrollViewer.HorizontalScrollBarVisibility="Disabled" controls:DiffLine.Offset="{Binding HOffset}">
+                    <ListBox.ItemTemplate>
+                        <DataTemplate>
+                            <Grid Classes="row" Classes.changed="{Binding IsChanged}" Classes.onlyLeft="{Binding IsOnlyLeft}" Classes.onlyRight="{Binding IsOnlyRight}"
+                                  ColumnDefinitions="3,64,*,1,64,*" Height="22">
+                                <Border Classes="cursor"/>
+                                <TextBlock Grid.Column="1" Classes="mono muted" Margin="0,0,10,0" HorizontalAlignment="Right" VerticalAlignment="Center" Text="{Binding LeftLabel, Mode=OneWay}"/>
+                                <Border Grid.Column="2" ClipToBounds="True" Classes.filler="{Binding IsLeftFiller}">
+                                    <Panel>
+                                        <Canvas IsVisible="{Binding !IsEditingLeft}">
+                                            <controls:DiffLine Classes="mono" Canvas.Top="3" SpanBrush="{DynamicResource Brush.Compare.LeftSpan}" Line="{Binding Left, Mode=OneWay}" Spans="{Binding LeftSpans, Mode=OneWay}"/>
+                                        </Canvas>
+                                        <TextBox Classes="mono lineEdit" Text="{Binding EditText, Mode=TwoWay}" IsVisible="{Binding IsEditingLeft}"/>
+                                    </Panel>
+                                </Border>
+                                <Border Grid.Column="3" Background="{DynamicResource Brush.Border.Subtle}"/>
+                                <TextBlock Grid.Column="4" Classes="mono muted" Margin="0,0,10,0" HorizontalAlignment="Right" VerticalAlignment="Center" Text="{Binding RightLabel, Mode=OneWay}"/>
+                                <Border Grid.Column="5" ClipToBounds="True" Classes.filler="{Binding IsRightFiller}">
+                                    <Panel>
+                                        <Canvas IsVisible="{Binding !IsEditingRight}">
+                                            <controls:DiffLine Classes="mono" Canvas.Top="3" SpanBrush="{DynamicResource Brush.Compare.RightSpan}" Line="{Binding Right, Mode=OneWay}" Spans="{Binding RightSpans, Mode=OneWay}"/>
+                                        </Canvas>
+                                        <TextBox Classes="mono lineEdit" Text="{Binding EditText, Mode=TwoWay}" IsVisible="{Binding IsEditingRight}"/>
+                                    </Panel>
+                                </Border>
+                            </Grid>
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+                </ListBox>
+                <TextBlock Classes="muted" Text="Comparing…" HorizontalAlignment="Center" VerticalAlignment="Center" IsVisible="{Binding IsLoading}"/>
+            </Panel>
+        </Border>
+    </DockPanel>
+</local:DialogWindow>

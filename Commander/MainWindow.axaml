@@ -157,6 +157,7 @@
                         <MenuItem Header="Command palette…" InputGesture="{Binding KeyMap[palette]}" Command="{Binding Palette.OpenCommand}"/>
                         <MenuItem Header="Search…" Command="{Binding SearchCommand}"/>
                         <MenuItem Header="Compare directories" InputGesture="{Binding KeyMap[compare]}" Command="{Binding CompareDirCommand}"/>
+                        <MenuItem Header="Compare files" InputGesture="{Binding KeyMap[diff]}" Command="{Binding CompareFilesCommand}"/>
                         <MenuItem Header="Synchronize directories…" Command="{Binding SyncDirsCommand}"/>
                         <MenuItem Header="Terminal here" InputGesture="{Binding KeyMap[terminal]}" Command="{Binding ActivePanel.ConsoleRunCommand}"/>
                         <MenuItem Header="Open" InputGesture="{Binding KeyMap[open]}" Command="{Binding ActivePanel.RunFileCommand}"/>

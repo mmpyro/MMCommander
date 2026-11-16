@@ -84,6 +84,7 @@ namespace CommanderTest
                 ["Info"] = () => new InfoWindow(file),
                 ["Plugin"] = () => new PluginWindow(new NullPluginManager(), "/tmp", new string[0], logger),
                 ["Search"] = () => new Search.SearchWindow(null, logger),
+                ["FileDiff"] = () => new FileDiffWindow(new Commander.ViewModel.FileDiffVM(file.FullName, Path.Combine(AppContext.BaseDirectory, "Commands.xml"), null, logger, null)),
             };
             foreach (var (name, create) in windows)
                 ShowAndCapture(create(), name);

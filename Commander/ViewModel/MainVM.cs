@@ -60,6 +60,7 @@ namespace Commander.ViewModel
             ReadLogsCommand = new RelayCommand(() => Shell.Open(Path.Combine(Path.GetTempPath(), "mmcommander")));
             ClearLogCommand = new RelayCommand(ClearLog);
             CompareDirCommand = new RelayCommand(() => CompareDirectories(false));
+            CompareFilesCommand = new RelayCommand(CompareFiles);
             SettingsCommand = new AsyncRelayCommand(() => ShowSettings(0));
             SyncDirsCommand = new RelayCommand(() => CompareDirectories(true));
             AboutCommand = new AsyncRelayCommand(() => WindowHost.ShowDialog(() => new AboutWindow(_assemblyVersionResolver.GetProductVersion(GetType()))));
@@ -96,6 +97,21 @@ namespace Commander.ViewModel
         {
             var vm = new CompareVM(_io1.ActualPath, _io2.ActualPath, Jobs, _dialogs, _logger, () => { _io1.FilterFiles(); _io2.FilterFiles(); });
             WindowHost.Show(() => new CompareDirsWindow(vm, sync));
+        }
+
+        // Like Total Commander: two marked files in the active pane, else the file under each pane's cursor.
+        private void CompareFiles()
+        {
+            var marked = ActivePanel.SelectedFiles();
+            var (left, right) = marked.Count == 2 ? (marked[0], marked[1]) : (_io1.SelectedFile, _io2.SelectedFile);
+            bool IsFile(IMetadataFileStructure f) => f != null && !f.IsDirectory && f.Name != "..";
+            if (!IsFile(left) || !IsFile(right) || left.FullName == right.FullName)
+            {
+                _logger.Error("Compare files: put the cursor on a file in each pane, or mark two files");
+                return;
+            }
+            var vm = new FileDiffVM(left.FullName, right.FullName, _dialogs, _logger, () => { _io1.FilterFiles(); _io2.FilterFiles(); });
+            WindowHost.Show(() => new FileDiffWindow(vm));
         }
 
         // Loggers raise this from any thread; the collection is bound to the UI.
@@ -196,6 +212,7 @@ namespace Commander.ViewModel
         public ICommand SplitFileCommand { get; set; }
         public ICommand JoinFileCommand { get; set; }
         public ICommand CompareDirCommand { get; set; }
+        public ICommand CompareFilesCommand { get; set; }
         public ICommand SyncDirsCommand { get; set; }
         public ICommand SettingsCommand { get; set; }
         public ICommand AboutCommand { get; set; }

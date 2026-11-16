@@ -37,6 +37,7 @@ Shared build settings are in `Directory.Build.props`: net10.0, `LangVersion late
 | `StateMonitor` (`IStateMonitor`) | A single busy lock shared by both panels |
 | `ConfigReader` | Default config next to the binary, user config in app data |
 | `MetaDataFileFactory` | Turns paths into `IMetadataFileStructure` (a file or a folder, decided by file attributes) |
+| `FileDiffVM` → `View/FileDiffWindow` | Compare files (Shift+F3). `IOLib/TextDiff` makes the aligned line diff (lines unique on both sides are anchors, as in patience diff; Myers aligns the gaps between them) and the in-line character spans (Myers). `IOLib/TextDoc` loads a file as lines, so that saving an untouched file writes the same bytes back. Every edit is a line replace, followed by a full re-diff. Binary files get a read-only hex view |
 
 ## Threading
 
@@ -72,7 +73,7 @@ How to write, install and test a plugin: [PLUGINS.md](PLUGINS.md). The sample is
 
 | Project | Covers |
 |---|---|
-| IOLibTest | Copy/move/delete/rename, folder copy conflicts, copy-into-self, split/join (one `[Explicit]` 2.2 GB test), search, factory |
+| IOLibTest | Copy/move/delete/rename, folder copy conflicts, copy-into-self, split/join (one `[Explicit]` 2.2 GB test), search, factory, text diff and the byte-exact `TextDoc` round trip |
 | IOLinqTest | Filter language, and parallel `Perform` |
 | ZipLibTest | Every format round-trips, AES, zip-slip rejection |
 | CommanderTest | `ProxyIO` with fake dialogs and panel, `ConfigReader`, zip password rules, `LogMsg`, search VM, plugin loading, and a headless render of every window |

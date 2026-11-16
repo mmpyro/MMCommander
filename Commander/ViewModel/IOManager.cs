@@ -20,7 +20,7 @@ namespace Commander.ViewModel
     {
         #region Methods
         // Marked files, or the file under the cursor when nothing is marked (like Total Commander).
-        private List<IMetadataFileStructure> SelectedFiles()
+        public List<IMetadataFileStructure> SelectedFiles()
         {
             var marked = _files.Where(t => t.IsSelected()).ToList();
             if (marked.Count == 0 && SelectedFile != null && SelectedFile.Name != "..")

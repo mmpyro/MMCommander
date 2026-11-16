@@ -49,6 +49,9 @@
             <SolidColorBrush x:Key="Brush.Compare.DiffBg" Color="#2A2E36"/>
             <SolidColorBrush x:Key="Brush.Compare.LeftRow" Color="#0D5B9DFF"/>
             <SolidColorBrush x:Key="Brush.Compare.RightRow" Color="#0FF0A04B"/>
+            <!-- Differing characters inside a changed line (compare files). -->
+            <SolidColorBrush x:Key="Brush.Compare.LeftSpan" Color="#805B9DFF"/>
+            <SolidColorBrush x:Key="Brush.Compare.RightSpan" Color="#80F0A04B"/>
             <SolidColorBrush x:Key="Brush.Success" Color="#5CCB8F"/>
             <SolidColorBrush x:Key="Brush.Warning" Color="#F5C894"/>
             <SolidColorBrush x:Key="Brush.Warning.Bg" Color="#2A2016"/>
