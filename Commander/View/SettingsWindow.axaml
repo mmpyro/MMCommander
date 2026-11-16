@@ -66,6 +66,7 @@
                     <ListBoxItem><TextBlock Text="Appearance"/></ListBoxItem>
                     <ListBoxItem><TextBlock Text="Keyboard"/></ListBoxItem>
                     <ListBoxItem><TextBlock Text="File operations"/></ListBoxItem>
+                    <ListBoxItem><TextBlock Text="Tools"/></ListBoxItem>
                 </ListBox>
             </StackPanel>
         </Border>
@@ -275,6 +276,31 @@
                     </ListBox>
                 </StackPanel>
                 <CheckBox Content="Ask before moving files to the Trash (F8)" IsChecked="{Binding AskBeforeTrash}"/>
+            </StackPanel>
+
+            <!-- Tools -->
+            <StackPanel Spacing="18" IsVisible="{Binding IsTools}">
+                <TextBlock Classes="title" Text="Tools"/>
+                <StackPanel>
+                    <TextBlock Classes="label" Text="Text editor (F4)"/>
+                    <Grid ColumnDefinitions="*,180,Auto" ColumnSpacing="8">
+                        <TextBox Name="EditorCommand" FontFamily="{DynamicResource Font.Mono}" Text="{Binding Settings.EditorCommand}" PlaceholderText="{Binding EditorPlaceholder}"/>
+                        <ComboBox Grid.Column="1" Name="EditorPresets" PlaceholderText="Presets" HorizontalAlignment="Stretch"
+                                  ItemsSource="{Binding EditorPresets}" SelectedItem="{Binding SelectedEditorPreset}" DisplayMemberBinding="{Binding Key}"/>
+                        <Button Grid.Column="2" Classes="footer" Content="Reset" Command="{Binding ClearToolCommand}" CommandParameter="editor"/>
+                    </Grid>
+                </StackPanel>
+                <StackPanel>
+                    <TextBlock Classes="label" Text="Terminal (F9)"/>
+                    <Grid ColumnDefinitions="*,180,Auto" ColumnSpacing="8">
+                        <TextBox Name="TerminalCommand" FontFamily="{DynamicResource Font.Mono}" Text="{Binding Settings.TerminalCommand}" PlaceholderText="{Binding TerminalPlaceholder}"/>
+                        <ComboBox Grid.Column="1" Name="TerminalPresets" PlaceholderText="Presets" HorizontalAlignment="Stretch"
+                                  ItemsSource="{Binding TerminalPresets}" SelectedItem="{Binding SelectedTerminalPreset}" DisplayMemberBinding="{Binding Key}"/>
+                        <Button Grid.Column="2" Classes="footer" Content="Reset" Command="{Binding ClearToolCommand}" CommandParameter="terminal"/>
+                    </Grid>
+                </StackPanel>
+                <TextBlock Classes="hint" TextWrapping="Wrap"
+                           Text="{}{path} is the file (F4) or the panel folder (F9). Put quotes around a program path with spaces. Empty uses the default shown in grey."/>
             </StackPanel>
         </Panel>
     </DockPanel>

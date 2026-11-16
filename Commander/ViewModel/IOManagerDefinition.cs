@@ -79,7 +79,7 @@ namespace Commander.ViewModel
             EnterIntoDirCommand = new RelayCommand(EnterIntoDir);
             RunFileCommand = new RelayCommand(() => _proxy.Run(SelectedFile));
             RunAsAdminCommand = new RelayCommand(() => _proxy.RunAsAdmin(SelectedFile));
-            NotepadCommand = new RelayCommand(() => Shell.Run(_configReader["notepad"], SelectedFile.FullName, ActualPath));
+            NotepadCommand = new RelayCommand(() => Shell.TryRun(Shell.Resolve(AppSettings.Current.EditorCommand, Shell.EditorDefault(_configReader)), SelectedFile.FullName, ActualPath, _logger));
             AddShortCutsCommand = new RelayCommand(() => _shortcutManager.Add(ActualPath));
             
             RefreshDriveCommand = new RelayCommand(() =>
@@ -111,7 +111,7 @@ namespace Commander.ViewModel
             MoveCommand = new AsyncRelayCommand(() => _proxy.MoveFile(SelectedFiles(), SeccondManagerCurrentDir), concurrent);
             ShowSortcutsCommand = new AsyncRelayCommand(ShowShortcutsWindow);
             HistoryCommand = new AsyncRelayCommand(ShowHistory);
-            ConsoleRunCommand = new RelayCommand(() => Shell.Run(_configReader["cmd"], ActualPath, ActualPath));
+            ConsoleRunCommand = new RelayCommand(() => Shell.TryRun(Shell.Resolve(AppSettings.Current.TerminalCommand, Shell.TerminalDefault(_configReader)), ActualPath, ActualPath, _logger));
             InfoCommand = new RelayCommand(() => WindowHost.Show(() => new InfoWindow(SelectedFile)));
             RenameCommand = new AsyncRelayCommand(() => _proxy.RenameFile(SelectedFile));
             UnZipCommand = new AsyncRelayCommand(_proxy.UnZipFiles);

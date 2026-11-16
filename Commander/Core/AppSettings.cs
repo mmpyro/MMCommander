@@ -36,6 +36,8 @@ namespace Commander.Core
         private bool _colorIcons = true;
         private bool _separateExt = true;
         private ConflictPolicy _defaultPolicy = ConflictPolicy.Ask;
+        private string _editorCommand = "";
+        private string _terminalCommand = "";
 
         public ThemeChoice Theme { get => _theme; set => SetProperty(ref _theme, value); }
         public string Accent { get => _accent; set => SetProperty(ref _accent, Accents.Contains(value) ? value : Accents[0]); }
@@ -52,6 +54,9 @@ namespace Commander.Core
         // On: "name" + "ext" columns. Off: full file name, no Ext column.
         public bool SeparateExt { get => _separateExt; set => SetProperty(ref _separateExt, value); }
         public ConflictPolicy DefaultPolicy { get => _defaultPolicy; set => SetProperty(ref _defaultPolicy, value); }
+        // Command lines such as `code {path}`; empty means the platform default (Shell.EditorDefault / TerminalDefault).
+        public string EditorCommand { get => _editorCommand; set => SetProperty(ref _editorCommand, value ?? ""); }
+        public string TerminalCommand { get => _terminalCommand; set => SetProperty(ref _terminalCommand, value ?? ""); }
 
         public double RowHeight => _comfortable ? 34 : 28;
 
@@ -69,6 +74,8 @@ namespace Commander.Core
             ("appearance.colorIcons", s => Bool(s.ColorIcons), (s, v) => s.ColorIcons = v != "false"),
             ("appearance.separateExt", s => Bool(s.SeparateExt), (s, v) => s.SeparateExt = v != "false"),
             ("fileops.defaultPolicy", s => s.DefaultPolicy.ToString(), (s, v) => s.DefaultPolicy = Enum.TryParse(v, out ConflictPolicy p) ? p : ConflictPolicy.Ask),
+            ("tools.editor", s => s.EditorCommand, (s, v) => s.EditorCommand = v),
+            ("tools.terminal", s => s.TerminalCommand, (s, v) => s.TerminalCommand = v),
         };
 
         private static string Bool(bool b) => b ? "true" : "false";

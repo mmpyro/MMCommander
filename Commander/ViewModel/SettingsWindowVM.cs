@@ -95,6 +95,7 @@ namespace Commander.ViewModel
             ResetPresetCommand = new RelayCommand(() => ApplyPreset(_preset));
             ToggleChangedCommand = new RelayCommand(() => ChangedOnly = !ChangedOnly);
             ResetDefaultsCommand = new RelayCommand(() => Settings.CopyFrom(new AppSettings()));
+            ClearToolCommand = new RelayCommand<string>(tool => { if (tool == "editor") Settings.EditorCommand = ""; else Settings.TerminalCommand = ""; });
             BuildGroups();
         }
 
@@ -107,8 +108,9 @@ namespace Commander.ViewModel
         public RelayCommand ResetPresetCommand { get; }
         public RelayCommand ToggleChangedCommand { get; }
         public RelayCommand ResetDefaultsCommand { get; }
+        public RelayCommand<string> ClearToolCommand { get; }
 
-        // 0 Appearance, 1 Keyboard, 2 File operations.
+        // 0 Appearance, 1 Keyboard, 2 File operations, 3 Tools.
         public int Section
         {
             get => _section;
@@ -118,12 +120,59 @@ namespace Commander.ViewModel
                 OnPropertyChanged(nameof(IsAppearance));
                 OnPropertyChanged(nameof(IsKeyboard));
                 OnPropertyChanged(nameof(IsFileOps));
+                OnPropertyChanged(nameof(IsTools));
             }
         }
 
         public bool IsAppearance => _section == 0;
         public bool IsKeyboard => _section == 1;
         public bool IsFileOps => _section == 2;
+        public bool IsTools => _section == 3;
+
+        // ---- Tools ----
+
+        // (name, OSes it exists on, command line); an empty OS list means every OS.
+        private static readonly (string name, string os, string line)[] Editors =
+        {
+            ("VS Code", "", "code {path}"),
+            ("Sublime Text", "", "subl {path}"),
+            ("Notepad++", "windows", "\"C:\\Program Files\\Notepad++\\notepad++.exe\" {path}"),
+            ("Vim in a terminal", "linux", "x-terminal-emulator -e vim {path}"),
+        };
+
+        private static readonly (string name, string os, string line)[] Terminals =
+        {
+            ("Terminal", "osx", "open -a Terminal {path}"),
+            ("iTerm2", "osx", "open -a iTerm {path}"),
+            ("Windows Terminal", "windows", "wt -d {path}"),
+            ("GNOME Terminal", "linux", "gnome-terminal --working-directory={path}"),
+            ("Konsole", "linux", "konsole --workdir {path}"),
+            ("Alacritty", "osx,linux", "alacritty --working-directory {path}"),
+            ("kitty", "osx,linux", "kitty --directory {path}"),
+        };
+
+        private static List<KeyValuePair<string, string>> ForThisOs((string name, string os, string line)[] presets) =>
+            presets.Where(p => p.os == "" || p.os.Split(',').Any(OperatingSystem.IsOSPlatform))
+                .Select(p => new KeyValuePair<string, string>(p.name, p.line)).ToList();
+
+        public List<KeyValuePair<string, string>> EditorPresets { get; } = ForThisOs(Editors);
+        public List<KeyValuePair<string, string>> TerminalPresets { get; } = ForThisOs(Terminals);
+
+        // Picking a preset fills the text box, then the combo goes back to its placeholder.
+        public KeyValuePair<string, string>? SelectedEditorPreset
+        {
+            get => null;
+            set { if (value != null) Settings.EditorCommand = value.Value.Value; OnPropertyChanged(); }
+        }
+
+        public KeyValuePair<string, string>? SelectedTerminalPreset
+        {
+            get => null;
+            set { if (value != null) Settings.TerminalCommand = value.Value.Value; OnPropertyChanged(); }
+        }
+
+        public string EditorPlaceholder => _config == null ? "" : Shell.Describe(Shell.EditorDefault(_config));
+        public string TerminalPlaceholder => _config == null ? "" : Shell.Describe(Shell.TerminalDefault(_config));
 
         public int ThemeIndex { get => (int)Settings.Theme; set => Settings.Theme = (ThemeChoice)Math.Max(0, value); }
         public int DensityIndex { get => Settings.Comfortable ? 1 : 0; set => Settings.Comfortable = value == 1; }

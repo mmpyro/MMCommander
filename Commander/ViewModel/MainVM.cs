@@ -139,7 +139,7 @@ namespace Commander.ViewModel
             }
         }
 
-        // 0 Appearance, 1 Keyboard, 2 File operations (SettingsWindowVM.Section).
+        // 0 Appearance, 1 Keyboard, 2 File operations, 3 Tools (SettingsWindowVM.Section).
         private Task ShowSettings(int section) => WindowHost.ShowDialog(() =>
             new SettingsWindow(new SettingsWindowVM(KeyMap, _configReader) { Section = section }));
 

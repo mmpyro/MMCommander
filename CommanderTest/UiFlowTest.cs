@@ -903,6 +903,36 @@ namespace CommanderTest
         }
     
         [AvaloniaTest]
+        public void Settings_ToolsPage_PresetFillsCommand_ResetClears_CancelReverts()
+        {
+            Open(_root, _dest);
+            var before = AppSettings.Current.TerminalCommand;
+            _vm.SettingsCommand.Execute(null);
+            var window = (SettingsWindow)Dialog<SettingsWindow>();
+            var vm = (Commander.ViewModel.SettingsWindowVM)window.DataContext;
+            vm.Section = 3;
+            Pump();
+            Assert.That(vm.IsTools, Is.True);
+            Assert.That(vm.TerminalPlaceholder, Is.Not.Empty, "shows the platform default");
+            Assert.That(vm.TerminalPresets, Is.Not.Empty);
+
+            vm.SelectedTerminalPreset = vm.TerminalPresets[0];
+            Pump();
+            var box = window.FindControl<TextBox>("TerminalCommand");
+            Assert.That(box.Text, Is.EqualTo(vm.TerminalPresets[0].Value), "a preset fills the text box");
+            ShotOf(window, "settings-tools");
+
+            vm.ClearToolCommand.Execute("terminal");
+            Pump();
+            Assert.That(AppSettings.Current.TerminalCommand, Is.Empty, "Reset goes back to the default");
+
+            vm.SelectedTerminalPreset = vm.TerminalPresets[0];
+            window.Close();   // never Done: it writes the real Config.xml
+            Pump();
+            Assert.That(AppSettings.Current.TerminalCommand, Is.EqualTo(before), "closing without Done reverts");
+        }
+
+        [AvaloniaTest]
         public void HelpKeyboardShortcuts_OpensSettingsOnKeyboardPage()
         {
             Open(_root, _dest);

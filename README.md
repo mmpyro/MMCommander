@@ -199,7 +199,19 @@ Extraction refuses entries that would land outside the target folder (zip-slip).
 | `Commands.xml` | next to the binary | External commands for the Commands menu |
 | logs | NLog, see `LogLib/NLog.config` | 10 MB per file, 7 archives |
 
-In `Config.xml`, each space-separated token in `args` is one argument, and `{path}` becomes the selected file, so paths with spaces stay intact:
+### Editor and terminal
+
+To pick the editor (F4) and terminal (F9), go to Settings → Tools. Type a command line such as `code {path}`, or pick a preset. `{path}` becomes the selected file (F4) or the panel folder (F9). Put a program path with spaces in quotes: `"C:\Program Files\Notepad++\notepad++.exe" {path}`. The values are saved in the user `Config.xml`, so an update keeps them. Reset (an empty box) goes back to the default:
+
+| OS | Editor (F4) | Terminal (F9) |
+|---|---|---|
+| Windows | `notepad.exe` | `cmd.exe` |
+| macOS | the default text editor (`open -t`) | Terminal |
+| Linux | `$VISUAL`, then `$EDITOR`, then `xdg-open`. A terminal editor (`vim`, `nano`, …) opens in `x-terminal-emulator` | `x-terminal-emulator` |
+
+If the program cannot start, the log shows "Cannot start '…'".
+
+The defaults come from the shipped `Config.xml`. Each space-separated token in `args` is one argument, and `{path}` stays one argument even with spaces:
 
 ```xml
 <Program name="notepad" os="osx" args="-t {path}">open</Program>
