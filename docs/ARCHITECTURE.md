@@ -14,16 +14,16 @@ Sample: SamplePlugins/Sha256Sums (a plugin; references only CommanderPlugin)
 Tests: IOLibTest, IOLinqTest, ZipLibTest, CommanderTest (NUnit 5)
 ```
 
-Shared build settings are in `Directory.Build.props`: net10.0, `LangVersion latest`, and implicit usings and nullable both off. `global.json` pins the SDK.
+`Directory.Build.props` holds the build settings for all projects: net10.0, `LangVersion latest`, and implicit usings and nullable both off. `global.json` pins the SDK.
 
 ## Composition root
 
-`App.CreateMainVm` (`Commander/App.axaml.cs`) builds the whole object graph by hand: about 12 lines. There is no DI container, on purpose:
-- The two panels are two `IOManager` instances. They differ only by `ManagerType` and start path, and they point at each other through `SecondManager`.
-- A container would need keyed registrations and factory lambdas, which is the same code plus a dependency.
-- Tests build the real graph by calling `CreateMainVm` directly.
+`App.CreateMainVm` (`Commander/App.axaml.cs`) builds the full object graph by hand in about 12 lines. The app has no DI container, for these reasons:
+- The two panels are two `IOManager` instances. Only their `ManagerType` and start path are different. Each one points at the other through `SecondManager`.
+- A container needs keyed registrations and factory lambdas. That is the same code, plus a dependency.
+- Tests call `CreateMainVm` directly to build the real graph.
 
-`App.OnFrameworkInitializationCompleted` wraps composition in a try/catch. If startup fails, it shows the exception in a window instead of crashing. It also hooks `Dispatcher.UIThread.UnhandledException`, which logs the error and lets the app continue.
+`App.OnFrameworkInitializationCompleted` puts the composition in a try/catch. If the startup fails, it shows the exception in a window and does not crash. It also adds a handler to `Dispatcher.UIThread.UnhandledException`. The handler logs the error, and the app continues.
 
 ## Main types
 
@@ -41,31 +41,31 @@ Shared build settings are in `Directory.Build.props`: net10.0, `LangVersion late
 
 ## Threading
 
-- Listing: `IOManager.LoadFiles` lists on the thread pool. A `CancellationTokenSource` drops results that a newer navigation has replaced. Typing in the filter box is debounced by 1 s.
-- File operations: `ProxyIO.RunBusy` runs work on `Task.Run`.
-  - `StateMonitor` lets one operation run at a time. A second operation logs "Another operation is in progress."
-  - The lock is released in `finally`, even when the post-operation refresh throws.
-- Overwrite prompts: `FileStructure.Copy` calls an `allowOverride(name, path)` callback on the worker thread. `ProxyIO` blocks on `IDialogService.AskOverride`, which marshals the dialog to the UI thread. "Override all" and "Cancel" are remembered for the rest of the batch.
-- UI updates from workers use `Dispatcher.UIThread.Post`: `Notify`, `UnsetBusyApp` and the log list.
-- `SyntaxParser` holds its parse queues as instance state. It is shared by both panels, so `Perform` takes a lock.
+- Listing: `IOManager.LoadFiles` lists the folder on the thread pool. A `CancellationTokenSource` drops the results of an older navigation. The filter box waits 1 s after the last key press (debounce).
+- File operations: `ProxyIO.RunBusy` runs the work on `Task.Run`.
+  - `StateMonitor` lets only one operation run at a time. A second operation logs "Another operation is in progress."
+  - A `finally` block releases the lock, also when the refresh after the operation throws.
+- Overwrite prompts: `FileStructure.Copy` calls an `allowOverride(name, path)` callback on the worker thread. `ProxyIO` waits on `IDialogService.AskOverride`, which shows the dialog on the UI thread. `ProxyIO` remembers "Override all" and "Cancel" for the rest of the batch.
+- Workers update the UI through `Dispatcher.UIThread.Post`: `Notify`, `UnsetBusyApp` and the log list.
+- `SyntaxParser` keeps its parse queues as instance state. Both panels share one parser, so `Perform` takes a lock.
 
 ## Messaging
 
-`WeakReferenceMessenger.Default` carries the view-level signals between view-models and views. The messages are classes in `Commander/Messages/`:
+`WeakReferenceMessenger.Default` carries the view signals between view-models and views. Each message is a class in `Commander/Messages/`:
 - `SetFocusMessage` and `FocusMessage`: focus a grid and row
 - `PulseMessage` and `WaitMessage`: busy on and off
 - `RefreshMessage`
 
 ## Errors
 
-- Each item in a copy, move or delete batch has its own try/catch. A batch with failures ends with a log line such as "47 moved, 3 failed."
-- Folder listing throws instead of returning an empty list. The panel then logs "Cannot open X: reason".
-- Search skips folders it cannot read, and it skips reparse points (symlinks and junctions) to avoid loops.
-- A broken `Commands.xml` or plugin is logged, and the app still starts.
+- Each item in a copy, move or delete batch has its own try/catch. If items fail, the batch ends with a log line such as "47 moved, 3 failed."
+- If a folder listing fails, it throws. It does not return an empty list. The panel then logs "Cannot open X: reason".
+- Search skips folders that it cannot read. It also skips reparse points (symlinks and junctions), so it does not loop.
+- The app logs a broken `Commands.xml` or plugin and still starts.
 
 ## Plugins
 
-At startup, `PluginManager` loads `<app folder>/Plugins/<Name>/<Name>.dll` (a plugin with its own dependencies) and any single `Plugins/*.dll`. Each plugin gets its own `AssemblyLoadContext`, so its dependencies can differ from the app's. `CommanderPlugin.dll` is always the app's copy. Every public class that implements `ICommanderPlugin` and has a parameterless constructor is created once. A file that fails to load is logged and skipped.
+At startup, `PluginManager` loads `<app folder>/Plugins/<Name>/<Name>.dll` (a plugin with its own dependencies) and each single `Plugins/*.dll`. Each plugin gets its own `AssemblyLoadContext`, so its dependencies can be different from those of the app. `CommanderPlugin.dll` always comes from the app. The manager creates one instance of each public class that implements `ICommanderPlugin` and has a parameterless constructor. If a file does not load, the manager logs it and skips it.
 
 How to write, install and test a plugin: [PLUGINS.md](PLUGINS.md). The sample is `SamplePlugins/Sha256Sums`.
 
@@ -84,4 +84,7 @@ Conventions:
 - `MMC_SCREENSHOTS=/some/dir dotnet test CommanderTest` saves a PNG of each window.
 - To run the large split test: `dotnet test IOLibTest --filter Name=Split_Over2GB_WritesAllParts`.
 
-The repo uses NUnit rather than xUnit: `[TestCase]` is used throughout, `Avalonia.Headless.NUnit` drives the UI tests, and xUnit's parallel-by-default classes would fight the file-system fixtures.
+The repo uses NUnit, not xUnit, for three reasons:
+- The tests use `[TestCase]` everywhere.
+- `Avalonia.Headless.NUnit` drives the UI tests.
+- xUnit runs test classes in parallel by default, and that conflicts with the file-system fixtures.

@@ -2,6 +2,7 @@ using System;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
+using System.Threading;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Headless;
@@ -15,6 +16,7 @@ using Commander;
 using Commander.CommanderIO;
 using Commander.Core;
 using Commander.View;
+using IOLib;
 using LogLib;
 using NUnit.Framework;
 using MainVM = Commander.ViewModel.MainVM;
@@ -33,6 +35,9 @@ namespace CommanderTest
 
         private string _out;
         private int _frame;
+        // While set, frames also go to frames/<clip>/ for the docs site's MP4 clips (make-screenshots.sh).
+        private string _clip;
+        private int _clipFrame;
         private Window _window;
         private MainVM _vm;
 
@@ -69,10 +74,18 @@ namespace CommanderTest
 
             // Marking: Space toggles the cursor row, Down moves on.
             ClickRow(1, "README.md");
+            Clip("copy");
             Frame();
             for (int i = 0; i < 3; i++) { Key(Avalonia.Input.Key.Space); Key(Avalonia.Input.Key.Down); Frame(); }
             Key(Avalonia.Input.Key.Up);
             Save(Capture(), "main");
+
+            // Ctrl+Z: the archive dialog for the marked files, closed without Create.
+            Key(Avalonia.Input.Key.Z, RawInputModifiers.Control);
+            var zip = Dialog<ZipWindow>();
+            zip.GetVisualDescendants().OfType<TextBox>().First().Text = "aurora-release";
+            Save(Compose(Capture(), zip), "zip");
+            CloseOwned();
 
             // F5: options dialog, then Enter copies to the right panel.
             Key(Avalonia.Input.Key.F5);
@@ -80,24 +93,39 @@ namespace CommanderTest
             var copyShot = Compose(Capture(), copy);
             Save(copyShot, "copy");
             FrameOf(copyShot);
+            ProgressFrames();
             copy.KeyPress(Avalonia.Input.Key.Enter, RawInputModifiers.None, PhysicalKey.None, null);
             PumpUntil(() => RowNames(2).Contains("README.md"), 10000);
             CloseOwned();
             Frame();
+            Clip(null);
 
             // Command palette.
+            Clip("palette");
+            ClipFrame();
             Key(Avalonia.Input.Key.K, RawInputModifiers.Control);
             Frame();
-            Type("zi");
+            Type("z");
+            ClipFrame();
+            Type("i");
             Save(Capture(), "palette");
             Frame();
+            Clip(null);
             Key(Avalonia.Input.Key.Escape);
 
-            // Filter language.
-            _vm.Io1.Filter = "ext -> (png, pdf)";
+            // Filter language. The list waits 1 s after the last change, so the partial texts never run.
+            Clip("filter");
+            ClipFrame();
+            foreach (var partial in new[] { "ext", "ext ->", "ext -> (png", "ext -> (png, pdf)" })
+            {
+                _vm.Io1.Filter = partial;
+                Pump(3);
+                ClipFrame();
+            }
             PumpUntil(() => !RowNames(1).Contains("README.md"), 4000);
             Save(Capture(), "filter");
             Frame();
+            Clip(null);
             _vm.Io1.Filter = "";
             PumpUntil(() => RowNames(1).Contains("README.md"), 4000);
 
@@ -113,11 +141,38 @@ namespace CommanderTest
             PumpUntil(() => RowNames(1).Contains("photos"));
 
             // Compare directories.
+            Clip("compare");
+            ClipFrame();
             _vm.CompareDirCommand.Execute(null);
             var compare = Dialog<CompareDirsWindow>();
             Pump(40);
-            Save(Compose(Capture(), compare), "compare");
+            var compareShot = Compose(Capture(), compare);
+            Save(compareShot, "compare");
+            FrameOf(compareShot, demo: false);
             CloseOwned();
+            Clip(null);
+
+            // Search: every png below the demo site.
+            _vm.SearchCommand.Execute(null);
+            var search = Dialog<Search.SearchWindow>();
+            Pump(5);
+            search.GetVisualDescendants().OfType<TextBox>().First(t => t.Name == "PhraseBox").Text = "png";
+            search.GetVisualDescendants().OfType<CheckBox>().First(c => (c.Content as string) == "Include subfolders").IsChecked = true;
+            search.GetVisualDescendants().OfType<Button>().First(b => (b.Content as string) == "Search").Command.Execute(null);
+            PumpUntil(() => search.GetVisualDescendants().OfType<Button>().Any(b => (b.Content as string) == "New search" && b.IsEffectivelyVisible));
+            Pump(40);
+            Save(Compose(Capture(), search), "search");
+            CloseOwned();
+
+            // Compare files: package.json under the cursor in each panel.
+            ClickRow(1, "package.json");
+            ClickRow(2, "package.json");
+            _vm.CompareFilesCommand.Execute(null);
+            var diff = Dialog<FileDiffWindow>();
+            Pump(40);
+            Save(Compose(Capture(), diff), "diff");
+            CloseOwned();
+            ClickRow(1, "README.md");
 
             // Settings > Appearance; closed without Done, so nothing is saved.
             _vm.SettingsCommand.Execute(null);
@@ -147,7 +202,7 @@ namespace CommanderTest
             File.WriteAllText(Path.Combine(Site, "src", "app.css"), "body { margin: 0; }\n");
             Bytes(Path.Combine(Site, "src", "bundle.js"), 640_000, now.AddDays(-2));
             Bytes(Path.Combine(Site, "README.md"), 4_200, now.AddDays(-1));
-            Bytes(Path.Combine(Site, "package.json"), 1_350, now.AddDays(-3));
+            Json(Path.Combine(Site, "package.json"), "1.4.0", "^3.5.0", true, now.AddDays(-3));
             Bytes(Path.Combine(Site, "build.sh"), 820, now.AddDays(-12));
             Bytes(Path.Combine(Site, "report-2026.pdf"), 2_480_000, now.AddDays(-6));
             Bytes(Path.Combine(Site, "budget.xlsx"), 96_000, now.AddDays(-20));
@@ -160,7 +215,7 @@ namespace CommanderTest
             foreach (var (name, from, to) in photos)
                 Gradient(Path.Combine(Site, "photos", name + ".png"), Color.Parse(from), Color.Parse(to));
             Bytes(Path.Combine(Backup, "old-notes.md"), 3_100, now.AddDays(-90));
-            Bytes(Path.Combine(Backup, "package.json"), 1_200, now.AddDays(-60));
+            Json(Path.Combine(Backup, "package.json"), "1.2.0", "^3.4.0", false, now.AddDays(-60));
             Bytes(Path.Combine(Backup, "report-2025.pdf"), 1_900_000, now.AddDays(-300));
             foreach (var d in Directory.GetDirectories(Site).Concat(new[] { Site, Backup }))
                 Directory.SetLastWriteTime(d, now.AddDays(-d.Length % 9));
@@ -182,6 +237,14 @@ namespace CommanderTest
             var data = new byte[size];
             new Random(size).NextBytes(data);
             File.WriteAllBytes(path, data);
+            File.SetLastWriteTime(path, time);
+        }
+
+        private static void Json(string path, string version, string vue, bool tests, DateTime time)
+        {
+            File.WriteAllText(path, "{\n  \"name\": \"aurora-site\",\n  \"version\": \"" + version + "\",\n  \"private\": true,\n  \"scripts\": {\n"
+                + "    \"dev\": \"vite\",\n    \"build\": \"vite build\"" + (tests ? ",\n    \"test\": \"vitest run\"" : "") + "\n  },\n"
+                + "  \"dependencies\": {\n    \"vue\": \"" + vue + "\"\n  }\n}\n");
             File.SetLastWriteTime(path, time);
         }
 
@@ -232,15 +295,63 @@ namespace CommanderTest
 
         // Every GIF frame is redrawn into a RenderTargetBitmap so all PNGs share one pixel format (RGBA);
         // a format change mid-sequence makes ffmpeg's paletteuse drop the remaining frames.
-        private void FrameOf(Bitmap bitmap)
+        private void FrameOf(Bitmap bitmap, bool demo = true)
         {
             using var rtb = new RenderTargetBitmap(bitmap.PixelSize);
             using (var ctx = rtb.CreateDrawingContext())
                 ctx.DrawImage(bitmap, new Rect(0, 0, bitmap.PixelSize.Width, bitmap.PixelSize.Height));
-            rtb.Save(Path.Combine(_out, "frames", $"{_frame++:000}.png"), PngBitmapEncoderOptions.Default);
+            if (demo)
+                rtb.Save(Path.Combine(_out, "frames", $"{_frame++:000}.png"), PngBitmapEncoderOptions.Default);
+            if (_clip != null)
+                rtb.Save(Path.Combine(_out, "frames", _clip, $"{_clipFrame++:000}.png"), PngBitmapEncoderOptions.Default);
         }
 
         private void Frame() => FrameOf(Capture());
+
+        // A frame for the current clip only; demo.gif keeps its own sequence.
+        private void ClipFrame() => FrameOf(Capture(), demo: false);
+
+        private void Clip(string name)
+        {
+            _clip = name;
+            _clipFrame = 0;
+            if (name != null) Directory.CreateDirectory(Path.Combine(_out, "frames", name));
+        }
+
+        // shortcut: the demo copy ends in milliseconds, too fast to film, so these frames show the real ProgressDialog
+        // on a staged job that reports the same three files step by step. Film a real copy if one ever runs long enough.
+        private void ProgressFrames()
+        {
+            var step = new SemaphoreSlim(0);
+            var total = new[] { "README.md", "release.zip", "report-2026.pdf" }.Sum(f => new FileInfo(Path.Combine(Site, f)).Length);
+            var pdf = new FileInfo(Path.Combine(Site, "report-2026.pdf")).Length;
+            var job = new TransferJob("Copying", Backup, j =>
+            {
+                for (int i = 1; i <= 4; i++)
+                {
+                    step.Wait();
+                    var bytes = total * i / 5;
+                    j.Report(new TransferProgress { FileIndex = 3, FileCount = 3, CurrentName = "report-2026.pdf",
+                        FileBytes = bytes - (total - pdf), FileTotal = pdf, Bytes = bytes, TotalBytes = total });
+                }
+                // The dialog closes itself when the job ends, so the job waits for the last frame.
+                step.Wait();
+            });
+            _ = _vm.Jobs.Enqueue(job);
+            PumpUntil(() => _vm.Jobs.Current == job);
+            _vm.ShowJobCommand.Execute(null);
+            var progress = Dialog<ProgressDialog>();
+            for (int i = 0; i < 4; i++)
+            {
+                step.Release();
+                Pump(15);
+                FrameOf(Compose(Capture(), progress), demo: false);
+            }
+            step.Release();
+            PumpUntil(() => job.IsFinished && _vm.Jobs.Current == null);
+            if (progress.IsVisible) progress.Close();
+            Pump();
+        }
 
         // ---------- input (same pattern as UiFlowTest) ----------
 
