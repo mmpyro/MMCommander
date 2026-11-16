@@ -301,6 +301,7 @@
                 </StackPanel>
                 <TextBlock Classes="hint" TextWrapping="Wrap"
                            Text="{}{path} is the file (F4) or the panel folder (F9). Put quotes around a program path with spaces. Empty uses the default shown in grey."/>
+                <CheckBox Name="CheckUpdates" Content="Check for updates at startup (once a day)" IsChecked="{Binding Settings.CheckForUpdates}"/>
             </StackPanel>
         </Panel>
     </DockPanel>

@@ -902,6 +902,37 @@ namespace CommanderTest
             Assert.That(_vm.KeyMap["copy"].ToString(), Is.EqualTo("F5"));
         }
     
+        // T12: Help → Check for updates and the palette both reach the update command (never run here: it calls GitHub).
+        [AvaloniaTest]
+        public void Help_CheckForUpdates_IsInMenuAndPalette()
+        {
+            Open(_root, _dest);
+            var help = _window.GetLogicalDescendants().OfType<MenuItem>().First(m => m.Header as string == "Help");
+            var item = help.Items.OfType<MenuItem>().FirstOrDefault(m => m.Header as string == "Check for updates");
+            Assert.That(item, Is.Not.Null, "menu item");
+            Assert.That(item.Command, Is.SameAs(_vm.CheckUpdatesCommand), "menu command bound");
+            Assert.That(CommandRegistry.Get("checkUpdates").Resolve(_vm, _vm.ActivePanel), Is.SameAs(_vm.CheckUpdatesCommand), "palette command");
+        }
+
+        // T13: the Tools page checkbox drives CheckForUpdates, and closing without Done reverts it.
+        [AvaloniaTest]
+        public void Settings_UpdateCheckbox_CancelReverts()
+        {
+            Open(_root, _dest);
+            var before = AppSettings.Current.CheckForUpdates;
+            _vm.SettingsCommand.Execute(null);
+            var window = (SettingsWindow)Dialog<SettingsWindow>();
+            ((Commander.ViewModel.SettingsWindowVM)window.DataContext).Section = 3;
+            Pump();
+            var box = window.FindControl<CheckBox>("CheckUpdates");
+            Assert.That(box.IsChecked, Is.EqualTo(before));
+            ClickIn(window, box);
+            Assert.That(AppSettings.Current.CheckForUpdates, Is.EqualTo(!before), "the checkbox drives the setting");
+            window.Close();   // never Done: it writes the real Config.xml
+            Pump();
+            Assert.That(AppSettings.Current.CheckForUpdates, Is.EqualTo(before), "closing without Done reverts");
+        }
+
         [AvaloniaTest]
         public void Settings_ToolsPage_PresetFillsCommand_ResetClears_CancelReverts()
         {

@@ -48,6 +48,9 @@ namespace Commander.View
         public Task<UnZipRequest> AskUnzip(IMetadataFileStructure archive) =>
             WindowHost.ShowDialog<UnZipRequest>(() => new UnZipWindow(archive));
 
+        public Task<UpdateAnswer> AskUpdate(UpdateModel model) =>
+            WindowHost.ShowDialog<UpdateAnswer>(() => new UpdateWindow(model));
+
         public Task<IReadOnlyList<string>> GetClipboardFiles() => WindowHost.GetClipboardFiles();
 
         public Task SetClipboardFiles(IEnumerable<string> paths) => WindowHost.SetClipboardFiles(paths);

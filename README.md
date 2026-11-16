@@ -223,6 +223,17 @@ In `Commands.xml`, `{s}` is the file selected in the left panel and `{d}` the fi
 <Command name="Compare Files"><Parameter>kdiff3 -args {s} {d}</Parameter></Command>
 ```
 
+### Updates
+
+Once a day, at start, the app asks GitHub for the latest release. If it is newer, a dialog shows the release notes:
+
+- **Update and restart** downloads the archive for your platform, checks it against `SHA256SUMS.txt`, replaces the app files and starts the new version. A checksum mismatch stops before any file changes.
+- **Later** asks again on another day. **Skip this version** stops asking about that version.
+- Help → Check for updates asks now. It ignores Skip, and the log shows "You are up to date" when there is nothing new.
+- Settings → Tools → "Check for updates at startup" turns the startup check off; then the app makes no network call.
+
+The app installs the update itself only from an unpacked release folder that it can write to. Otherwise (for example a folder under Program Files, or `dotnet run`) the button opens the release page instead. Each replaced file is kept as `<name>.old` until the next start, and files you added to the folder, such as plugins, stay. If the new version does not start, delete the new files and rename the `.old` files back. The user `Config.xml` is not in the app folder, so an update keeps your settings.
+
 ## Plugins
 
 Put a .NET 10 class library in `Plugins/<Name>/` next to the binary, then press Ctrl+P to run it on the selected files. Plugins run with your full user rights, so install only ones you trust.
@@ -270,6 +281,7 @@ The images in this README come from `CommanderTest/DocsScreenshots.cs`. It rende
 - The file clipboard (Ctrl+C / Ctrl+V) depends on the OS clipboard's file support, and it is untested on Linux.
 - Split runs in the background but has no progress bar.
 - The macOS build is not signed or notarized.
+- The self-update has been tried only in tests; the swap of a running `Commander.exe` on Windows has not been tried by hand.
 
 ## License
 

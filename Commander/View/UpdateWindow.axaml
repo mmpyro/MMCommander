@@ -1,0 +1,24 @@
+<local:DialogWindow x:Class="Commander.View.UpdateWindow"
+                    xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:local="clr-namespace:Commander.View"
+                    Title="Update available" Width="520" SizeToContent="Height">
+    <!-- A newer release: Enter = Update/Download, Esc = Later. -->
+    <StackPanel Margin="18" Spacing="14">
+        <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12">
+            <Path Classes="icon" Width="22" Height="22" VerticalAlignment="Top" Data="{StaticResource Icon.Info}"
+                  TextElement.Foreground="{DynamicResource Brush.Accent}"/>
+            <StackPanel Grid.Column="1" Spacing="4">
+                <TextBlock Classes="title" Text="Update available"/>
+                <TextBlock Name="VersionText" Classes="muted" TextWrapping="Wrap"/>
+            </StackPanel>
+        </Grid>
+        <TextBox Name="NotesBox" IsReadOnly="True" TextWrapping="Wrap" AcceptsReturn="True" MaxHeight="260"
+                 FontFamily="{DynamicResource Font.Mono}"/>
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Spacing="8">
+            <Button Name="SkipButton" Classes="footer" Content="Skip this version" Click="Skip_OnClick"/>
+            <Button Name="LaterButton" Classes="footer" Content="Later" IsCancel="True" Click="Later_OnClick"/>
+            <Button Name="DownloadButton" Classes="footer accent" IsDefault="True" Click="Download_OnClick"/>
+        </StackPanel>
+    </StackPanel>
+</local:DialogWindow>

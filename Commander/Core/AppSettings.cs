@@ -38,6 +38,7 @@ namespace Commander.Core
         private ConflictPolicy _defaultPolicy = ConflictPolicy.Ask;
         private string _editorCommand = "";
         private string _terminalCommand = "";
+        private bool _checkForUpdates = true;
 
         public ThemeChoice Theme { get => _theme; set => SetProperty(ref _theme, value); }
         public string Accent { get => _accent; set => SetProperty(ref _accent, Accents.Contains(value) ? value : Accents[0]); }
@@ -57,6 +58,8 @@ namespace Commander.Core
         // Command lines such as `code {path}`; empty means the platform default (Shell.EditorDefault / TerminalDefault).
         public string EditorCommand { get => _editorCommand; set => SetProperty(ref _editorCommand, value ?? ""); }
         public string TerminalCommand { get => _terminalCommand; set => SetProperty(ref _terminalCommand, value ?? ""); }
+        // Off: no network call at startup; Help → Check for updates still works.
+        public bool CheckForUpdates { get => _checkForUpdates; set => SetProperty(ref _checkForUpdates, value); }
 
         public double RowHeight => _comfortable ? 34 : 28;
 
@@ -76,6 +79,7 @@ namespace Commander.Core
             ("fileops.defaultPolicy", s => s.DefaultPolicy.ToString(), (s, v) => s.DefaultPolicy = Enum.TryParse(v, out ConflictPolicy p) ? p : ConflictPolicy.Ask),
             ("tools.editor", s => s.EditorCommand, (s, v) => s.EditorCommand = v),
             ("tools.terminal", s => s.TerminalCommand, (s, v) => s.TerminalCommand = v),
+            ("updates.check", s => Bool(s.CheckForUpdates), (s, v) => s.CheckForUpdates = v != "false"),
         };
 
         private static string Bool(bool b) => b ? "true" : "false";

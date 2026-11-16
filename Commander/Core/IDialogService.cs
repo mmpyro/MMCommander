@@ -45,6 +45,9 @@ namespace Commander.Core
         /// <returns>Null when cancelled.</returns>
         Task<UnZipRequest> AskUnzip(IMetadataFileStructure archive);
 
+        // A newer release was found (#6). Esc answers Later.
+        Task<UpdateAnswer> AskUpdate(UpdateModel model);
+
         Task<IReadOnlyList<string>> GetClipboardFiles();
         Task SetClipboardFiles(IEnumerable<string> paths);
     }

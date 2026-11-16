@@ -64,6 +64,8 @@ namespace Commander.ViewModel
             SettingsCommand = new AsyncRelayCommand(() => ShowSettings(0));
             SyncDirsCommand = new RelayCommand(() => CompareDirectories(true));
             AboutCommand = new AsyncRelayCommand(() => WindowHost.ShowDialog(() => new AboutWindow(_assemblyVersionResolver.GetProductVersion(GetType()))));
+            Updates = new UpdateVM(new UpdateChecker(), dialogs, configReader, Jobs, logger, _assemblyVersionResolver.GetProductVersion(GetType()));
+            CheckUpdatesCommand = new AsyncRelayCommand(() => Updates.Check(true));
             KeyMapCommand = new AsyncRelayCommand(() => ShowSettings(1)); // opens Settings on the Keyboard page
             SyntaxCommand = new RelayCommand(() => Shell.Open(syntaxPath));
             DuplicateCommand = new RelayCommand(DuplicateCommanders);
@@ -216,6 +218,8 @@ namespace Commander.ViewModel
         public ICommand SyncDirsCommand { get; set; }
         public ICommand SettingsCommand { get; set; }
         public ICommand AboutCommand { get; set; }
+        public ICommand CheckUpdatesCommand { get; }
+        public UpdateVM Updates { get; }
         public ICommand KeyMapCommand { get; set; }
         public ICommand SearchCommand { get; set; }
         public ICommand ReadLogsCommand { get; set; }

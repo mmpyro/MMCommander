@@ -48,9 +48,13 @@ namespace CommanderTest
             return Task.FromResult(DeleteAnswer);
         }
 
-        public void ShowProgress(TransferJob job) { }
+        public TransferJob LastJob { get; private set; }
+        public void ShowProgress(TransferJob job) => LastJob = job;
         public Task<ZipParameters> AskZip(string directory) => Task.FromResult(ZipAnswer);
         public Task<UnZipRequest> AskUnzip(IMetadataFileStructure archive) => Task.FromResult(UnzipAnswer);
+        public UpdateAnswer UpdateAnswer { get; set; }
+        public UpdateModel LastUpdate { get; private set; }
+        public Task<UpdateAnswer> AskUpdate(UpdateModel model) { LastUpdate = model; return Task.FromResult(UpdateAnswer); }
         public Task<IReadOnlyList<string>> GetClipboardFiles() => Task.FromResult<IReadOnlyList<string>>(new List<string>());
         public Task SetClipboardFiles(IEnumerable<string> paths) => Task.CompletedTask;
     }

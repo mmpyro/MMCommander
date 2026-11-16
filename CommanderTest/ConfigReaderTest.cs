@@ -67,7 +67,7 @@ namespace CommanderTest
         {
             var reader = new ConfigReader(new ShortcutManager(), _defaultPath, _userPath);
             var settings = new AppSettings { Theme = ThemeChoice.Black, Accent = "#3CC6B0", Comfortable = true, SeparateExt = false, DefaultPolicy = IOLib.ConflictPolicy.KeepBoth,
-                EditorCommand = "\"C:\\Program Files\\x.exe\" {path}", TerminalCommand = "wt -d {path}" };
+                EditorCommand = "\"C:\\Program Files\\x.exe\" {path}", TerminalCommand = "wt -d {path}", CheckForUpdates = false };
             settings.Save(reader);
             reader.SaveKeyBindings(new System.Collections.Generic.Dictionary<string, string> { ["copy"] = "F5" });
 
@@ -80,6 +80,7 @@ namespace CommanderTest
             Assert.That(loaded.DefaultPolicy, Is.EqualTo(IOLib.ConflictPolicy.KeepBoth));
             Assert.That(loaded.EditorCommand, Is.EqualTo("\"C:\\Program Files\\x.exe\" {path}"));
             Assert.That(loaded.TerminalCommand, Is.EqualTo("wt -d {path}"));
+            Assert.That(loaded.CheckForUpdates, Is.False);
             Assert.That(reread.KeyBindings["copy"], Is.EqualTo("F5"));
             AppSettings.Load(null);
         }

@@ -12,6 +12,7 @@ using IOLib;
 using IOLib.Comparators;
 using IOLinq;
 using LogLib;
+using System.Diagnostics;
 using System.IO;
 
 namespace Commander
@@ -41,7 +42,13 @@ namespace Commander
                     _logger.Fatal(e.Exception);
                     e.Handled = true;
                 };
-                desktop.MainWindow = new MainWindow { DataContext = CreateMainVm(_logger) };
+                var vm = CreateMainVm(_logger);
+                desktop.MainWindow = new MainWindow { DataContext = vm };
+                // Here, not in CreateMainVm, so tests never reach the network or the install folder.
+                if (Installer.IsPublished)
+                    Installer.CleanupOld(AppContext.BaseDirectory);
+                desktop.MainWindow.Opened += (_, _) => _ = vm.Updates.Check(false);
+                desktop.Exit += (_, _) => StartRestart();
             }
             catch (Exception e)
             {
@@ -54,6 +61,30 @@ namespace Commander
                 };
             }
             base.OnFrameworkInitializationCompleted();
+        }
+
+        // Set by Restart: the binary the exiting app starts again (the freshly installed one).
+        public static string RestartPath { get; private set; }
+
+        // After an update: close everything (MainWindow.OnClosed saves the user config), then Exit starts the new binary.
+        public static void Restart() => Dispatcher.UIThread.Post(() =>
+        {
+            RestartPath = Environment.ProcessPath;
+            (Current?.ApplicationLifetime as IClassicDesktopStyleApplicationLifetime)?.TryShutdown();
+        });
+
+        private void StartRestart()
+        {
+            if (RestartPath == null)
+                return;
+            try
+            {
+                Process.Start(new ProcessStartInfo(RestartPath) { UseShellExecute = false, WorkingDirectory = AppContext.BaseDirectory });
+            }
+            catch (Exception e)
+            {
+                _logger.Error("Cannot restart " + RestartPath, e);
+            }
         }
 
         // userConfigPath: tests and docs pass a throwaway config so the real user Config.xml is never read.

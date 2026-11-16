@@ -84,10 +84,54 @@ namespace CommanderTest
                 ["Info"] = () => new InfoWindow(file),
                 ["Plugin"] = () => new PluginWindow(new NullPluginManager(), "/tmp", new string[0], logger),
                 ["Search"] = () => new Search.SearchWindow(null, logger),
+                ["Update"] = () => new UpdateWindow(UpdateModel(true)),
                 ["FileDiff"] = () => new FileDiffWindow(new Commander.ViewModel.FileDiffVM(file.FullName, Path.Combine(AppContext.BaseDirectory, "Commands.xml"), null, logger, null)),
             };
             foreach (var (name, create) in windows)
                 ShowAndCapture(create(), name);
+        }
+
+        private static UpdateModel UpdateModel(bool canInstall) => new UpdateModel
+        {
+            Current = "2.1.0", CanInstall = canInstall,
+            Release = new ReleaseInfo { Tag = "v2.2.0", Notes = "## What's changed\n- Auto updater (#6)\n- Configurable editor and terminal (#7, #8)" },
+        };
+
+        // Each button closes the dialog with its answer (#6).
+        [AvaloniaTest]
+        public void UpdateWindow_ButtonsAnswer()
+        {
+            var owner = new Window();
+            owner.Show();
+            foreach (var (button, expected) in new[] { ("SkipButton", UpdateAnswer.Skip), ("LaterButton", UpdateAnswer.Later), ("DownloadButton", UpdateAnswer.Download) })
+            {
+                var window = new UpdateWindow(UpdateModel(false));
+                var result = window.ShowDialog<UpdateAnswer>(owner);
+                Dispatcher.UIThread.RunJobs();
+                window.FindControl<Button>(button).RaiseEvent(new Avalonia.Interactivity.RoutedEventArgs(Button.ClickEvent));
+                Dispatcher.UIThread.RunJobs();
+                Assert.That(result.IsCompleted, Is.True, button);
+                Assert.That(result.Result, Is.EqualTo(expected), button);
+            }
+            Assert.That(new UpdateWindow(UpdateModel(false)).FindControl<Button>("DownloadButton").Content, Is.EqualTo("Open download page"));
+            Assert.That(new UpdateWindow(UpdateModel(true)).FindControl<Button>("DownloadButton").Content, Is.EqualTo("Update and restart"));
+            owner.Close();
+        }
+
+        // T15: Esc answers Later, never Download.
+        [AvaloniaTest]
+        public void UpdateWindow_Escape_AnswersLater()
+        {
+            var owner = new Window();
+            owner.Show();
+            var window = new UpdateWindow(UpdateModel(true));
+            var result = window.ShowDialog<UpdateAnswer>(owner);
+            Dispatcher.UIThread.RunJobs();
+            window.KeyPress(Avalonia.Input.Key.Escape, Avalonia.Input.RawInputModifiers.None, Avalonia.Input.PhysicalKey.Escape, null);
+            Dispatcher.UIThread.RunJobs();
+            Assert.That(result.IsCompleted, Is.True, "Esc closes the dialog");
+            Assert.That(result.Result, Is.EqualTo(UpdateAnswer.Later));
+            owner.Close();
         }
 
         private static Commander.Dtos.DeleteDialogModel DeleteModel(bool permanent) => new Commander.Dtos.DeleteDialogModel

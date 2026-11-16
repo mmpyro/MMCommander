@@ -116,6 +116,7 @@ namespace Commander.Core
             A("clearLog", "Clear log", Tools, vm => vm.ClearLogCommand),
             A("keymap", "Keyboard shortcuts", Tools, vm => vm.KeyMapCommand),
             A("syntax", "Filter syntax (help)", Tools, vm => vm.SyntaxCommand),
+            A("checkUpdates", "Check for updates", Tools, vm => vm.CheckUpdatesCommand),
             A("about", "About", Tools, vm => vm.AboutCommand),
             A("settings", "Settings…", Tools, vm => vm.SettingsCommand, "Ctrl+OemComma"),
         };
