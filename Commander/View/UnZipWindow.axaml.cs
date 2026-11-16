@@ -1,0 +1,34 @@
+using System.IO;
+using Avalonia.Controls;
+using Avalonia.Interactivity;
+using Commander.CommanderIO;
+using Commander.Core;
+using ZipLib;
+
+namespace Commander.View
+{
+    // ShowDialog<UnZipRequest>: null when closed without executing. The archive format is detected on extraction.
+    public partial class UnZipWindow : DialogWindow
+    {
+        private readonly IMetadataFileStructure _file;
+
+        public UnZipWindow(IMetadataFileStructure file)
+        {
+            _file = file;
+            InitializeComponent();
+            ExtractDirRadio.Content = "Extract to " + Path.GetFileNameWithoutExtension(file.Name);
+            ArchiveText.Text = file.FullName;
+            ToolTip.SetTip(ArchiveText, file.FullName);
+        }
+
+        // Single password box: extraction never needs a confirmation (BUG-05).
+        private void Execute_OnClick(object sender, RoutedEventArgs e) =>
+            Close(new UnZipRequest
+            {
+                Parameters = new ZipParameters(_file.FullName, PasswordBox.Text ?? string.Empty),
+                ExtractType = ExtractDirRadio.IsChecked == true ? ExtractType.ToSpecificDir : ExtractType.Here
+            });
+
+        private void Cancel_OnClick(object sender, RoutedEventArgs e) => Close();
+    }
+}

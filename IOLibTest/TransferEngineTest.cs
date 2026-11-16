@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Runtime.Versioning;
 using System.Threading;
 using System.Threading.Tasks;
 using IOLib;
@@ -204,6 +205,68 @@ namespace IOLibTest
             Assert.That(result.Copied, Is.EqualTo(1));
             Assert.That(Directory.Exists(Path.Combine(_src, "tree")), Is.False);
             Assert.That(File.Exists(Path.Combine(_dst, "tree", "a.txt")), Is.True);
+        }
+
+        // Both panels on one folder + F6 + Replace used to delete the source.
+        [Test]
+        public void Move_IntoOwnFolder_KeepsSource()
+        {
+            var file = Write(_src, "a.txt", "a");
+            Write(_src, "tree/b.txt", "b");
+            var result = new TransferEngine(new TransferOptions(), _ => new ConflictAnswer(ConflictDecision.Replace, true))
+                .Move(new[] { file, Path.Combine(_src, "tree") }, _src);
+
+            Assert.That(result.Errors, Has.Count.EqualTo(2));
+            Assert.That(File.ReadAllText(file), Is.EqualTo("a"));
+            Assert.That(File.ReadAllText(Path.Combine(_src, "tree", "b.txt")), Is.EqualTo("b"));
+        }
+
+        // A move must keep its source when part of it could not be read. The existing target folder
+        // forces the copy path (a free name would be a plain rename that never lists the folder).
+        [Test, UnsupportedOSPlatform("windows")]
+        public void Move_UnreadableSubfolder_KeepsSource()
+        {
+            Assume.That(OperatingSystem.IsWindows(), Is.False, "uses Unix permissions");
+            Write(_src, "tree/a.txt", "a");
+            Directory.CreateDirectory(Path.Combine(_dst, "tree"));
+            var locked = Directory.CreateDirectory(Path.Combine(_src, "tree", "locked")).FullName;
+            File.SetUnixFileMode(locked, UnixFileMode.None);
+            TransferResult result;
+            try
+            {
+                result = new TransferEngine(new TransferOptions()).Move(new[] { Path.Combine(_src, "tree") }, _dst);
+            }
+            finally
+            {
+                File.SetUnixFileMode(locked, UnixFileMode.UserRead | UnixFileMode.UserWrite | UnixFileMode.UserExecute);
+            }
+
+            Assert.That(result.Errors, Has.Count.EqualTo(1));
+            Assert.That(File.ReadAllText(Path.Combine(_src, "tree", "a.txt")), Is.EqualTo("a"), "source kept");
+            Assert.That(Directory.Exists(locked), Is.True, "unread folder kept");
+        }
+
+        [Test, UnsupportedOSPlatform("windows")]
+        public void Copy_UnreadableSubfolder_CopiesTheRest()
+        {
+            Assume.That(OperatingSystem.IsWindows(), Is.False, "uses Unix permissions");
+            Write(_src, "tree/a.txt", "a");
+            var locked = Directory.CreateDirectory(Path.Combine(_src, "tree", "locked")).FullName;
+            File.SetUnixFileMode(locked, UnixFileMode.None);
+            TransferResult result;
+            try
+            {
+                result = new TransferEngine(new TransferOptions()).Copy(new[] { Path.Combine(_src, "tree") }, _dst);
+            }
+            finally
+            {
+                // TearDown can't delete a folder it can't list.
+                File.SetUnixFileMode(locked, UnixFileMode.UserRead | UnixFileMode.UserWrite | UnixFileMode.UserExecute);
+            }
+
+            Assert.That(File.ReadAllText(Path.Combine(_dst, "tree", "a.txt")), Is.EqualTo("a"));
+            Assert.That(result.Errors, Has.Count.EqualTo(1));
+            Assert.That(result.Errors[0], Does.Contain("locked"));
         }
 
         // Progress<T> posts to the thread pool; tests need the reports in order and before Copy returns.

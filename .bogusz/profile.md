@@ -10,13 +10,13 @@ A profile tells Bogusz how to test one project: where its code lives, how to run
 
 | Repo / folder | Language | Scoped test command | Needs (Docker, services, setup) | Source |
 |---|---|---|---|---|
-| `.` (solution `MMComander.sln`, note spelling) | C# .NET 10, Avalonia 12 | All: `dotnet test MMComander.sln` (105 tests, ~10 s) | SDK 10.0.403 pinned (rolls forward). No Docker, no services | `[found: CLAUDE.md, global.json]` |
+| `.` (solution `MMCommander.sln`) | C# .NET 10, Avalonia 12 | All: `dotnet test MMCommander.sln` (105 tests, ~10 s) | SDK 10.0.403 pinned (rolls forward). No Docker, no services | `[found: CLAUDE.md, global.json]` |
 | `IOLibTest` (file ops) | C# NUnit 5 | `dotnet test IOLibTest --filter Name=JoinFile_Test` (one test); `--filter FullyQualifiedName~<Class>` (class) | none | `[found: CLAUDE.md]` |
-| `ComanderTest` (VMs + headless UI) | C# NUnit 5 + Avalonia.Headless.NUnit | `dotnet test ComanderTest --filter FullyQualifiedName~ProxyIOTest` | none; headless, no display. Optional `MMC_SCREENSHOTS=<dir>` saves PNGs | `[found: CLAUDE.md, ComanderTest/WindowSmokeTest.cs]` |
+| `CommanderTest` (VMs + headless UI) | C# NUnit 5 + Avalonia.Headless.NUnit | `dotnet test CommanderTest --filter FullyQualifiedName~ProxyIOTest` | none; headless, no display. Optional `MMC_SCREENSHOTS=<dir>` saves PNGs | `[found: CLAUDE.md, CommanderTest/WindowSmokeTest.cs]` |
 | `IOLinqTest` (filter-language parser) | C# NUnit 5 | `dotnet test IOLinqTest --filter FullyQualifiedName~IOLinqTest` | none | ran 2026-11-10 |
 | `ZipLibTest` (archives) | C# NUnit 5 | `dotnet test ZipLibTest --filter FullyQualifiedName~<Class>` | none | ran 2026-11-10 |
 | Explicit 2.2 GB test | C# | `dotnet test IOLibTest --filter Name=Split_Over2GB_WritesAllParts` | about 2.2 GB of free disk in temp | `[found: IOLibTest/SplitJoinEdgeTest.cs]` |
-| Build / lint | | `dotnet build MMComander.sln`. No linter. The only accepted warning is CS0067 in `LogLib/FileLogger.cs` | | `[found: CLAUDE.md]` |
+| Build / lint | | `dotnet build MMCommander.sln`. No linter. The only accepted warning is CS0067 in `LogLib/FileLogger.cs` | | `[found: CLAUDE.md]` |
 
 There is no CI config, so these are the documented commands. `dotnet test` runs the 4 assemblies in parallel, and each one uses its own temp root (`TestPaths.Root`). On 2026-11-10 every test class passed when run alone, in all 4 projects.
 
@@ -24,9 +24,9 @@ There is no CI config, so these are the documented commands. `dotnet test` runs 
 
 | Kind | Entry point | Source |
 |---|---|---|
-| App (desktop UI, manual) | `dotnet run --project Comander` | `[found: CLAUDE.md]` |
-| Headless UI tests | `dotnet test ComanderTest --filter FullyQualifiedName~PanelNavigationTest` (real headless mouse and key input) and `~WindowSmokeTest` (renders every window) | ran 2026-11-10 |
-| Window screenshots | `MMC_SCREENSHOTS=<dir> dotnet test ComanderTest` | `[found: ComanderTest/WindowSmokeTest.cs]` |
+| App (desktop UI, manual) | `dotnet run --project Commander` | `[found: CLAUDE.md]` |
+| Headless UI tests | `dotnet test CommanderTest --filter FullyQualifiedName~PanelNavigationTest` (real headless mouse and key input) and `~WindowSmokeTest` (renders every window) | ran 2026-11-10 |
+| Window screenshots | `MMC_SCREENSHOTS=<dir> dotnet test CommanderTest` | `[found: CommanderTest/WindowSmokeTest.cs]` |
 | Load | none | |
 | Scanners | `dotnet list package --vulnerable` | `[guess]` |
 
@@ -36,7 +36,7 @@ Single repo. `CommanderPlugin` is the MEF plugin contract, and third-party DLLs 
 
 ## E2E
 
-none. The closest layer is the headless UI tests in `ComanderTest/` (`WindowSmokeTest.cs`, `PanelNavigationTest.cs`).
+none. The closest layer is the headless UI tests in `CommanderTest/` (`WindowSmokeTest.cs`, `PanelNavigationTest.cs`).
 
 ## Environments
 

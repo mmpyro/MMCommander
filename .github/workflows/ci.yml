@@ -32,10 +32,10 @@ jobs:
 
       # Also fails on vulnerable NuGet packages: the SDK's restore audit (NU1901-1904) becomes an error.
       - name: Build (warnings are errors, except CS0067)
-        run: dotnet build MMComander.sln -c Release -p:TreatWarningsAsErrors=true -p:WarningsNotAsErrors=CS0067
+        run: dotnet build MMCommander.sln -c Release -p:TreatWarningsAsErrors=true -p:WarningsNotAsErrors=CS0067
 
       - name: Test
-        run: dotnet test MMComander.sln -c Release --no-build --logger trx --results-directory TestResults
+        run: dotnet test MMCommander.sln -c Release --no-build --logger trx --results-directory TestResults
 
       - name: Upload test results
         if: failure()

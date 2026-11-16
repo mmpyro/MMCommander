@@ -6,7 +6,6 @@ namespace IOLib
 {
     public interface IFileFactory
     {
-        List<IAbstractFileStructure> CreateEmptyFileList();
         IAbstractFileStructure CreateFileMsg(string fullPath);
         IAbstractFileStructure CreateFileMsg(FileInfo fileInfo);
         IAbstractFileStructure CreateFileMsg(DirectoryInfo directoryInfo);
@@ -16,11 +15,6 @@ namespace IOLib
 
     public class FileFactory : IFileFactory
     {
-        public List<IAbstractFileStructure> CreateEmptyFileList()
-        {
-            return new List<IAbstractFileStructure>();
-        }
-
         public IAbstractFileStructure CreateFileMsg(string fullPath)
         {
             // Existing paths are classified by what they are, not by their extension (BUG-03).
@@ -38,7 +32,7 @@ namespace IOLib
 
         public IAbstractFileStructure CreateFileMsg(DirectoryInfo directoryInfo)
         {
-            return new DirStructure(directoryInfo, this);
+            return new DirStructure(directoryInfo);
         }
 
         public IAbstractFileStructure CreateParentDirectoryMsg(DirectoryInfo directoryInfo)
@@ -48,7 +42,7 @@ namespace IOLib
 
         public  IAbstractFileStructure GetDirectoryFromPath(string path)
         {
-            return new DirStructure(new DirectoryInfo(path), this);
+            return new DirStructure(new DirectoryInfo(path));
         }
     }
 

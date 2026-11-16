@@ -14,9 +14,6 @@ namespace IOLib
         List<IAbstractFileStructure> GetFilesFromPath(string path);
         List<IAbstractFileStructure> GetDirectoriesFromPath(string path);
         void SearchFiles(SearchParameters searchParameters);
-        Task<List<IAbstractFileStructure>> GetFilesFromPathAsync(string path);
-        Task<List<IAbstractFileStructure>> GetDirectoriesFromPathAsync(string path);
-        Task SearchFilesAsync(SearchParameters searchParameters);
         void CreateDirectory(string path);
         IAbstractFileStructure GetDirFromPath(string actualPath);
         event FindFileDelegate OnFindFile;
@@ -52,8 +49,9 @@ namespace IOLib
             string phrase = searchParameters.SearchPhrase;
             if (searchParameters.MatchOptions == MatchOptions.WholeWord)
                 phrase = string.Format(@"\b{0}\b", phrase);
-            else if (new Regex(@"\*\.*").IsMatch(phrase))
-                phrase = string.Format(@".*\.{0}$", phrase.Split('.')[1]);
+            else if (phrase.Contains('*'))
+                // A '*' means a glob ("*.txt", "foo*"), not a regex.
+                phrase = "^" + Regex.Escape(phrase).Replace(@"\*", ".*").Replace(@"\?", ".") + "$";
             var pattern = new Regex(phrase, searchParameters.RegexOptions);
             var pending = new Stack<string>();
             pending.Push(searchParameters.StartDirectoryPath);
@@ -77,21 +75,6 @@ namespace IOLib
                 foreach (var sub in dirs.Reverse().Where(d => !new DirectoryInfo(d).Attributes.HasFlag(FileAttributes.ReparsePoint)))
                     pending.Push(sub);
             }
-        }
-
-        public Task<List<IAbstractFileStructure>> GetFilesFromPathAsync(string path)
-        {
-            return Task.Run(() => GetFilesFromPath(path));
-        }
-
-        public Task<List<IAbstractFileStructure>> GetDirectoriesFromPathAsync(string path)
-        {
-            return Task.Run(() => GetDirectoriesFromPath(path));
-        }
-
-        public Task SearchFilesAsync(SearchParameters searchParameters)
-        {
-            return Task.Run(() => SearchFiles(searchParameters));
         }
 
         public void CreateDirectory(string path)

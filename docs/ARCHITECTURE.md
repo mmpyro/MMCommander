@@ -3,7 +3,7 @@
 ## Projects
 
 ```
-Comander (WinExe, Avalonia)
+Commander (WinExe, Avalonia)
 ├── IOLib            file/folder model, copy/move/split/join, search, drives
 ├── IOLinq           filter language parser (uses IOLib)
 ├── ZipAdapter       ZipLib: SharpZipLib to write, SharpCompress to extract
@@ -11,14 +11,14 @@ Comander (WinExe, Avalonia)
 └── CommanderPlugin  plugin contract (ICommanderPlugin, Response)
 
 Sample: SamplePlugins/Sha256Sums (a plugin; references only CommanderPlugin)
-Tests: IOLibTest, IOLinqTest, ZipLibTest, ComanderTest (NUnit 5)
+Tests: IOLibTest, IOLinqTest, ZipLibTest, CommanderTest (NUnit 5)
 ```
 
 Shared build settings are in `Directory.Build.props`: net10.0, `LangVersion latest`, and implicit usings and nullable both off. `global.json` pins the SDK.
 
 ## Composition root
 
-`App.CreateMainVm` (`Comander/App.axaml.cs`) builds the whole object graph by hand: about 12 lines. There is no DI container, on purpose:
+`App.CreateMainVm` (`Commander/App.axaml.cs`) builds the whole object graph by hand: about 12 lines. There is no DI container, on purpose:
 - The two panels are two `IOManager` instances. They differ only by `ManagerType` and start path, and they point at each other through `SecondManager`.
 - A container would need keyed registrations and factory lambdas, which is the same code plus a dependency.
 - Tests build the real graph by calling `CreateMainVm` directly.
@@ -50,7 +50,7 @@ Shared build settings are in `Directory.Build.props`: net10.0, `LangVersion late
 
 ## Messaging
 
-`WeakReferenceMessenger.Default` carries the view-level signals between view-models and views. The messages are classes in `Comander/Messages/`:
+`WeakReferenceMessenger.Default` carries the view-level signals between view-models and views. The messages are classes in `Commander/Messages/`:
 - `SetFocusMessage` and `FocusMessage`: focus a grid and row
 - `PulseMessage` and `WaitMessage`: busy on and off
 - `RefreshMessage`
@@ -75,12 +75,12 @@ How to write, install and test a plugin: [PLUGINS.md](PLUGINS.md). The sample is
 | IOLibTest | Copy/move/delete/rename, folder copy conflicts, copy-into-self, split/join (one `[Explicit]` 2.2 GB test), search, factory |
 | IOLinqTest | Filter language, and parallel `Perform` |
 | ZipLibTest | Every format round-trips, AES, zip-slip rejection |
-| ComanderTest | `ProxyIO` with fake dialogs and panel, `ConfigReader`, zip password rules, `LogMsg`, search VM, plugin loading, and a headless render of every window |
+| CommanderTest | `ProxyIO` with fake dialogs and panel, `ConfigReader`, zip password rules, `LogMsg`, search VM, plugin loading, and a headless render of every window |
 
 Conventions:
 - Each assembly uses its own temp root (`TestPaths.Root`) or a per-test GUID folder, because `dotnet test` runs assemblies in parallel.
-- Fakes live in `ComanderTest/Fakes.cs`: `FakeDialogs` answers dialogs, and `FakePanel` records log lines.
-- `MMC_SCREENSHOTS=/some/dir dotnet test ComanderTest` saves a PNG of each window.
+- Fakes live in `CommanderTest/Fakes.cs`: `FakeDialogs` answers dialogs, and `FakePanel` records log lines.
+- `MMC_SCREENSHOTS=/some/dir dotnet test CommanderTest` saves a PNG of each window.
 - To run the large split test: `dotnet test IOLibTest --filter Name=Split_Over2GB_WritesAllParts`.
 
 The repo uses NUnit rather than xUnit: `[TestCase]` is used throughout, `Avalonia.Headless.NUnit` drives the UI tests, and xUnit's parallel-by-default classes would fight the file-system fixtures.

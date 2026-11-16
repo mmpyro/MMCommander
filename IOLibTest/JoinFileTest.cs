@@ -31,7 +31,7 @@ namespace IOLibTest
             //Given
             var fileManager = new FileManager(_fileFactory);
             //When
-            fileManager.Join(DestinationPath,"file", FilePath);
+            fileManager.Join(DestinationPath,"file.txt", FilePath);
             var directoryInfo = new DirectoryInfo(DestinationPath);
             var files = directoryInfo.GetFiles();
             //Then

@@ -41,21 +41,5 @@ namespace IOLibTest
             Assert.That(lower, Is.EqualTo(upper));
             Assert.That(lower.GetHashCode(), Is.EqualTo(upper.GetHashCode()));
         }
-
-        // BUG-30: a file copy used to reset attributes to Normal.
-        [Test]
-        public void Copy_KeepsReadOnly_AndCanOverwriteReadOnlyTarget()
-        {
-            var source = Path.Combine(_root, "a.txt");
-            File.WriteAllText(source, "new");
-            File.SetAttributes(source, FileAttributes.ReadOnly);
-            var target = Directory.CreateDirectory(Path.Combine(_root, "dst")).FullName;
-
-            _factory.CreateFileMsg(source).Copy(_factory.CreateFileMsg(target), (_, _) => true);
-            Assert.That(new FileInfo(Path.Combine(target, "a.txt")).IsReadOnly, Is.True);
-
-            _factory.CreateFileMsg(source).Copy(_factory.CreateFileMsg(target), (_, _) => true);
-            Assert.That(File.ReadAllText(Path.Combine(target, "a.txt")), Is.EqualTo("new"));
-        }
     }
 }

@@ -1,0 +1,33 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <Version>2.1.0</Version>
+    <!-- Directory.Build.props turns this off for every project; without it <Version> never reaches the assembly. -->
+    <GenerateAssemblyInfo>true</GenerateAssemblyInfo>
+    <ApplicationIcon>Icons/main.ico</ApplicationIcon>
+    <AvaloniaUseCompiledBindingsByDefault>false</AvaloniaUseCompiledBindingsByDefault>
+    <!-- Dialogs take constructor arguments, so the XAML runtime loader (designer) cannot create them; we never use it. -->
+    <NoWarn>$(NoWarn);AVLN3001</NoWarn>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Avalonia" Version="12.1.6" />
+    <PackageReference Include="Avalonia.Desktop" Version="12.1.6" />
+    <PackageReference Include="Avalonia.Themes.Fluent" Version="12.1.6" />
+    <PackageReference Include="Avalonia.Controls.DataGrid" Version="12.1.2" />
+    <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.2" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="../CommanderPlugin/CommanderPlugin.csproj" />
+    <ProjectReference Include="../IOLib/IOLib.csproj" />
+    <ProjectReference Include="../IOLinq/IOLinq.csproj" />
+    <ProjectReference Include="../LogLib/LogLib.csproj" />
+    <ProjectReference Include="../ZipAdapter/ZipLib.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <AvaloniaResource Include="Icons/**" />
+    <AvaloniaResource Include="Fonts/*.ttf" />
+    <None Update="Config.xml;Commands.xml" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="Manuals/**" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="Plugins/**" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+</Project>

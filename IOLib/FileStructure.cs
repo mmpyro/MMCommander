@@ -68,9 +68,6 @@ namespace IOLib
         public FileType Type => FileType.Normal;
 
         public abstract void Delete();
-        public abstract void Move(IAbstractFileStructure destinationDirectory);
-        public abstract void Copy(IAbstractFileStructure destinationDirectory, Func<string,string, bool> allowOverride);
-        public abstract void OverrideCopy(IAbstractFileStructure destinationDirectory);
         public abstract void Rename(string newName);
     }
 
@@ -91,42 +88,6 @@ namespace IOLib
         {
             File.SetAttributes(FullName, FileAttributes.Normal);
             File.Delete(FullName);
-        }
-
-        public override void Move(IAbstractFileStructure destinationDirectory)
-        {
-            if (destinationDirectory.IsDirectory)
-            {
-                string destFileName = Path.Combine(destinationDirectory.FullName, Name);
-                File.Move(FullName, destFileName);
-                _fileInfo = new FileInfo(destFileName);
-            }
-        }
-
-        // Keeps the source attributes; only a ReadOnly target is cleared so it can be overwritten (BUG-30).
-        public override void Copy(IAbstractFileStructure destinationDirectory, Func<string,string, bool> allowOverride)
-        {
-            if (!destinationDirectory.IsDirectory)
-                throw new ArgumentException("Invalid arguments");
-            string destinationPath = Path.Combine(destinationDirectory.FullName, Name);
-            bool exists = IsFileExistInDestinationDir(destinationDirectory);
-            if (exists && !allowOverride(Name, destinationPath))
-                return;
-            try
-            {
-                if (exists)
-                    File.SetAttributes(destinationPath, FileAttributes.Normal);
-                File.Copy(FullName, destinationPath, exists);
-            }
-            catch (IOException ex) when (OperatingSystem.IsWindows() && ex.Message.Contains("in use"))
-            {
-                CopyFileInUse(destinationDirectory);
-            }
-        }
-
-        public override void OverrideCopy(IAbstractFileStructure destinationDirectory)
-        {
-            Copy(destinationDirectory, (_, _) => true);
         }
 
         public override void Rename(string newName)
@@ -157,27 +118,5 @@ namespace IOLib
             return FullName;
         }
 
-        protected bool IsFileExistInDestinationDir(IAbstractFileStructure destinationDirectory)
-        {
-            if (destinationDirectory.IsDirectory)
-            {
-                return Directory.GetFiles(destinationDirectory.FullName).Count(t => Path.GetFileName(t).Equals(Name, StringComparison.OrdinalIgnoreCase)) > 0;
-            }
-            return false;
-        }
-
-        // cmd.exe copy fallback for files locked by another process; Windows only.
-        private void CopyFileInUse(IAbstractFileStructure destinationDirectory)
-        {
-            var process = new Process();
-            process.StartInfo.UseShellExecute = false;
-            process.StartInfo.RedirectStandardOutput = true;
-            process.StartInfo.CreateNoWindow = true;
-            process.StartInfo.FileName = "cmd.exe";
-            process.StartInfo.Arguments = "/C copy \"" + FullName + "\" \"" + destinationDirectory.FullName + "\"";
-            process.Start();
-            process.WaitForExit();
-            process.Close();
-        }
     }
 }

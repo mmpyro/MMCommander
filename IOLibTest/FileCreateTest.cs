@@ -28,6 +28,17 @@ namespace IOLibTest
             //Then
         }
 
+        // "New file" with an existing name used to empty that file.
+        [Test]
+        public void CreateFile_Existing_ThrowsAndKeepsContent()
+        {
+            File.WriteAllText(filePath, "data");
+            IFileManager manager = new FileManager(new FileFactory());
+
+            Assert.Throws<IOException>(() => manager.CreateFile(filePath));
+            Assert.That(File.ReadAllText(filePath), Is.EqualTo("data"));
+        }
+
         [TearDown]
         public void After()
         {

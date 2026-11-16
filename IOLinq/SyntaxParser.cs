@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -20,15 +21,13 @@ namespace IOLinq
 
     public class SyntaxParser
     {
-        private readonly IFileFactory _fileFactory;
         private readonly Queue<string> _syntaxQueue = new Queue<string>();
         private readonly Dictionary<ParserType, Parser> _parserDict = new Dictionary<ParserType, Parser>();
         private readonly Queue<Unit> _operationQueue = new Queue<Unit>();
         private IAbstractFileStructure[] _abstractFiles;
 
-        public SyntaxParser(IFileFactory fileFactory )
+        public SyntaxParser()
         {
-            _fileFactory = fileFactory;
             _parserDict.Add(ParserType.ExtEquals, new ExtEqualsParser());
             _parserDict.Add(ParserType.ExtIn, new ExtInParser());
             _parserDict.Add(ParserType.NameEquals, new NameEqualsParser());
@@ -75,10 +74,11 @@ namespace IOLinq
                 ClearQueue();
                 return result;
             }
-            catch
+            catch (Exception ex)
             {
+                // Throw instead of returning an empty list, so the panel can say the filter is wrong.
                 ClearQueue();
-                return _fileFactory.CreateEmptyFileList();
+                throw ex as InvalidDataException ?? new InvalidDataException("Syntax is invalid", ex);
             }
         }
 

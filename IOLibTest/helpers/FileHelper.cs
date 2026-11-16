@@ -6,25 +6,6 @@ namespace IOLibTest.helpers
 {
     public static class FileHelper
     {
-        private const string _dir1 = "t1";
-        private const string _dir2 = "t2";
-        private const string _fileName = "file.dat";
-
-        public static string Dir1()
-        {
-            return _dir1;
-        }
-
-        public static string Dir2()
-        {
-            return _dir2;
-        }
-
-        public static string FileName()
-        {
-            return _fileName;
-        }
-
         public static void DeleteIfExist(string path)
         {
             if(File.Exists(path))
@@ -60,19 +41,6 @@ namespace IOLibTest.helpers
             {
                 Directory.CreateDirectory(path);
             }
-        }
-
-        public static void InitCopyFileTest(string directoryPath)
-        {
-            CreateDirIfNotExist(Path.Combine(directoryPath, _dir1));
-            CreateDirIfNotExist(Path.Combine(directoryPath, _dir2));
-            CreateIfNotExist(Path.Combine(directoryPath,_dir1,_fileName));
-        }
-
-        public static void CleanCopyFileTest(string directoryPath)
-        {
-            DeleteDirIfExist(Path.Combine(directoryPath, _dir1));
-            DeleteDirIfExist(Path.Combine(directoryPath, _dir2));
         }
 
         public static void DeleteAllFilesInDirectory(string path)
