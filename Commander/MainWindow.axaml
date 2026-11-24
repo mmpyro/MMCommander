@@ -129,6 +129,12 @@
                     <MenuItem Header="View">
                         <MenuItem Header="Show hidden files" InputGesture="{Binding KeyMap[toggleHidden]}" ToggleType="CheckBox"
                                   IsChecked="{Binding ActivePanel.ShowHidden}"/>
+                        <MenuItem Header="Sort by">
+                            <MenuItem Header="Name" InputGesture="{Binding KeyMap[sortName]}" Command="{Binding ActivePanel.SortByNameCommand}"/>
+                            <MenuItem Header="Extension" InputGesture="{Binding KeyMap[sortExt]}" Command="{Binding ActivePanel.SortByExtCommand}"/>
+                            <MenuItem Header="Size" InputGesture="{Binding KeyMap[sortSize]}" Command="{Binding ActivePanel.SortBySizeCommand}"/>
+                            <MenuItem Header="Modified" InputGesture="{Binding KeyMap[sortModified]}" Command="{Binding ActivePanel.SortByModifiedCommand}"/>
+                        </MenuItem>
                         <MenuItem Header="Refresh" InputGesture="{Binding KeyMap[refresh]}" Command="{Binding ActivePanel.RefreshCommand}"/>
                         <MenuItem Header="Reload drives" Command="{Binding RefreshCommand}"/>
                         <Separator/>

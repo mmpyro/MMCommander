@@ -50,6 +50,8 @@ Each panel has these parts:
 
 Space or Insert marks the file under the cursor, and the footer adds up the marked files. The panel with the blue border is the active panel. The toolbar, the menus and the F-key bar act on it. Tab switches between the panels.
 
+To sort a panel, click a column header (Name, Ext, Size or Modified). Click it again to reverse the order. The keys are Ctrl+F3 to Ctrl+F6, and View → Sort by has the same commands. The ".." entry stays at the top, and folders stay above files. Each panel keeps its sort until you close the app.
+
 ### Copy and move
 
 ![F5 opens the copy options](docs/images/copy.png)

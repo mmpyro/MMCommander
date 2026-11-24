@@ -260,10 +260,10 @@
                 </ListBox.ItemTemplate>
             </ListBox>
             <DataGrid Name="DataGrid1" DragDrop.AllowDrop="True" IsVisible="{Binding !IsThumbnails}" AutoGenerateColumns="False" IsReadOnly="True" SelectionMode="Extended"
-                      GridLinesVisibility="None" CanUserSortColumns="False" HeadersVisibility="Column" BorderThickness="0,1,0,0"
+                      GridLinesVisibility="None" CanUserSortColumns="True" Sorting="OnSorting" HeadersVisibility="Column" BorderThickness="0,1,0,0"
                       SelectedItem="{Binding SelectedFile}" ItemsSource="{Binding Files}">
                 <DataGrid.Columns>
-                    <DataGridTemplateColumn Width="36" CanUserResize="False" CanUserReorder="False">
+                    <DataGridTemplateColumn Width="36" CanUserResize="False" CanUserReorder="False" CanUserSort="False">
                         <DataGridTemplateColumn.CellTemplate>
                             <DataTemplate>
                                 <Path Classes="icon" HorizontalAlignment="Center" Data="{Binding Converter={StaticResource FileIconConverter}}"
@@ -271,9 +271,9 @@
                             </DataTemplate>
                         </DataGridTemplateColumn.CellTemplate>
                     </DataGridTemplateColumn>
-                    <DataGridTextColumn Header="NAME ↑" Binding="{Binding Mode=OneWay, Converter={StaticResource DisplayNameConverter}}" Width="*" MinWidth="160"/>
-                    <DataGridTextColumn Header="EXT" Binding="{Binding Mode=OneWay, Converter={StaticResource ExtConverter}}" Width="72" CellStyleClasses="mono muted"/>
-                    <DataGridTextColumn Header="SIZE" Width="90" CellStyleClasses="mono num">
+                    <DataGridTextColumn Header="NAME" SortMemberPath="Name" CanUserSort="True" Binding="{Binding Mode=OneWay, Converter={StaticResource DisplayNameConverter}}" Width="*" MinWidth="160"/>
+                    <DataGridTextColumn Header="EXT" SortMemberPath="Ext" CanUserSort="True" Binding="{Binding Mode=OneWay, Converter={StaticResource ExtConverter}}" Width="72" CellStyleClasses="mono muted"/>
+                    <DataGridTextColumn Header="SIZE" SortMemberPath="Size" CanUserSort="True" Width="90" CellStyleClasses="mono num">
                         <DataGridTextColumn.Binding>
                             <MultiBinding Mode="OneWay" Converter="{StaticResource SizeConverter}">
                                 <Binding/>
@@ -281,7 +281,7 @@
                             </MultiBinding>
                         </DataGridTextColumn.Binding>
                     </DataGridTextColumn>
-                    <DataGridTextColumn Header="MODIFIED" Binding="{Binding LastModifyTime, Mode=OneWay, Converter={StaticResource DateConverter}}" Width="140" CellStyleClasses="mono muted"/>
+                    <DataGridTextColumn Header="MODIFIED" SortMemberPath="Modified" CanUserSort="True" Binding="{Binding LastModifyTime, Mode=OneWay, Converter={StaticResource DateConverter}}" Width="140" CellStyleClasses="mono muted"/>
                 </DataGrid.Columns>
                 <!-- Keys come from Core/CommandRegistry.cs (KeyMap); FilePane.axaml.cs runs them. -->
             </DataGrid>

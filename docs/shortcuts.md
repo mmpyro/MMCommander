@@ -53,6 +53,10 @@ Commands without a key run from the [command palette](features/palette.md) (Ctrl
 | Refresh | Ctrl+R | ⌘R, ⌃R |
 | Show / hide hidden files | Ctrl+H | ⌃H |
 | Details / thumbnail view | — | — |
+| Sort by name | Ctrl+F3 | ⌘F3, ⌃F3 |
+| Sort by extension | Ctrl+F4 | ⌘F4, ⌃F4 |
+| Sort by size | Ctrl+F5 | ⌘F5, ⌃F5 |
+| Sort by modified date | Ctrl+F6 | ⌘F6, ⌃F6 |
 
 ## Panes & tabs
 

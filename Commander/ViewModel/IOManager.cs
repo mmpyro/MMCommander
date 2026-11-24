@@ -153,7 +153,7 @@ namespace Commander.ViewModel
                 }
                 if (!listing.IsCancellationRequested)
                 {
-                    Files = new ObservableCollection<IMetadataFileStructure>(files.Cast<IMetadataFileStructure>());
+                    Files = new ObservableCollection<IMetadataFileStructure>(Order(files.Cast<IMetadataFileStructure>(), SortColumn, SortDescending));
                     OnListed(path);
                     Space = await space;
                 }
@@ -302,6 +302,60 @@ namespace Commander.ViewModel
                     FilterFiles();
                 }
             }
+        }
+
+        // Column the panel is sorted by: "Name", "Ext", "Size" or "Modified" (the grid's SortMemberPath).
+        public string SortColumn
+        {
+            get => _sortColumn;
+            private set => SetProperty(ref _sortColumn, value);
+        }
+
+        public bool SortDescending
+        {
+            get => _sortDescending;
+            private set => SetProperty(ref _sortDescending, value);
+        }
+
+        // Same column flips the direction; a new column starts ascending. Re-orders in place so marks stay.
+        public void SortBy(string column)
+        {
+            if (column == SortColumn)
+                SortDescending = !SortDescending;
+            else
+            {
+                SortColumn = column;
+                SortDescending = false;
+            }
+            if (_files == null)
+                return;
+            var current = SelectedFile;
+            Files = new ObservableCollection<IMetadataFileStructure>(Order(_files, SortColumn, SortDescending));
+            SelectedFile = current;
+            SetFocus();
+        }
+
+        private static readonly StringComparer Names = StringComparer.Create(new System.Globalization.CultureInfo("en"), true);
+
+        // ".." first, then folders, then files; each group by the column, ties by name. Only the column order flips.
+        public static List<T> Order<T>(IEnumerable<T> files, string column, bool desc) where T : IAbstractFileStructure
+        {
+            Comparison<T> by = column switch
+            {
+                "Ext" => (a, b) => Names.Compare(a.Ext, b.Ext),
+                "Size" => (a, b) => a.Size.CompareTo(b.Size),
+                "Modified" => (a, b) => a.LastModifyTime.CompareTo(b.LastModifyTime),
+                _ => (a, b) => 0,
+            };
+            Comparison<T> full = (a, b) =>
+            {
+                int c = by(a, b);
+                if (c == 0)
+                    c = Names.Compare(a.Name, b.Name);
+                return desc ? -c : c;
+            };
+            return files.OrderBy(f => f.Name != "..").ThenBy(f => !f.IsDirectory)
+                .ThenBy(f => f, Comparer<T>.Create(full)).ToList();
         }
 
         // The toolbar eye is "show hidden", the inverse of HideHidden.

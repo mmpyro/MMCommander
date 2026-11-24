@@ -36,6 +36,8 @@ namespace Commander.ViewModel
         private IOManager _secondManager;
         private string _filter;
         private bool _hideHidden;
+        private string _sortColumn = "Name";
+        private bool _sortDescending;
         private readonly IMessenger _messanger = WeakReferenceMessenger.Default;
         private IProxyIO _proxy;
         private ManagerType _type;
@@ -106,6 +108,10 @@ namespace Commander.ViewModel
             SelectAllCommand = new RelayCommand(SelectAllFiles);
             SelectTypeCommand = new RelayCommand(SelectByType);
             ToggleHiddenCommand = new RelayCommand(() => HideHidden = !HideHidden);
+            SortByNameCommand = new RelayCommand(() => SortBy("Name"));
+            SortByExtCommand = new RelayCommand(() => SortBy("Ext"));
+            SortBySizeCommand = new RelayCommand(() => SortBy("Size"));
+            SortByModifiedCommand = new RelayCommand(() => SortBy("Modified"));
             CopyCommand = new AsyncRelayCommand(() => _proxy.CopyFile(SelectedFiles(), SeccondManagerCurrentDir), concurrent);
             CopyHereCommand = new AsyncRelayCommand(() => _proxy.CopyFile(SelectedFiles(), CurrentDir, ConflictPolicy.KeepBoth), concurrent);
             MoveCommand = new AsyncRelayCommand(() => _proxy.MoveFile(SelectedFiles(), SeccondManagerCurrentDir), concurrent);
@@ -148,6 +154,10 @@ namespace Commander.ViewModel
         public ICommand SelectTypeCommand { get; set; }
         public ICommand RefreshDriveCommand { get; set; }
         public ICommand RefreshCommand { get; set; }
+        public ICommand SortByNameCommand { get; set; }
+        public ICommand SortByExtCommand { get; set; }
+        public ICommand SortBySizeCommand { get; set; }
+        public ICommand SortByModifiedCommand { get; set; }
         public ICommand ZipCommand { get; set; }
         public ICommand RunAsAdminCommand { get; set; }
         public ICommand AddShortCutsCommand { get; set; }

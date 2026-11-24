@@ -66,7 +66,42 @@ namespace Commander.Controls
             Breadcrumb.LayoutUpdated += (_, _) => CrumbScroll.Offset = new Vector(Math.Max(0, CrumbScroll.Extent.Width - CrumbScroll.Viewport.Width), 0);
         }
 
-        private DataGridColumn ExtColumn() => DataGrid1.Columns.First(c => Equals(c.Header, "EXT"));
+        private DataGridColumn ExtColumn() => DataGrid1.Columns.First(c => c.SortMemberPath == "Ext");
+
+        // Header click: the panel sorts (".." and folders stay on top), not the grid.
+        private void OnSorting(object sender, DataGridColumnEventArgs e)
+        {
+            e.Handled = true;
+            Panel?.SortBy(e.Column.SortMemberPath);
+        }
+
+        private IOManager _sortSource;
+
+        protected override void OnDataContextChanged(EventArgs e)
+        {
+            base.OnDataContextChanged(e);
+            if (_sortSource != null)
+                _sortSource.PropertyChanged -= OnPanelPropertyChanged;
+            _sortSource = Panel;
+            if (_sortSource != null)
+                _sortSource.PropertyChanged += OnPanelPropertyChanged;
+            UpdateSortHeaders();
+        }
+
+        private void OnPanelPropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName is nameof(IOManager.SortColumn) or nameof(IOManager.SortDescending))
+                UpdateSortHeaders();
+        }
+
+        private void UpdateSortHeaders()
+        {
+            foreach (var column in DataGrid1.Columns.Where(c => !string.IsNullOrEmpty(c.SortMemberPath)))
+            {
+                var arrow = column.SortMemberPath != Panel?.SortColumn ? "" : Panel.SortDescending ? " ↓" : " ↑";
+                column.Header = column.SortMemberPath.ToUpperInvariant() + arrow;
+            }
+        }
 
         private readonly Dictionary<DataGridRow, (MetaData meta, PropertyChangedEventHandler handler)> _rows = new();
 

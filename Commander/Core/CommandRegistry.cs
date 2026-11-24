@@ -95,6 +95,10 @@ namespace Commander.Core
             P("refresh", "Refresh", FileOps, p => p.RefreshCommand, "Ctrl+R"),
             P("toggleHidden", "Show / hide hidden files", FileOps, p => p.ToggleHiddenCommand, "Ctrl+H"),
             P("toggleView", "Details / thumbnail view", FileOps, p => p.ToggleViewCommand),
+            P("sortName", "Sort by name", FileOps, p => p.SortByNameCommand, "Ctrl+F3"),
+            P("sortExt", "Sort by extension", FileOps, p => p.SortByExtCommand, "Ctrl+F4"),
+            P("sortSize", "Sort by size", FileOps, p => p.SortBySizeCommand, "Ctrl+F5"),
+            P("sortModified", "Sort by modified date", FileOps, p => p.SortByModifiedCommand, "Ctrl+F6"),
 
             P("switchPane", "Switch active pane", Panes, p => p.SwitchFocusCommand, "Tab"),
             P("newTab", "New tab", Panes, p => p.NewTabCommand, "Ctrl+T"),
