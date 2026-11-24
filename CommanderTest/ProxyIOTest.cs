@@ -159,6 +159,36 @@ namespace CommanderTest
             Assert.That(Directory.GetFileSystemEntries(inner), Is.Empty);
         }
 
+        // Regression: Ctrl+V now goes through DropFiles; it must stay a copy (never a move) of files and folders.
+        [Test]
+        public async Task Paste_CopiesClipboardFilesAndFolders_KeepsSource()
+        {
+            File.WriteAllText(Path.Combine(_source, "b.txt"), "b");
+            Directory.CreateDirectory(Path.Combine(_source, "sub"));
+            File.WriteAllText(Path.Combine(_source, "sub", "c.txt"), "c");
+            _dialogs.ClipboardFiles.AddRange(new[] { Path.Combine(_source, "b.txt"), Path.Combine(_source, "sub") });
+
+            await _proxy.PasteFromClipboard(Msg(_target));
+
+            Assert.That(_dialogs.LastCopy.IsMove, Is.False);
+            Assert.That(_dialogs.LastCopy.Names, Is.EqualTo(new[] { "b.txt", "sub" }));
+            Assert.That(File.ReadAllText(Path.Combine(_target, "b.txt")), Is.EqualTo("b"));
+            Assert.That(File.ReadAllText(Path.Combine(_target, "sub", "c.txt")), Is.EqualTo("c"));
+            Assert.That(File.Exists(Path.Combine(_source, "b.txt")), Is.True);
+            Assert.That(File.Exists(Path.Combine(_source, "sub", "c.txt")), Is.True);
+            Assert.That(_panel.Errors, Is.Empty);
+        }
+
+        // Empty clipboard: no dialog, no copy, one error line (same as before the refactor).
+        [Test]
+        public async Task Paste_EmptyClipboard_AsksNothing_LogsError()
+        {
+            await _proxy.PasteFromClipboard(Msg(_target));
+
+            Assert.That(_dialogs.LastCopy, Is.Null);
+            Assert.That(_panel.Errors, Is.EqualTo(new[] { "Nothing selected." }));
+        }
+
         // A dropped path that vanished before the drop (deleted in Finder) fails loudly, not silently.
         [Test]
         public void DropFiles_MissingPath_Throws()

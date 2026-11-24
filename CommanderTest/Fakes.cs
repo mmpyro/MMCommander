@@ -55,7 +55,8 @@ namespace CommanderTest
         public UpdateAnswer UpdateAnswer { get; set; }
         public UpdateModel LastUpdate { get; private set; }
         public Task<UpdateAnswer> AskUpdate(UpdateModel model) { LastUpdate = model; return Task.FromResult(UpdateAnswer); }
-        public Task<IReadOnlyList<string>> GetClipboardFiles() => Task.FromResult<IReadOnlyList<string>>(new List<string>());
+        public List<string> ClipboardFiles { get; } = new List<string>();
+        public Task<IReadOnlyList<string>> GetClipboardFiles() => Task.FromResult<IReadOnlyList<string>>(ClipboardFiles);
         public Task SetClipboardFiles(IEnumerable<string> paths) => Task.CompletedTask;
     }
 

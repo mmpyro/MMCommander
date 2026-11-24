@@ -1129,6 +1129,46 @@ namespace CommanderTest
             Assert.That(Errors(), Has.Some.Contains("gone.txt").Or.Some.Contains("Drop failed"));
         }
 
+        // Regression: Ctrl+C (now built on WindowHost.StorageItems) and Ctrl+V (now built on DropFiles) through the real clipboard.
+        [AvaloniaTest]
+        public void CtrlC_ThenCtrlV_InOtherPane_CopiesThroughClipboard()
+        {
+            Open(_root, _dest);
+            ClickRow(1, "file.txt");
+            Key(Avalonia.Input.Key.C, RawInputModifiers.Control);
+            ClickRow(2, "..");
+            Key(Avalonia.Input.Key.V, RawInputModifiers.Control);
+            var dialog = (CopyDialog)Dialog<CopyDialog>();
+            Assert.That(dialog.FindControl<TextBlock>("TitleText").Text, Is.EqualTo("Copy 1 item"));
+            Assert.That(dialog.FindControl<TextBlock>("SummaryText").Text, Does.StartWith("file.txt"), "Ctrl+C took the cursor row");
+            Assert.That(dialog.FindControl<TextBox>("DestinationBox").Text, Is.EqualTo(_dest));
+            Answer<CopyDialog>(Avalonia.Input.Key.Enter);
+            PumpUntil(() => File.Exists(Path.Combine(_dest, "file.txt")));
+            Assert.That(File.ReadAllText(Path.Combine(_dest, "file.txt")), Is.EqualTo("hello"));
+            Assert.That(File.Exists(Path.Combine(_root, "file.txt")), Is.True, "paste copies, never moves");
+            Assert.That(Errors(), Is.Empty);
+        }
+
+        // The tile list got the same press/drag handlers as the grid: a drag of a tile must not break anything.
+        [AvaloniaTest]
+        public void MouseDragOfTile_DoesNotLogError_OrOpenDialog()
+        {
+            Open(_root, _dest);
+            _vm.Io1.ViewIndex = 1;
+            Pump();
+            var list = Named<ListBox>(1, "ThumbList");
+            var tile = list.GetVisualDescendants().OfType<ListBoxItem>().First(i => (i.DataContext as IMetadataFileStructure)?.Name == "file.txt");
+            var p = tile.TranslatePoint(new Point(tile.Bounds.Width / 2, tile.Bounds.Height / 2), _window).Value;
+            _window.MouseDown(p, MouseButton.Left);
+            _window.MouseMove(p + new Point(40, 0), RawInputModifiers.LeftMouseButton);
+            Pump();
+            _window.MouseUp(p + new Point(40, 0), MouseButton.Left);
+            Pump();
+            Assert.That(Errors(), Is.Empty);
+            Assert.That(_window.OwnedWindows.OfType<CopyDialog>(), Is.Empty);
+            Assert.That(File.Exists(Path.Combine(_dest, "file.txt")), Is.False);
+        }
+
         // Regression: the press handler now also starts drags; right double click must still mark the row.
         [AvaloniaTest]
         public void RightDoubleClick_StillMarksRow()
