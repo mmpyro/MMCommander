@@ -34,7 +34,7 @@ namespace CommanderTest
         [Test]
         public void About_ShowsProductVersion()
         {
-            Assert.That(new Commander.Core.AssemblyVersionResolver().GetProductVersion(typeof(Commander.ViewModel.MainVM)), Is.EqualTo("2.1.0"));
+            Assert.That(new Commander.Core.AssemblyVersionResolver().GetProductVersion(typeof(Commander.ViewModel.MainVM)), Is.EqualTo("2.2.0"));
         }
 
         [AvaloniaTest]

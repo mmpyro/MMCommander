@@ -1039,5 +1039,145 @@ namespace CommanderTest
             PumpUntil(() => _vm.Io1.ActualPath == target);
             Assert.That(_vm.Io1.ActualPath, Is.EqualTo(target));
         }
+
+        // Enter, over and drop at the centre of target, like the OS does for one drag.
+        private void DropOn(Control target, RawInputModifiers mods, params string[] paths) => DropOn(target, mods, null, paths);
+
+        // beforeDrop runs after the drag picked up the items: deletes there act like Finder deleting the file mid-drag.
+        private void DropOn(Control target, RawInputModifiers mods, Action beforeDrop, params string[] paths)
+        {
+            var p = target.TranslatePoint(new Point(target.Bounds.Width / 2, target.Bounds.Height / 2), _window).Value;
+            var data = new DataTransfer();
+            // Real storage items, as Finder/Explorer hands them over; one item per path.
+            foreach (var path in paths)
+            {
+                var task = _window.StorageProvider.TryGetFileFromPathAsync(new Uri(path));
+                PumpUntil(() => task.IsCompleted);
+                Assert.That(task.Result, Is.Not.Null, "headless storage provider gave no item for " + path);
+                data.Add(DataTransferItem.CreateFile(task.Result));
+            }
+            var all = DragDropEffects.Copy | DragDropEffects.Move;
+            _window.DragDrop(p, Avalonia.Input.Raw.RawDragEventType.DragEnter, data, all, mods);
+            _window.DragDrop(p, Avalonia.Input.Raw.RawDragEventType.DragOver, data, all, mods);
+            beforeDrop?.Invoke();
+            _window.DragDrop(p, Avalonia.Input.Raw.RawDragEventType.Drop, data, all, mods);
+            Pump();
+        }
+
+        private string[] Errors() => _vm.LogsCollection.Where(l => l.IsError).Select(l => l.Message).ToArray();
+
+        [AvaloniaTest]
+        public void DropFile_OnOtherPane_OpensCopyDialog_AndCopies()
+        {
+            Open(_root, _dest);
+            DropOn(Grid(2), RawInputModifiers.None, Path.Combine(_root, "file.txt"));
+            var dialog = (CopyDialog)Dialog<CopyDialog>();
+            Assert.That(dialog.FindControl<TextBlock>("TitleText").Text, Is.EqualTo("Copy 1 item"));
+            Assert.That(dialog.FindControl<TextBox>("DestinationBox").Text, Is.EqualTo(_dest), "drops go into the folder of the pane under the mouse");
+            Answer<CopyDialog>(Avalonia.Input.Key.Enter);
+            PumpUntil(() => RowNames(2).Contains("file.txt"));
+            Assert.That(File.ReadAllText(Path.Combine(_dest, "file.txt")), Is.EqualTo("hello"));
+            Assert.That(File.Exists(Path.Combine(_root, "file.txt")), Is.True, "copy keeps the source");
+            Assert.That(_vm.ActivePanel, Is.SameAs(_vm.Io2), "the drop target pane takes focus");
+        }
+
+        [AvaloniaTest]
+        public void ShiftDropFile_OnOtherPane_OpensMoveDialog_AndMoves()
+        {
+            Open(_root, _dest);
+            DropOn(Grid(2), RawInputModifiers.Shift, Path.Combine(_root, "file.txt"));
+            Assert.That(((CopyDialog)Dialog<CopyDialog>()).FindControl<TextBlock>("TitleText").Text, Is.EqualTo("Move 1 item"));
+            Answer<CopyDialog>(Avalonia.Input.Key.Enter);
+            PumpUntil(() => RowNames(2).Contains("file.txt"));
+            Assert.That(File.ReadAllText(Path.Combine(_dest, "file.txt")), Is.EqualTo("hello"));
+            Assert.That(File.Exists(Path.Combine(_root, "file.txt")), Is.False, "move removes the source");
+        }
+
+        [AvaloniaTest]
+        public void DropFile_EscInDialog_ChangesNothing()
+        {
+            Open(_root, _dest);
+            DropOn(Grid(2), RawInputModifiers.None, Path.Combine(_root, "file.txt"));
+            Answer<CopyDialog>(Avalonia.Input.Key.Escape);
+            Assert.That(File.Exists(Path.Combine(_dest, "file.txt")), Is.False);
+            Assert.That(Errors(), Is.Empty);
+        }
+
+        [AvaloniaTest]
+        public void DropFile_OnThumbnailView_Copies()
+        {
+            Open(_root, _dest);
+            _vm.Io2.ViewIndex = 1;
+            Pump();
+            var list = Named<ListBox>(2, "ThumbList");
+            Assert.That(list.IsVisible, Is.True);
+            DropOn(list, RawInputModifiers.None, Path.Combine(_root, "notes.md"));
+            Answer<CopyDialog>(Avalonia.Input.Key.Enter);
+            PumpUntil(() => File.Exists(Path.Combine(_dest, "notes.md")));
+            Assert.That(File.Exists(Path.Combine(_dest, "notes.md")), Is.True);
+        }
+
+        [AvaloniaTest]
+        public void DropVanishedFile_LogsError_OpensNoDialog()
+        {
+            Open(_root, _dest);
+            var gone = Path.Combine(_root, "gone.txt");
+            File.WriteAllText(gone, "x");
+            DropOn(Grid(2), RawInputModifiers.None, () => File.Delete(gone), gone);
+            Pump();
+            Assert.That(_window.OwnedWindows.OfType<CopyDialog>(), Is.Empty);
+            Assert.That(Errors(), Has.Some.Contains("gone.txt").Or.Some.Contains("Drop failed"));
+        }
+
+        // Regression: the press handler now also starts drags; right double click must still mark the row.
+        [AvaloniaTest]
+        public void RightDoubleClick_StillMarksRow()
+        {
+            Open(_root, _dest);
+            var p = Row(1, "file.txt").TranslatePoint(new Point(20, 8), _window).Value;
+            for (int i = 0; i < 2; i++)
+            {
+                _window.MouseDown(p, MouseButton.Right);
+                _window.MouseUp(p, MouseButton.Right);
+            }
+            Pump();
+            Assert.That(_vm.Io1.Files.Single(f => f.Name == "file.txt").IsSelected(), Is.True);
+        }
+
+        // Dropping a drag back onto the pane it came from would copy files onto themselves: it must do nothing.
+        [AvaloniaTest]
+        public void MouseDragOfRow_DroppedOnSamePane_DoesNothing()
+        {
+            Open(_root, _dest);
+            var p = Row(1, "file.txt").TranslatePoint(new Point(20, 8), _window).Value;
+            _window.MouseDown(p, MouseButton.Left);
+            _window.MouseMove(p + new Point(40, 0), RawInputModifiers.LeftMouseButton);
+            Pump();
+            DropOn(Grid(1), RawInputModifiers.None, Path.Combine(_root, "file.txt"));
+            _window.MouseUp(p + new Point(40, 0), MouseButton.Left);
+            Pump();
+            Assert.That(_window.OwnedWindows.OfType<CopyDialog>(), Is.Empty);
+            Assert.That(Errors(), Is.Empty);
+        }
+
+        // A real mouse drag of a row: past the 6 px threshold it starts a drag, and nothing breaks or copies on its own.
+        [AvaloniaTest]
+        public void MouseDragOfRow_DoesNotLogError_OrOpenDialog()
+        {
+            Open(_root, _dest);
+            var p = Row(1, "file.txt").TranslatePoint(new Point(20, 8), _window).Value;
+            _window.MouseDown(p, MouseButton.Left);
+            _window.MouseMove(p + new Point(3, 0), RawInputModifiers.LeftMouseButton);
+            _window.MouseMove(p + new Point(40, 0), RawInputModifiers.LeftMouseButton);
+            Pump();
+            _window.MouseUp(p + new Point(40, 0), MouseButton.Left);
+            Pump();
+            Assert.That(Errors(), Is.Empty);
+            Assert.That(_window.OwnedWindows.OfType<CopyDialog>(), Is.Empty);
+            // The pane still answers the keyboard afterwards.
+            ClickRow(1, "child");
+            Key(Avalonia.Input.Key.Enter);
+            Assert.That(_vm.Io1.ActualPath, Is.EqualTo(Path.Combine(_root, "child")));
+        }
     }
 }

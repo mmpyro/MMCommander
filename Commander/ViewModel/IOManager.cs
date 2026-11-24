@@ -28,6 +28,9 @@ namespace Commander.ViewModel
             return marked;
         }
 
+        // Files dropped on this panel go into its current folder.
+        public Task DropFiles(IEnumerable<string> paths, bool move) => _proxy.DropFiles(paths, CurrentDir, move);
+
         public Func<string, bool> FilterPredicate()
         {
             var filter = Filter;

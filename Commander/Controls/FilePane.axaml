@@ -236,7 +236,7 @@
 
             <Panel>
             <!-- Thumbnail view (toolbar toggle). shortcut: WrapPanel is not virtualized, so huge folders realize every tile; switch to a virtualizing panel if that hurts. -->
-            <ListBox Name="ThumbList" ItemsSource="{Binding Files}" SelectedItem="{Binding SelectedFile}" SelectionMode="Single"
+            <ListBox Name="ThumbList" DragDrop.AllowDrop="True" ItemsSource="{Binding Files}" SelectedItem="{Binding SelectedFile}" SelectionMode="Single"
                      IsVisible="{Binding IsThumbnails}" Background="Transparent" Padding="8"
                      ScrollViewer.HorizontalScrollBarVisibility="Disabled">
                 <ListBox.ItemsPanel>
@@ -259,7 +259,7 @@
                     </DataTemplate>
                 </ListBox.ItemTemplate>
             </ListBox>
-            <DataGrid Name="DataGrid1" IsVisible="{Binding !IsThumbnails}" AutoGenerateColumns="False" IsReadOnly="True" SelectionMode="Extended"
+            <DataGrid Name="DataGrid1" DragDrop.AllowDrop="True" IsVisible="{Binding !IsThumbnails}" AutoGenerateColumns="False" IsReadOnly="True" SelectionMode="Extended"
                       GridLinesVisibility="None" CanUserSortColumns="False" HeadersVisibility="Column" BorderThickness="0,1,0,0"
                       SelectedItem="{Binding SelectedFile}" ItemsSource="{Binding Files}">
                 <DataGrid.Columns>

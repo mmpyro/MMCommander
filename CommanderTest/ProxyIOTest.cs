@@ -112,6 +112,60 @@ namespace CommanderTest
             Assert.That(_panel.Infos, Has.Some.Contains("2 moved"));
         }
 
+        // Drag and drop hands over plain paths (folders too); copy keeps the source, move removes it.
+        [TestCase(false)]
+        [TestCase(true)]
+        public async Task DropFiles_CopiesOrMovesIntoDestination(bool move)
+        {
+            File.WriteAllText(Path.Combine(_source, "b.txt"), "b");
+            Directory.CreateDirectory(Path.Combine(_source, "sub"));
+            File.WriteAllText(Path.Combine(_source, "sub", "c.txt"), "c");
+
+            await _proxy.DropFiles(new[] { Path.Combine(_source, "b.txt"), Path.Combine(_source, "sub") }, Msg(_target), move);
+
+            Assert.That(_dialogs.LastCopy.IsMove, Is.EqualTo(move));
+            Assert.That(File.ReadAllText(Path.Combine(_target, "b.txt")), Is.EqualTo("b"));
+            Assert.That(File.ReadAllText(Path.Combine(_target, "sub", "c.txt")), Is.EqualTo("c"));
+            Assert.That(File.Exists(Path.Combine(_source, "b.txt")), Is.EqualTo(!move));
+            Assert.That(Directory.Exists(Path.Combine(_source, "sub")), Is.EqualTo(!move));
+            Assert.That(_panel.Errors, Is.Empty);
+        }
+
+        // A file dragged from Finder (or the other pane) onto a pane already showing its folder: Replace must not destroy it.
+        [TestCase(false)]
+        [TestCase(true)]
+        public async Task DropFiles_FileIntoItsOwnFolder_AnsweredReplace_KeepsContent(bool move)
+        {
+            _dialogs.ConflictAnswer = new ConflictAnswer(ConflictDecision.Replace);
+            var file = Path.Combine(_source, "a.txt");
+
+            await _proxy.DropFiles(new[] { file }, Msg(_source), move);
+
+            Assert.That(File.Exists(file), Is.True);
+            Assert.That(File.ReadAllText(file), Is.EqualTo("new"));
+        }
+
+        // A folder dropped into its own subfolder is refused, and the source stays as it was.
+        [TestCase(false)]
+        [TestCase(true)]
+        public async Task DropFiles_FolderIntoItsOwnSubfolder_LogsError_KeepsSource(bool move)
+        {
+            var inner = Directory.CreateDirectory(Path.Combine(_source, "inner")).FullName;
+
+            await _proxy.DropFiles(new[] { _source }, Msg(inner), move);
+
+            Assert.That(_panel.Errors, Has.Some.Contains("into itself"));
+            Assert.That(File.ReadAllText(Path.Combine(_source, "a.txt")), Is.EqualTo("new"));
+            Assert.That(Directory.GetFileSystemEntries(inner), Is.Empty);
+        }
+
+        // A dropped path that vanished before the drop (deleted in Finder) fails loudly, not silently.
+        [Test]
+        public void DropFiles_MissingPath_Throws()
+        {
+            Assert.Throws<FileNotFoundException>(() => _proxy.DropFiles(new[] { Path.Combine(_source, "gone.txt") }, Msg(_target), false));
+        }
+
         [Test]
         public async Task Copy_DialogPolicyKeepBoth_WritesSecondFile_AndAsksNothing()
         {

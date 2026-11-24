@@ -58,13 +58,16 @@ namespace Commander.View
             });
 
         public static Task SetClipboardFiles(IEnumerable<string> paths) =>
-            Dispatcher.UIThread.InvokeAsync(async () =>
-            {
-                var storage = Owner.StorageProvider;
-                var items = new List<IStorageItem>();
-                foreach (var path in paths)
-                    items.Add((IStorageItem)await storage.TryGetFileFromPathAsync(path) ?? await storage.TryGetFolderFromPathAsync(path));
-                await Owner.Clipboard.SetFilesAsync(items.Where(t => t != null));
-            });
+            Dispatcher.UIThread.InvokeAsync(async () => await Owner.Clipboard.SetFilesAsync(await StorageItems(paths)));
+
+        // Files and folders as storage items for the clipboard or a drag; paths that no longer exist are left out. UI thread.
+        public static async Task<List<IStorageItem>> StorageItems(IEnumerable<string> paths)
+        {
+            var storage = Owner.StorageProvider;
+            var items = new List<IStorageItem>();
+            foreach (var path in paths)
+                items.Add((IStorageItem)await storage.TryGetFileFromPathAsync(path) ?? await storage.TryGetFolderFromPathAsync(path));
+            return items.Where(t => t != null).ToList();
+        }
     }
 }

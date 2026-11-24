@@ -61,6 +61,8 @@ F5 (copy) and F6 (move) open a dialog with these options:
 - Verify each copy with SHA-256.
 - Follow symlinks or not.
 
+You can also drag files with the mouse to the other panel: a drop opens the copy dialog, and Shift+drop opens the move dialog. Drags to and from Finder or Explorer work too.
+
 Then the copy runs as a job in a progress window. In that window you can pause the job, cancel it or send it to the background. **Add to queue** starts the job after the current job ends. If you mark nothing, the app uses the file under the cursor.
 
 F8 moves the files to the Trash: the Windows Recycle Bin, macOS `~/.Trash` or the Linux freedesktop Trash. Shift+F8 deletes them permanently.

@@ -332,10 +332,14 @@ namespace Commander.Core
 
         public async Task PasteFromClipboard(IMetadataFileStructure destinationDir)
         {
-            var paths = await _dialogs.GetClipboardFiles();
+            await DropFiles(await _dialogs.GetClipboardFiles(), destinationDir, false);
+        }
+
+        public Task DropFiles(IEnumerable<string> paths, IMetadataFileStructure destinationDir, bool move)
+        {
             var fileFactory = new MetaDataFileFactory();
             var files = paths.Select(path => (IMetadataFileStructure)fileFactory.CreateFileMsg(path)).ToList();
-            await CopyFile(files, destinationDir);
+            return Transfer(files, destinationDir, move, ConflictPolicy.Ask);
         }
 
         // One line per batch so a partial failure is visible (BUG-17).

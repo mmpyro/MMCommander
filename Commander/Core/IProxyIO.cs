@@ -11,6 +11,8 @@ namespace Commander.Core
         Task CopyFile(IEnumerable<IMetadataFileStructure> files, IMetadataFileStructure destinationDir, IOLib.ConflictPolicy policy = IOLib.ConflictPolicy.Ask);
         Task MoveFile(IEnumerable<IMetadataFileStructure> files, IMetadataFileStructure destinationDir);
         Task PasteFromClipboard(IMetadataFileStructure destinationDir);
+        // Paths from a drag and drop (this app or Finder/Explorer): the F5 or F6 dialog for them.
+        Task DropFiles(IEnumerable<string> paths, IMetadataFileStructure destinationDir, bool move);
         Task ZipFiles();
         Task UnZipFiles();
         Task DeleteFile(IEnumerable<IMetadataFileStructure> files, bool permanent = false);

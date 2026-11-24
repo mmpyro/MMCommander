@@ -2,7 +2,10 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Interactivity;
+using Avalonia.Platform.Storage;
 using Avalonia.Threading;
+using Avalonia.VisualTree;
+using Commander.View;
 using Commander.Messages;
 using Commander.ViewModel;
 using CommunityToolkit.Mvvm.Messaging;
@@ -33,6 +36,15 @@ namespace Commander.Controls
             ThumbList.DoubleTapped += (_, _) => Execute(Panel?.EnterIntoDirCommand, null);
             DataGrid1.DoubleTapped += (_, _) => Execute(Panel?.EnterIntoDirCommand, null);
             DataGrid1.AddHandler(PointerPressedEvent, OnPointerPressed, RoutingStrategies.Tunnel, true);
+            ThumbList.AddHandler(PointerPressedEvent, OnPointerPressed, RoutingStrategies.Tunnel, true);
+            // Drag files to the other pane or to Finder/Explorer; drop files from either into this pane's folder.
+            foreach (var list in new Control[] { DataGrid1, ThumbList })
+            {
+                list.AddHandler(PointerMovedEvent, OnPointerMoved, RoutingStrategies.Tunnel, true);
+                list.AddHandler(PointerReleasedEvent, (_, _) => _press = null, RoutingStrategies.Tunnel, true);
+                list.AddHandler(DragDrop.DragOverEvent, OnDragOver);
+                list.AddHandler(DragDrop.DropEvent, OnDrop);
+            }
             // Row classes: "dir" for folders (Themes/Theme.axaml), "marked" for marked files. Rows are recycled, so set them on every load.
             DataGrid1.LoadingRow += (_, e) => TrackRow(e.Row);
             DataGrid1.UnloadingRow += (_, e) => UntrackRow(e.Row);
@@ -140,11 +152,84 @@ namespace Commander.Controls
                 e.Handled = true;
         }
 
-        // Right double click toggles selection of the clicked rows.
+        // Right double click toggles selection of the clicked rows. A left press on a row or tile may start a drag.
         private void OnPointerPressed(object sender, PointerPressedEventArgs e)
         {
-            if (e.ClickCount == 2 && e.GetCurrentPoint(DataGrid1).Properties.IsRightButtonPressed)
+            var point = e.GetCurrentPoint(this);
+            if (sender == DataGrid1 && e.ClickCount == 2 && point.Properties.IsRightButtonPressed)
                 Execute(Panel?.SelectCommand, DataGrid1.SelectedItems);
+            var source = e.Source as Visual;
+            var onItem = source?.FindAncestorOfType<DataGridRow>(true) != null || source?.FindAncestorOfType<ListBoxItem>(true) != null;
+            _press = point.Properties.IsLeftButtonPressed && e.ClickCount == 1 && onItem ? e : null;
+            _pressAt = point.Position;
+        }
+
+        // The pane a drag started from; dropping back onto it would only copy files onto themselves.
+        private static FilePane _dragSource;
+        private PointerPressedEventArgs _press;
+        private Point _pressAt;
+
+        private async void OnPointerMoved(object sender, PointerEventArgs e)
+        {
+            var press = _press;
+            var point = e.GetCurrentPoint(this);
+            if (press == null || _dragSource != null || !point.Properties.IsLeftButtonPressed)
+                return;
+            var moved = point.Position - _pressAt;
+            if (Math.Abs(moved.X) < 6 && Math.Abs(moved.Y) < 6)
+                return;
+            _press = null;
+            // By now the press has moved the cursor to the row, so this is the marked files or that row.
+            var paths = Panel?.SelectedFiles().Select(f => f.FullName).ToList();
+            if (paths == null || paths.Count == 0)
+                return;
+            _dragSource = this;
+            try
+            {
+                var data = new DataTransfer();
+                foreach (var item in await WindowHost.StorageItems(paths))
+                    data.Add(DataTransferItem.CreateFile(item));
+                await DragDrop.DoDragDropAsync(press, data, DragDropEffects.Copy | DragDropEffects.Move);
+            }
+            catch (Exception ex)
+            {
+                Panel?.LogError(ex, "Drag failed");
+            }
+            finally
+            {
+                _dragSource = null;
+            }
+        }
+
+        private static DragDropEffects WantedEffect(DragEventArgs e) =>
+            e.KeyModifiers.HasFlag(KeyModifiers.Shift) ? DragDropEffects.Move : DragDropEffects.Copy;
+
+        private void OnDragOver(object sender, DragEventArgs e)
+        {
+            var accept = _dragSource != this && Panel != null && e.DataTransfer.Contains(DataFormat.File);
+            e.DragEffects = accept ? e.DragEffects & WantedEffect(e) : DragDropEffects.None;
+            e.Handled = true;
+        }
+
+        private void OnDrop(object sender, DragEventArgs e)
+        {
+            e.Handled = true;
+            var panel = Panel;
+            if (_dragSource == this || panel == null)
+                return;
+            var paths = (e.DataTransfer.TryGetFiles() ?? Array.Empty<IStorageItem>())
+                .Select(f => f.TryGetLocalPath()).Where(p => p != null).ToList();
+            if (paths.Count == 0)
+                return;
+            var move = WantedEffect(e) == DragDropEffects.Move;
+            e.DragEffects = e.DragEffects & WantedEffect(e);
+            WeakReferenceMessenger.Default.Send(new FocusMessage { ManagerName = GridName });
+            // Let the drag end before the copy dialog opens.
+            Dispatcher.UIThread.Post(async () =>
+            {
+                try { await panel.DropFiles(paths, move); }
+                catch (Exception ex) { panel.LogError(ex, "Drop failed"); }
+            });
         }
 
         private static bool Execute(System.Windows.Input.ICommand command, object parameter)

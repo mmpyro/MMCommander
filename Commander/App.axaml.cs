@@ -44,6 +44,11 @@ namespace Commander
                 };
                 var vm = CreateMainVm(_logger);
                 desktop.MainWindow = new MainWindow { DataContext = vm };
+                if (OperatingSystem.IsMacOS())
+                {
+                    try { MacDockIcon.Apply(); }
+                    catch (Exception ex) { _logger.Warn("Cannot set the Dock icon", ex); }
+                }
                 // Here, not in CreateMainVm, so tests never reach the network or the install folder.
                 if (Installer.IsPublished)
                     Installer.CleanupOld(AppContext.BaseDirectory);
